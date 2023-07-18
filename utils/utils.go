@@ -16,6 +16,7 @@
 package utils
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -190,9 +191,32 @@ func GetAndCheckInput(args []string, openEditor bool) string {
 }
 
 func GetInput(args []string, openEditor bool) (string, error) {
-	result := ""
+	// first add arguments from CLI
+	var parts []string
+	addPart := func(val string) {
+		val = strings.TrimSpace(val)
+		if val != "" {
+			parts = append(parts, val)
+		}
+	}
+
+	addPart(strings.Join(args, " "))
+
+	stdinStat, _ := os.Stdin.Stat()
+	if (stdinStat.Mode() & os.ModeCharDevice) == 0 {
+		scanner := bufio.NewScanner(os.Stdin)
+
+		temp := ""
+		for scanner.Scan() {
+			temp += scanner.Text()
+		}
+
+		addPart(temp)
+	}
 
 	if openEditor {
+		// at last: try editor
+
 		tmpFile, err := os.CreateTemp("", "egpt")
 		if err != nil {
 			return "", err
@@ -226,24 +250,10 @@ func GetInput(args []string, openEditor bool) (string, error) {
 			return "", err
 		}
 
-		result += string(tmpData)
+		addPart(string(tmpData))
 	}
 
-	fi, _ := os.Stdin.Stat()
-	if (fi.Mode() & os.ModeNamedPipe) == 0 {
-		//
-	} else {
-		data, err := io.ReadAll(os.Stdin)
-		if err != nil {
-			return "", err
-		}
-
-		result += string(data)
-	}
-
-	result += strings.Join(args, " ")
-
-	return result, nil
+	return strings.TrimSpace(strings.Join(parts, " ")), nil
 }
 
 func GetOperatingSystemName() string {

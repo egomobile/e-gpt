@@ -28,7 +28,7 @@ If you run locally from this code, keep sure that [bash script egpt](./egpt) is 
 
 ## Commands
 
-### Chat (`chat`, `c`)
+### Chat (`ask`, `a`)
 
 > Sends a single conversation to a chat API, like ChatGPT, based on your environment variables.
 
@@ -36,14 +36,87 @@ If you run locally from this code, keep sure that [bash script egpt](./egpt) is 
 egpt ask "Who is Bill Gates?"
 ```
 
-Possible response from ChatGPT:
+Possible response:
 
 > Bill Gates is an American entrepreneur, software developer, investor, and philanthropist. He co-founded Microsoft Corporation in 1975 with Paul Allen and helped to revolutionize the personal computer industry with the development of the Windows operating system. As of 2021, he is considered one of the wealthiest people in the world, with a net worth of over $100 billion. In recent years, he has devoted much of his time and resources to philanthropic endeavors, primarily through the Bill and Melinda Gates Foundation, which works to improve global healthcare and reduce poverty.
 
 You can use `--system` to setup a custom system prompt.
 
+### Generate code (`code`, `c`)
+
+> Generates code from human language.
+
+```bash
+egpt code "i need a Fibonacci function" --language="typescript"
+```
+
+Possible response:
+
+```typescript
+function fibonacci(n: number): number {
+  if (n <= 1) {
+    return n;
+  } else {
+    return fibonacci(n - 1) + fibonacci(n - 2);
+  }
+}
+```
+
+### Describe shell command (`describe`, `d`)
+
+> Handles a user input as shell command and tries to describe it.
+
+```bash
+egpt describe "i need a Fibonacci function"
+```
+
+Possible response:
+
+```
+List all files in the current directory with the .jpg extension.
+```
+
+### Execute shell command (`shell`, `s`)
+
+> Converts human language into a shell command.
+
+```bash
+egpt shell "list all kinf of jpeg files"
+```
+
+Possible response:
+
+```
+ls *.jpg *.jpeg
+[E]xecute, [a]bort >
+```
+
+Keep in mind: `E` is the default selection and will execute the given command.
+
+## Inputs
+
+You have the following sources for input data:
+
+1. One or more non-flag command line arguments. All will be concatenate and seperated by space to one string.
+   - Example: `egpt ask who is bill gates`
+2. The [STDIN](https://en.wikipedia.org/wiki/Standard_streams):
+   - Example #1: `egpt ask "please summarize" < ./long-text.txt`
+   - Example #2: `curl -sSL "https://raw.githubusercontent.com/egomobile/e-gpt/main/LICENSE" | ./egpt ask summerize the following text`
+3. The standard editor:
+   - Example: `egpt ask summerize the following text --editor`
+
+You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
+
+Keep in mind: The final prompt will be trimmed (start + end).
+
 ## Credits [<a href="#toc">↑</a>]
 
 The module makes use of:
 
+- [Chroma](https://github.com/alecthomas/chroma) 
 - [Cobra](https://github.com/spf13/cobra)
+- [GoDotEnv](https://github.com/joho/godotenv)
+
+## License
+
+[LGPL 3.0](./LICENSE)
