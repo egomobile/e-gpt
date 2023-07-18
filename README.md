@@ -13,6 +13,7 @@
   - [code - Convert human language to source code](#code-)
   - [describe - Describe a shell command](#describe-)
   - [explain - Explain source code](#explain-)
+  - [optimize - Optimizes source code](#optimize-)
   - [shell - Create shell command from human language](#shell-)
   - [summarize - Creates a short version of a long text](#summarize-)
   - [translate - Translates a text](#translate-)
@@ -127,6 +128,39 @@ The program starts by initializing a variable `i` with the value 0. It then ente
 The loop continues until `i` is greater than or equal to 100, at which point the program skips to line 6 and continues executing. If `i` is less than 100, the program jumps back to line 2 and continues the loop. 
 
 Once the loop completes, the program prints "Program Completed." to the console and exits.
+```
+
+### optimize [<a href="#commands-">↑</a>]
+
+> Optimizes source code.
+
+If you for example have this [BASIC spagetti code](https://www.geeksforgeeks.org/spaghetti-code/) in a `spagetti.bas` file:
+
+```basic
+i=0
+i=i+1
+PRINT i; "squared=";i*i
+IF i>=100 THEN GOTO 6
+GOTO 2
+PRINT "Program Completed."
+END
+```
+
+You can execute
+
+```bash
+egpt optimize < ./spagetti.bas
+```
+
+and may get an output like this:
+
+```
+i=0
+WHILE i<100
+    i=i+1
+    PRINT i; "squared=";i*i
+END WHILE
+PRINT "Program Completed."
 ```
 
 ### shell [<a href="#commands-">↑</a>]
