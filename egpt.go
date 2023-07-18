@@ -37,7 +37,8 @@ var rootCmd = &cobra.Command{
 }
 
 func initCommands() {
-	egoCommands.Init_chat_Command(rootCmd)
+	egoCommands.Init_ask_Command(rootCmd)
+	egoCommands.Init_code_Command(rootCmd)
 	egoCommands.Init_describe_Command(rootCmd)
 	egoCommands.Init_shell_Command(rootCmd)
 }

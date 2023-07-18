@@ -29,19 +29,19 @@ import (
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
 )
 
-func Init_chat_Command(rootCmd *cobra.Command) {
+func Init_ask_Command(rootCmd *cobra.Command) {
 	var noAdditionalInfo bool
 	var noSysInfo bool
 	var noTime bool
 	var shouldOutputAsPlainText bool
 	var system string
 
-	chatCmd := &cobra.Command{
-		Use:     "chat",
+	askCmd := &cobra.Command{
+		Use:     "ask",
 		Short:   `Chats with ChatGPT`,
 		Long:    `Chats with ChatGPT or a similar API`,
 		Args:    cobra.MinimumNArgs(1),
-		Aliases: []string{"c"},
+		Aliases: []string{"a"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			now := time.Now()
@@ -121,15 +121,15 @@ func Init_chat_Command(rootCmd *cobra.Command) {
 		},
 	}
 
-	chatCmd.Flags().StringVarP(&system, "system", "s", "", "Custom system prompt")
-	chatCmd.Flags().BoolVarP(&noTime, "no-time", "", false, "Do not add current time to system prompt")
-	chatCmd.Flags().BoolVarP(&noTime, "nt", "", false, "Do not add current time to system prompt")
-	chatCmd.Flags().BoolVarP(&noSysInfo, "no-sys-info", "", false, "Do not add information about the system at all")
-	chatCmd.Flags().BoolVarP(&noSysInfo, "nsi", "", false, "Do not add information about the system at all")
-	chatCmd.Flags().BoolVarP(&noAdditionalInfo, "no-additional-info", "", false, "Do not add additional info to system prompt at all")
-	chatCmd.Flags().BoolVarP(&noAdditionalInfo, "nai", "", false, "Do not add additional info to system prompt at all")
-	chatCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "plain-text", "", false, "Output as plain text")
-	chatCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "pt", "", false, "Output as plain text")
+	askCmd.Flags().StringVarP(&system, "system", "s", "", "Custom system prompt")
+	askCmd.Flags().BoolVarP(&noTime, "no-time", "", false, "Do not add current time to system prompt")
+	askCmd.Flags().BoolVarP(&noTime, "nt", "", false, "Do not add current time to system prompt")
+	askCmd.Flags().BoolVarP(&noSysInfo, "no-sys-info", "", false, "Do not add information about the system at all")
+	askCmd.Flags().BoolVarP(&noSysInfo, "nsi", "", false, "Do not add information about the system at all")
+	askCmd.Flags().BoolVarP(&noAdditionalInfo, "no-additional-info", "", false, "Do not add additional info to system prompt at all")
+	askCmd.Flags().BoolVarP(&noAdditionalInfo, "nai", "", false, "Do not add additional info to system prompt at all")
+	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "plain-text", "", false, "Output as plain text")
+	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "pt", "", false, "Output as plain text")
 
-	rootCmd.AddCommand(chatCmd)
+	rootCmd.AddCommand(askCmd)
 }
