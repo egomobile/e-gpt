@@ -31,4 +31,4 @@ jobs:
         sha256sum: true
         project_path: "./"
         binary_name: "egpt"
-        extra_files: copyright.txt LICENSE
+        extra_files: LICENSE
