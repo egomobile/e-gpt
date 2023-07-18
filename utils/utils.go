@@ -312,6 +312,11 @@ func GetShellName() string {
 func TryGetBestOpenEditorCommand(filePath string) (string, []string) {
 	osName := runtime.GOOS
 
+	customEditor := strings.TrimSpace(os.Getenv("EGO_EDITOR"))
+	if customEditor != "" {
+		return TryGetExecutablePath(customEditor), []string{filePath}
+	}
+
 	if osName == "windows" {
 		return "notepad.exe", []string{filePath}
 	}
