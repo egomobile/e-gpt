@@ -33,7 +33,7 @@ If you run locally from this code, keep sure that [bash script egpt](./egpt) is 
 > Sends a single conversation to a chat API, like ChatGPT, based on your environment variables.
 
 ```bash
-egpt chat "Who is Bill Gates?"
+egpt ask "Who is Bill Gates?"
 ```
 
 Possible response from ChatGPT:
