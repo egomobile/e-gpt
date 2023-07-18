@@ -15,6 +15,7 @@
   - [explain - Explain source code](#explain-)
   - [shell - Create shell command from human language](#shell-)
   - [summarize - Creates a short version of a long text](#summarize-)
+  - [translate - Translates a text](#translate-)
 - [Inputs](#inputs-)
 - [Downloads](#downloads-)
 - [Credits](#credits-)
@@ -157,6 +158,20 @@ Possible response:
 
 ```
 该文章批评了红帽公司在IBM收购后的做法，认为其背离了开源社区的原则，变得像一家普通的软件公司。文章指出，红帽公司最近的一系列举动，如解雇了开源社区网站的团队和收回了RHEL的代码，都是对开源社区的背叛。作者认为，像Rocky Linux和AlmaLinux这样的替代品是很重要的，因为很多企业需要一种免费的RHEL克隆版，而不想支付高昂的费用。文章认为，这种做法是对开源社区的不尊重，而且与其先前的言论相矛盾。
+```
+
+### translate [<a href="#commands-">↑</a>]
+
+> Translates a text.
+
+```bash
+egpt translate --language=german < ./chinese-article.txt
+```
+
+Possible response:
+
+```
+Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und wirft dem Unternehmen vor, sich von den Prinzipien der Open-Source-Community abzuwenden und zu einem gewöhnlichen Software-Unternehmen zu werden. Der Autor weist darauf hin, dass die jüngsten Maßnahmen von Red Hat, wie die Entlassung des Teams der Open-Source-Community-Website und die Rücknahme des RHEL-Codes, Verrat an der Open-Source-Community sind. Der Autor hält Alternativen wie Rocky Linux und AlmaLinux für wichtig, da viele Unternehmen eine kostenlose RHEL-Klon-Version benötigen, ohne hohe Kosten zu zahlen. Der Autor betrachtet dieses Verhalten als respektlos gegenüber der Open-Source-Community und widersprüchlich zu früheren Äußerungen von Red Hat.
 ```
 
 ## Inputs [<a href="#toc">↑</a>]

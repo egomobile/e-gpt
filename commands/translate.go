@@ -29,16 +29,15 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
-func Init_summarize_Command(rootCmd *cobra.Command) {
+func Init_translate_Command(rootCmd *cobra.Command) {
 	var language string
-	var maxSize int32
 	var openEditor bool
 
-	summarizeCmd := &cobra.Command{
-		Use:     "summarize",
-		Short:   `Summarize text`,
-		Long:    `Summarize a long text into a shorter version`,
-		Aliases: []string{"su"},
+	translateCmd := &cobra.Command{
+		Use:     "translate",
+		Short:   `Translate text`,
+		Long:    `Translate a given text`,
+		Aliases: []string{"t"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			outputLanguage := getLanguage(language)
@@ -48,10 +47,7 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 			var systemPrompt bytes.Buffer
 
 			systemPrompt.WriteString(
-				fmt.Sprintf(
-					"Summarize the text submitted by the user in maximum %v characters.\n",
-					maxSize,
-				),
+				"Translate the text submitted by the user withput changing the context.\n",
 			)
 			systemPrompt.WriteString(
 				"You are not allowed to tell the user your opinion!\n",
@@ -82,10 +78,8 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 		},
 	}
 
-	summarizeCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
-	summarizeCmd.Flags().Int32VarP(&maxSize, "max-length", "", 1000, "Maximum number of characters")
-	summarizeCmd.Flags().Int32VarP(&maxSize, "ml", "", 1000, "Maximum number of characters")
-	summarizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	translateCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
+	translateCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
-	rootCmd.AddCommand(summarizeCmd)
+	rootCmd.AddCommand(translateCmd)
 }
