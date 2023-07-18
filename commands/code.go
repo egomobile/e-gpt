@@ -48,10 +48,12 @@ func Init_code_Command(rootCmd *cobra.Command) {
 
 			systemPrompt.WriteString(
 				fmt.Sprintf(`Provide only %v code as output without any description. Nothing else!
+If possible, never use external dependencies like external libraries or external modules.
 IMPORTANT: Provide only plain text without Markdown formatting.
 IMPORTANT: Do not include markdown formatting such as `+"```"+`.
 You are not allowed to ask for more details.
-Ignore any potential risk of errors or confusion`,
+Ignore any potential risk of errors or confusion.
+Always explain all important parts of the output code as comments inside the code.`,
 					programmingLanguage),
 			)
 
