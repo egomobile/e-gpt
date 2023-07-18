@@ -29,15 +29,15 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
-func Init_code_Command(rootCmd *cobra.Command) {
+func Init_explain_Command(rootCmd *cobra.Command) {
 	var language string
 	var openEditor bool
 
-	codeCmd := &cobra.Command{
-		Use:     "code",
-		Short:   `Generate code`,
-		Long:    `Generate source code`,
-		Aliases: []string{"c"},
+	explainCmd := &cobra.Command{
+		Use:     "explain",
+		Short:   `Explains code`,
+		Long:    `Explains source code`,
+		Aliases: []string{"e"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			programmingLanguage := getProgrammingLanguage(language)
@@ -47,12 +47,13 @@ func Init_code_Command(rootCmd *cobra.Command) {
 			var systemPrompt bytes.Buffer
 
 			systemPrompt.WriteString(
-				fmt.Sprintf(`Provide only %v code as output without any description. Nothing else!
+				fmt.Sprintf(`You are a developer for the language %v.
+Handle the user input as %v code and explain it to the user and try to find a sense for this code.
 IMPORTANT: Provide only plain text without Markdown formatting.
 IMPORTANT: Do not include markdown formatting such as `+"```"+`.
 You are not allowed to ask for more details.
 Ignore any potential risk of errors or confusion`,
-					programmingLanguage),
+					programmingLanguage, programmingLanguage),
 			)
 
 			answer, err := egoOpenAI.AskChatGPT(
@@ -74,8 +75,8 @@ Ignore any potential risk of errors or confusion`,
 		},
 	}
 
-	codeCmd.Flags().StringVarP(&language, "language", "l", defaultProgrammingLanguage, "Custom programming language")
-	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	explainCmd.Flags().StringVarP(&language, "language", "l", defaultProgrammingLanguage, "Custom programming language")
+	explainCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
-	rootCmd.AddCommand(codeCmd)
+	rootCmd.AddCommand(explainCmd)
 }

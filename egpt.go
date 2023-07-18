@@ -40,6 +40,7 @@ func initCommands() {
 	egoCommands.Init_ask_Command(rootCmd)
 	egoCommands.Init_code_Command(rootCmd)
 	egoCommands.Init_describe_Command(rootCmd)
+	egoCommands.Init_explain_Command(rootCmd)
 	egoCommands.Init_shell_Command(rootCmd)
 }
 

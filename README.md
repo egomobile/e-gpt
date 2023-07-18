@@ -2,7 +2,24 @@
 
 > e.GPT is a command line tool that interacts with [ChatGPT API](https://platform.openai.com/docs/guides/gpt) directly or indirectly, without the need of having an environment like [Node.js](https://nodejs.org/) or [Python](https://www.python.org/) installed.
 
-## Installation
+<a name="toc"></a>
+
+## Table of contents
+
+- [Install](#install)
+- [Execute](#execute)
+- [Commands](#commands)
+  - [ask - Chat with Bot](#ask)
+  - [code - Convert human language to source code](#code)
+  - [describe - Describe a shell command](#describe)
+  - [explain - Explain source code](#explain)
+  - [shell - Create shell command from human language](#shell)
+- [Inputs](#inputs)
+- [Downloads](#downloads)
+- [Credits](#credits)
+- [License](#license)
+
+## Install [<a href="#toc">↑</a>]
 
 e.GPT is a binary that can be downloaded from [here](https://github.com/egomobile/e-gpt/releases).
 
@@ -16,7 +33,7 @@ There are 3 ways to setup this file:
 2. Another way is to setup `CHAT_API_KEY`, which will connect to a simplified and more generic version of a chat REST API. This also requires `CHAT_API_CLIENT_ID` and `CHAT_API_URL` to be defined.
 3. Similar to way 2, you can setup `CHAT_API_CLIENT_ID`, `CHAT_API_CLIENT_SECRET`, `CHAT_API_URL` and `OAUTH2_GET_TOKEN_URL`, if you wish to use [OAuth 2](https://oauth.net/2/) instead.
 
-## Execute
+## Execute [<a href="#toc">↑</a>]
 
 ```bash
 egpt chat "How much is a PS5?" --system="You are an Xbox customer support agent whose primary goal is to help users with issues they are experiencing with their Xbox devices. You are friendly and concise. You only provide factual answers to queries, and do not provide answers that are not related to Xbox."
@@ -28,7 +45,7 @@ If you run locally from this code, keep sure that [bash script egpt](./egpt) is 
 
 ## Commands
 
-### Chat (`ask`, `a`)
+### ask [<a href="#commands">↑</a>]
 
 > Sends a single conversation to a chat API, like ChatGPT, based on your environment variables.
 
@@ -42,7 +59,7 @@ Possible response:
 
 You can use `--system` to setup a custom system prompt.
 
-### Generate code (`code`, `c`)
+### code [<a href="#commands">↑</a>]
 
 > Generates code from human language.
 
@@ -62,7 +79,7 @@ function fibonacci(n: number): number {
 }
 ```
 
-### Describe shell command (`describe`, `d`)
+### describe [<a href="#commands">↑</a>]
 
 > Handles a user input as shell command and tries to describe it.
 
@@ -76,7 +93,41 @@ Possible response:
 List all files in the current directory with the .jpg extension.
 ```
 
-### Execute shell command (`shell`, `s`)
+### explain [<a href="#commands">↑</a>]
+
+> Explains source code.
+
+If you for example have this [BASIC spagetti code](https://www.geeksforgeeks.org/spaghetti-code/) in a `spagetti.bas` file:
+
+```basic
+i=0
+i=i+1
+PRINT i; "squared=";i*i
+IF i>=100 THEN GOTO 6
+GOTO 2
+PRINT "Program Completed."
+END
+```
+
+You can execute
+
+```bash
+egpt explain < ./spagetti.bas --language=basic
+```
+
+and may get an output like this:
+
+```
+This is a simple program that calculates the square of numbers from 1 to 100 and prints them to the console. 
+
+The program starts by initializing a variable `i` with the value 0. It then enters a loop that increments `i` by 1, calculates the square of `i`, and prints the result to the console in the format "i squared= result". 
+
+The loop continues until `i` is greater than or equal to 100, at which point the program skips to line 6 and continues executing. If `i` is less than 100, the program jumps back to line 2 and continues the loop. 
+
+Once the loop completes, the program prints "Program Completed." to the console and exits.
+```
+
+### shell [<a href="#commands">↑</a>]
 
 > Converts human language into a shell command.
 
@@ -108,6 +159,10 @@ You have the following sources for input data:
 You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
 
 Keep in mind: The final prompt will be trimmed (start + end).
+
+## Downloads [<a href="#toc">↑</a>]
+
+Have a look at the [Releases section](https://github.com/egomobile/e-gpt/releases) to get a matching binary...
 
 ## Credits [<a href="#toc">↑</a>]
 
