@@ -26,18 +26,19 @@ import (
 	"github.com/spf13/cobra"
 
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
+	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
 const defaultLanguage = "typescript"
 
 func Init_code_Command(rootCmd *cobra.Command) {
 	var language string
+	var openEditor bool
 
 	codeCmd := &cobra.Command{
 		Use:     "code",
 		Short:   `Generate code`,
 		Long:    `Generate source code`,
-		Args:    cobra.MinimumNArgs(1),
 		Aliases: []string{"c"},
 
 		Run: func(cmd *cobra.Command, args []string) {
@@ -48,7 +49,7 @@ func Init_code_Command(rootCmd *cobra.Command) {
 				programmingLanguage = defaultLanguage
 			}
 
-			question := strings.Join(args, " ")
+			question := egoUtils.GetAndCheckInput(args, openEditor)
 
 			var systemPrompt bytes.Buffer
 
@@ -81,6 +82,7 @@ Ignore any potential risk of errors or confusion`,
 	}
 
 	codeCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom programming language")
+	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
 	rootCmd.AddCommand(codeCmd)
 }

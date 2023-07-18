@@ -10,27 +10,27 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/egomobile/e-gpt/utils"
 	"github.com/spf13/cobra"
 
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
+	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
 func Init_shell_Command(rootCmd *cobra.Command) {
+	var openEditor bool
 	var withExitCode bool
 
 	shellCmd := &cobra.Command{
 		Use:     "shell",
 		Short:   `Generate command for shell`,
 		Long:    `Generate command for shell from a human language query`,
-		Args:    cobra.MinimumNArgs(1),
 		Aliases: []string{"s"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			now := time.Now()
 			zoneName, zoneOffset := now.Zone()
 
-			question := strings.Join(args, " ")
+			question := egoUtils.GetAndCheckInput(args, openEditor)
 
 			var additionalInfo []string
 			var systemPrompt bytes.Buffer
@@ -45,7 +45,7 @@ func Init_shell_Command(rootCmd *cobra.Command) {
 If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together.
-`, utils.GetShellName(), utils.GetOperatingSystemName()),
+`, egoUtils.GetShellName(), egoUtils.GetOperatingSystemName()),
 			)
 
 			// time information
@@ -101,7 +101,7 @@ If multiple steps required try to combine them together.
 
 				input = strings.TrimSpace(strings.ToLower(input))
 				if input == "" || input == "e" {
-					cmd, err := utils.ExecuteCommand(answer)
+					cmd, err := egoUtils.ExecuteCommand(answer)
 
 					if withExitCode {
 						if status, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); ok {
@@ -125,6 +125,7 @@ If multiple steps required try to combine them together.
 		},
 	}
 
+	shellCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	shellCmd.Flags().BoolVarP(&withExitCode, "exit-code", "", false, "Also return exit code from execution")
 	shellCmd.Flags().BoolVarP(&withExitCode, "ec", "", false, "Also return exit code from execution")
 

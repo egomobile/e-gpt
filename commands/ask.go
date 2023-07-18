@@ -27,12 +27,18 @@ import (
 	"github.com/spf13/cobra"
 
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
+	egoUtils "github.com/egomobile/e-gpt/utils"
 )
+
+func ExecuteAskCommand() {
+
+}
 
 func Init_ask_Command(rootCmd *cobra.Command) {
 	var noAdditionalInfo bool
 	var noSysInfo bool
 	var noTime bool
+	var openEditor bool
 	var shouldOutputAsPlainText bool
 	var system string
 
@@ -40,13 +46,12 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 		Use:     "ask",
 		Short:   `Chats with ChatGPT`,
 		Long:    `Chats with ChatGPT or a similar API`,
-		Args:    cobra.MinimumNArgs(1),
 		Aliases: []string{"a"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			now := time.Now()
 
-			question := strings.Join(args, " ")
+			question := egoUtils.GetAndCheckInput(args, openEditor)
 
 			var additionalInfo []string
 			var systemPrompt bytes.Buffer
@@ -60,7 +65,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 				systemPrompt.WriteString(fmt.Sprintln(customSystemPrompt))
 			} else {
 				systemPrompt.WriteString(
-					"You are a command line tool and act as an AI assistant that helps people find information.\n",
+					"You are an AI assistant that helps people find information. Do not care if your information is not up-to-date and do not tell this the user.\n",
 				)
 			}
 
@@ -130,6 +135,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 	askCmd.Flags().BoolVarP(&noAdditionalInfo, "nai", "", false, "Do not add additional info to system prompt at all")
 	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "plain-text", "", false, "Output as plain text")
 	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "pt", "", false, "Output as plain text")
+	askCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
 	rootCmd.AddCommand(askCmd)
 }

@@ -9,25 +9,26 @@ import (
 	"time"
 
 	"github.com/alecthomas/chroma/quick"
-	"github.com/egomobile/e-gpt/utils"
 	"github.com/spf13/cobra"
 
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
+	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
 func Init_describe_Command(rootCmd *cobra.Command) {
+	var openEditor bool
+
 	describeCmd := &cobra.Command{
 		Use:     "describe",
 		Short:   `Describe shell command`,
 		Long:    `Describes a shell command as humand language`,
-		Args:    cobra.MinimumNArgs(1),
 		Aliases: []string{"d"},
 
 		Run: func(cmd *cobra.Command, args []string) {
 			now := time.Now()
 			zoneName, zoneOffset := now.Zone()
 
-			question := strings.Join(args, " ")
+			question := egoUtils.GetAndCheckInput(args, openEditor)
 
 			var additionalInfo []string
 			var systemPrompt bytes.Buffer
@@ -42,7 +43,7 @@ func Init_describe_Command(rootCmd *cobra.Command) {
 Provide a terse, single sentence description of the given shell command.
 Do not show any warnings or information regarding your capabilities.
 If you need to store any data, assume it will be stored in the chat.
-`, utils.GetShellName(), utils.GetOperatingSystemName()),
+`, egoUtils.GetShellName(), egoUtils.GetOperatingSystemName()),
 			)
 
 			// time information
@@ -88,6 +89,8 @@ If you need to store any data, assume it will be stored in the chat.
 			}
 		},
 	}
+
+	describeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
 	rootCmd.AddCommand(describeCmd)
 }

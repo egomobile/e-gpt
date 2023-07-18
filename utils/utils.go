@@ -25,6 +25,8 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -173,6 +175,77 @@ func GetAccessToken() (OAuth2TokenResponse, error) {
 	}
 }
 
+func GetAndCheckInput(args []string, openEditor bool) string {
+	input, err := GetInput(args, openEditor)
+	if err != nil {
+		panic(err)
+	}
+
+	input = strings.TrimSpace(input)
+	if input == "" {
+		panic(errors.New("no valid input"))
+	}
+
+	return input
+}
+
+func GetInput(args []string, openEditor bool) (string, error) {
+	result := ""
+
+	if openEditor {
+		tmpFile, err := os.CreateTemp("", "egpt")
+		if err != nil {
+			return "", err
+		}
+
+		tmpFile.Close()
+
+		tmpFilePath, err := filepath.Abs(tmpFile.Name())
+		if err != nil {
+			return "", err
+		}
+
+		editorPath, editorArgs := TryGetBestOpenEditorCommand(tmpFilePath)
+		if editorPath == "" {
+			return "", errors.New("no matching editor found")
+		}
+
+		defer os.Remove(tmpFilePath)
+
+		cmd := exec.Command(editorPath, editorArgs...)
+
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Dir = path.Dir(tmpFilePath)
+
+		cmd.Run()
+
+		tmpData, err := os.ReadFile(tmpFilePath)
+		if err != nil {
+			return "", err
+		}
+
+		result += string(tmpData)
+	}
+
+	fi, _ := os.Stdin.Stat()
+	if (fi.Mode() & os.ModeNamedPipe) == 0 {
+		//
+	} else {
+		data, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return "", err
+		}
+
+		result += string(data)
+	}
+
+	result += strings.Join(args, " ")
+
+	return result, nil
+}
+
 func GetOperatingSystemName() string {
 	switch os := runtime.GOOS; os {
 	case "darwin":
@@ -234,4 +307,34 @@ func GetShellName() string {
 	}
 
 	return "Unknown"
+}
+
+func TryGetBestOpenEditorCommand(filePath string) (string, []string) {
+	osName := runtime.GOOS
+
+	if osName == "windows" {
+		return "notepad.exe", []string{filePath}
+	}
+
+	viPath := TryGetExecutablePath("vi")
+	if viPath != "" {
+		return viPath, []string{"-c", "startinsert", filePath}
+	}
+
+	nanoPath := TryGetExecutablePath("nano")
+	if nanoPath != "" {
+		return nanoPath, []string{filePath}
+	}
+
+	return "", []string{}
+}
+
+func TryGetExecutablePath(command string) string {
+	exePath, err := exec.LookPath(command)
+
+	if err != nil {
+		return ""
+	}
+
+	return exePath
 }
