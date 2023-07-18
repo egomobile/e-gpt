@@ -54,13 +54,13 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 				),
 			)
 			systemPrompt.WriteString(
-				fmt.Sprintf(
-					"Use %v as output language.\n",
-					outputLanguage,
-				),
+				"You are not allowed to tell the user your opinion!\n",
 			)
 			systemPrompt.WriteString(
-				"You are not allowed to tell the user your opinion!\n",
+				fmt.Sprintf(
+					"Output summary only in %v language.\n",
+					outputLanguage,
+				),
 			)
 
 			answer, err := egoOpenAI.AskChatGPT(
@@ -83,7 +83,8 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 	}
 
 	codeCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
-	codeCmd.Flags().Int32VarP(&maxSize, "max-size", "m", 1000, "Maximum number of characters")
+	codeCmd.Flags().Int32VarP(&maxSize, "max-length", "", 1000, "Maximum number of characters")
+	codeCmd.Flags().Int32VarP(&maxSize, "ml", "", 1000, "Maximum number of characters")
 	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
 	rootCmd.AddCommand(codeCmd)
