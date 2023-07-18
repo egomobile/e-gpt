@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 )
@@ -32,32 +33,6 @@ type OAuth2TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	TokenType   string `json:"token_type"`
-}
-
-func GetAccessToken() (OAuth2TokenResponse, error) {
-	var tokenResponse OAuth2TokenResponse
-
-	response, err := getAccessTokenHttpResponse()
-	if err != nil {
-		return tokenResponse, err
-	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode == 200 {
-		bodyData, err := io.ReadAll(response.Body)
-		if err != nil {
-			return tokenResponse, err
-		}
-
-		err = json.Unmarshal(bodyData, &tokenResponse) // try parse as JSON
-
-		return tokenResponse, err
-	} else {
-		errorMessage := getResponseErrorMessage("The credentials do not work:", response)
-
-		return tokenResponse, errors.New(errorMessage)
-	}
 }
 
 func getAccessTokenHttpRequest() (*http.Request, *[]byte, error) {
@@ -131,6 +106,73 @@ func getResponseErrorMessage(message string, response *http.Response) string {
 	return errorMessage
 }
 
+func ExecuteCommand(rawCommand string) (*exec.Cmd, error) {
+	shellName := GetShellName()
+
+	var shellPath string
+	var shellArgs []string
+	if strings.Contains(shellName, "Power") {
+		shellPath = "powershell"
+		shellArgs = append(shellArgs, "-Command", "Get-Process")
+	} else if strings.Contains(shellName, "cmd") {
+		shellPath = "cmd"
+		shellArgs = append(shellArgs, "/c")
+	} else if strings.HasSuffix(shellName, "shell") {
+		shellPath = strings.TrimSpace(os.Getenv("SHELL"))
+		shellArgs = append(shellArgs, "-c")
+	}
+
+	if shellPath == "" {
+		return nil, fmt.Errorf("shell %v not supported", shellName)
+	}
+
+	shellArgs = append(shellArgs, rawCommand)
+
+	cmd := exec.Command(shellPath, shellArgs...)
+
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+
+	err := cmd.Start()
+	if err != nil {
+		return cmd, err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return cmd, err
+	}
+
+	return cmd, nil
+}
+
+func GetAccessToken() (OAuth2TokenResponse, error) {
+	var tokenResponse OAuth2TokenResponse
+
+	response, err := getAccessTokenHttpResponse()
+	if err != nil {
+		return tokenResponse, err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode == 200 {
+		bodyData, err := io.ReadAll(response.Body)
+		if err != nil {
+			return tokenResponse, err
+		}
+
+		err = json.Unmarshal(bodyData, &tokenResponse) // try parse as JSON
+
+		return tokenResponse, err
+	} else {
+		errorMessage := getResponseErrorMessage("The credentials do not work:", response)
+
+		return tokenResponse, errors.New(errorMessage)
+	}
+}
+
 func GetOperatingSystemName() string {
 	switch os := runtime.GOOS; os {
 	case "darwin":
@@ -158,4 +200,38 @@ func GetOperatingSystemName() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func GetShellName() string {
+	osName := runtime.GOOS
+
+	if osName == "windows" {
+		psVer := os.Getenv("PowershellVersion")
+		if psVer != "" {
+			return "PowerShell"
+		}
+
+		comspec := os.Getenv("COMSPEC")
+		if strings.Contains(strings.ToLower(comspec), "cmd.exe") {
+			return "Windows Command Processor (cmd.exe)"
+		}
+	}
+
+	psPath := os.Getenv("PSModulePath")
+	if psPath != "" {
+		return "PowerShell"
+	}
+
+	shell := strings.TrimSpace(os.Getenv("SHELL"))
+	if shell != "" {
+		if strings.HasSuffix(shell, "/zsh") {
+			return "Z shell"
+		}
+
+		if strings.HasSuffix(shell, "/bash") {
+			return "Bourne-again shell"
+		}
+	}
+
+	return "Unknown"
 }
