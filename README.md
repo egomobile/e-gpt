@@ -6,19 +6,19 @@
 
 ## Table of contents
 
-- [Install](#install)
-- [Execute](#execute)
-- [Commands](#commands)
-  - [ask - Chat with Bot](#ask)
-  - [code - Convert human language to source code](#code)
-  - [describe - Describe a shell command](#describe)
-  - [explain - Explain source code](#explain)
-  - [shell - Create shell command from human language](#shell)
-  - [summarize - Creates a short version of a long text](#summarize)
-- [Inputs](#inputs)
-- [Downloads](#downloads)
-- [Credits](#credits)
-- [License](#license)
+- [Install](#install-)
+- [Execute](#execute-)
+- [Commands](#commands-)
+  - [ask - Chat with Bot](#ask-)
+  - [code - Convert human language to source code](#code-)
+  - [describe - Describe a shell command](#describe-)
+  - [explain - Explain source code](#explain-)
+  - [shell - Create shell command from human language](#shell-)
+  - [summarize - Creates a short version of a long text](#summarize-)
+- [Inputs](#inputs-)
+- [Downloads](#downloads-)
+- [Credits](#credits-)
+- [License](#license-)
 
 ## Install [<a href="#toc">↑</a>]
 
@@ -46,7 +46,7 @@ If you run locally from this code, keep sure that [bash script egpt](./egpt) is 
 
 ## Commands
 
-### ask [<a href="#commands">↑</a>]
+### ask [<a href="#commands-">↑</a>]
 
 > Sends a single conversation to a chat API, like ChatGPT, based on your environment variables.
 
@@ -60,7 +60,7 @@ Possible response:
 
 You can use `--system` to setup a custom system prompt.
 
-### code [<a href="#commands">↑</a>]
+### code [<a href="#commands-">↑</a>]
 
 > Generates code from human language.
 
@@ -80,7 +80,7 @@ function fibonacci(n: number): number {
 }
 ```
 
-### describe [<a href="#commands">↑</a>]
+### describe [<a href="#commands-">↑</a>]
 
 > Handles a user input as shell command and tries to describe it.
 
@@ -94,7 +94,7 @@ Possible response:
 List all files in the current directory with the .jpg extension.
 ```
 
-### explain [<a href="#commands">↑</a>]
+### explain [<a href="#commands-">↑</a>]
 
 > Explains source code.
 
@@ -128,7 +128,7 @@ The loop continues until `i` is greater than or equal to 100, at which point the
 Once the loop completes, the program prints "Program Completed." to the console and exits.
 ```
 
-### shell [<a href="#commands">↑</a>]
+### shell [<a href="#commands-">↑</a>]
 
 > Converts human language into a shell command.
 
@@ -145,7 +145,7 @@ ls *.jpg *.jpeg
 
 Keep in mind: `E` is the default selection and will execute the given command.
 
-### summarize [<a href="#commands">↑</a>]
+### summarize [<a href="#commands-">↑</a>]
 
 > Summarize a long text.
 
