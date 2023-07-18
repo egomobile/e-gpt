@@ -44,7 +44,7 @@ Run `egpt help` to see all available commands and options.
 
 If you run locally from this code, keep sure that [bash script egpt](./egpt) is executable, so that you are able to run it the same way.
 
-## Commands
+## Commands [<a href="#toc">↑</a>]
 
 ### ask [<a href="#commands-">↑</a>]
 
