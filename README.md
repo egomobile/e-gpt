@@ -247,9 +247,9 @@ You have the following sources for input data:
    - Example: `egpt ask who is bill gates`
 2. The [STDIN](https://en.wikipedia.org/wiki/Standard_streams):
    - Example #1: `egpt ask "please summarize" < ./long-text.txt`
-   - Example #2: `curl -sSL "https://raw.githubusercontent.com/egomobile/e-gpt/main/LICENSE" | ./egpt ask summerize the following text`
+   - Example #2: `curl -sSL "https://raw.githubusercontent.com/egomobile/e-gpt/main/LICENSE" | ./egpt ask summarize the following text`
 3. The standard editor:
-   - Example: `egpt ask summerize the following text --editor`
+   - Example: `egpt ask summarize the following text --editor`
 
 You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
 
