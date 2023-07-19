@@ -19,7 +19,6 @@
   - [translate - Translates a text](#translate-)
 - [Inputs](#inputs-)
 - [Examples](#examples-)
-- [Downloads](#downloads-)
 - [Credits](#credits-)
 - [License](#license-)
 
@@ -88,13 +87,13 @@ function fibonacci(n: number): number {
 > Handles a user input as shell command and tries to describe it.
 
 ```bash
-egpt describe "i need a Fibonacci function"
+egpt describe "curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64"))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt"
 ```
 
 Possible response:
 
 ```
-List all files in the current directory with the .jpg extension.
+This command downloads the latest release of the "egpt" tool from the "egomobile/e-gpt" GitHub repository for macOS devices with ARM64 architecture, extracts the binary from the downloaded archive, and saves it as an executable file in the "/usr/local/bin" directory.
 ```
 
 ### explain [<a href="#commands-">↑</a>]
@@ -168,14 +167,30 @@ PRINT "Program Completed."
 
 > Converts human language into a shell command.
 
+Lets say you execute
+
 ```bash
-egpt shell "list all kind of jpeg files"
+egpt shell -e
 ```
 
-Possible response:
+and submit the following text from your editor to `egpt`:
 
 ```
-ls *.jpg *.jpeg
+Think about the following bash script that:
+
+1. download github release list from https://api.github.com/repos/egomobile/e-gpt/releases/latest using curl, which pipes it to
+2. jq, which detects first matching value in "browser_download_url" sub property of "assets" property with "darwin" and "arm64" substrings, which pipes it
+3. and write it to a variable
+4. this variable is used as download URL for a new curl instance, which download the underlying .tar.gz file and pipes it
+5. to tar, which extracts the single "egpt" file in there and tar pipes this extracted file as content
+6. so that it is saved to /usr/local/bin folder
+7. at last make the file executable
+```
+
+A possible output in a `zsh` shell could be:
+
+```
+curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64"))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt
 [E]xecute, [a]bort >
 ```
 
@@ -228,10 +243,6 @@ You have the following sources for input data:
 You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
 
 Keep in mind: The final prompt will be trimmed (start + end).
-
-## Downloads [<a href="#toc">↑</a>]
-
-Have a look at the [Releases section](https://github.com/egomobile/e-gpt/releases) to get a matching binary...
 
 ## Credits [<a href="#toc">↑</a>]
 
