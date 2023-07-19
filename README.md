@@ -165,7 +165,7 @@ egpt optimize < ./spagetti.bas
 
 and may get an output like this:
 
-```
+```basic
 i=0
 WHILE i<100
     i=i+1
