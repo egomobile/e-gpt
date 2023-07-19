@@ -1,7 +1,7 @@
 [![Current version](https://img.shields.io/github/v/release/egomobile/e-gpt)](https://github.com/egomobile/e-gpt/releases)
 [![Latest build](https://img.shields.io/github/actions/workflow/status/egomobile/e-gpt/release.yaml)](https://github.com/egomobile/e-gpt/actions/workflows/release.yaml)
-[![Issues](https://img.shields.io/github/issues/egomobile/e-gpt)](https://github.com/egomobile/e-gpt/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/egomobile/e-gpt/pulls)
+[![Issues](https://img.shields.io/github/issues/egomobile/e-gpt?color=8A2BE2)](https://github.com/egomobile/e-gpt/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-darkgreen?color=yellow)](https://github.com/egomobile/e-gpt/pulls)
 [![License](https://img.shields.io/github/license/egomobile/e-gpt)](./LICENSE)
 
 # e.GPT
