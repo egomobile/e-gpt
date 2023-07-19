@@ -20,6 +20,7 @@ jobs:
           - goarch: arm64
             goos: windows
     steps:
+    - uses: actions/checkout@v3
     - name: "Update build.go"
       run: |
         echo "package main\n" > ./build.go &&
@@ -27,7 +28,6 @@ jobs:
         echo "const AppVersion = \"$(echo ${GITHUB_REF#refs/tags/} | cut -c 2-)\"" >> ./build.go &&
         echo "const BuildArch = runtime.GOARCH" >> ./build.go &&
         echo "const BuildOS = runtime.GOOS" >> ./build.go
-    - uses: actions/checkout@v3
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GH_PAT }}
