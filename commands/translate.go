@@ -47,14 +47,14 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 			var systemPrompt bytes.Buffer
 
 			systemPrompt.WriteString(
-				"Translate the text submitted by the user withput changing the context.\n",
+				"Translate the text submitted by the user without changing the context.\n",
 			)
 			systemPrompt.WriteString(
 				"You are not allowed to tell the user your opinion!\n",
 			)
 			systemPrompt.WriteString(
 				fmt.Sprintf(
-					"Output summary only in %v language.\n",
+					"Output translated text only in %v language.\n",
 					outputLanguage,
 				),
 			)
