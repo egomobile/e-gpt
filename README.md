@@ -18,6 +18,7 @@
   - [summarize - Creates a short version of a long text](#summarize-)
   - [translate - Translates a text](#translate-)
 - [Inputs](#inputs-)
+- [Examples](#examples-)
 - [Downloads](#downloads-)
 - [Credits](#credits-)
 - [License](#license-)
@@ -168,7 +169,7 @@ PRINT "Program Completed."
 > Converts human language into a shell command.
 
 ```bash
-egpt shell "list all kinf of jpeg files"
+egpt shell "list all kind of jpeg files"
 ```
 
 Possible response:
@@ -207,6 +208,10 @@ Possible response:
 ```
 Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und wirft dem Unternehmen vor, sich von den Prinzipien der Open-Source-Community abzuwenden und zu einem gewöhnlichen Software-Unternehmen zu werden. Der Autor weist darauf hin, dass die jüngsten Maßnahmen von Red Hat, wie die Entlassung des Teams der Open-Source-Community-Website und die Rücknahme des RHEL-Codes, Verrat an der Open-Source-Community sind. Der Autor hält Alternativen wie Rocky Linux und AlmaLinux für wichtig, da viele Unternehmen eine kostenlose RHEL-Klon-Version benötigen, ohne hohe Kosten zu zahlen. Der Autor betrachtet dieses Verhalten als respektlos gegenüber der Open-Source-Community und widersprüchlich zu früheren Äußerungen von Red Hat.
 ```
+
+## Examples [<a href="#toc">↑</a>]
+
+A list of useful examples, can be found [here](./examples/README.md).
 
 ## Inputs [<a href="#toc">↑</a>]
 
