@@ -1,3 +1,9 @@
+[![Current version](https://img.shields.io/github/v/release/egomobile/e-gpt)](https://github.com/egomobile/e-gpt/releases)
+[![Latest build](https://img.shields.io/github/actions/workflow/status/egomobile/e-gpt/release.yaml)](https://github.com/egomobile/e-gpt/actions/workflows/release.yaml)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/egomobile/e-gpt/pulls)
+[![Issues](https://img.shields.io/github/issues/egomobile/e-gpt)](https://github.com/egomobile/e-gpt/issues)
+[![License](https://img.shields.io/github/license/egomobile/e-gpt)](./LICENSE)
+
 # e.GPT
 
 > e.GPT is a command line tool that interacts with [ChatGPT API](https://platform.openai.com/docs/guides/gpt) directly or indirectly, without the need of having an environment like [Node.js](https://nodejs.org/) or [Python](https://www.python.org/) installed.
@@ -20,7 +26,6 @@
 - [Inputs](#inputs-)
 - [Examples](#examples-)
 - [Credits](#credits-)
-- [License](#license-)
 
 ## Install [<a href="#toc">↑</a>]
 
@@ -257,7 +262,3 @@ The module makes use of:
 - [Chroma](https://github.com/alecthomas/chroma) 
 - [Cobra](https://github.com/spf13/cobra)
 - [GoDotEnv](https://github.com/joho/godotenv)
-
-## License [<a href="#toc">↑</a>]
-
-[LGPL 3.0](./LICENSE)
