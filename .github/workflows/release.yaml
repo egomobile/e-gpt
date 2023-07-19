@@ -20,6 +20,13 @@ jobs:
           - goarch: arm64
             goos: windows
     steps:
+    - name: "Update build.go"
+      run: |
+        echo "package main\n" > ./build.go &&
+        echo "import \"runtime\"\n" >> ./build.go &&
+        echo "const AppVersion = \"${$(basename $GITHUB_REF):1}\"" >> ./build.go &&
+        echo "const BuildArch = runtime.GOARCH" >> ./build.go &&
+        echo "const BuildOS = runtime.GOOS" >> ./build.go
     - uses: actions/checkout@v3
     - uses: wangyoucao577/go-release-action@v1
       with:

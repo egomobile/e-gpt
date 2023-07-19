@@ -28,9 +28,11 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "egpt",
-	Short: `e.GPT is a command line tool running with ChatGPT.`,
-	Long:  `e.GPT is a command line tool running with ChatGPT.`,
+	Use:     "egpt",
+	Short:   `e.GPT is a command line tool running with ChatGPT.`,
+	Long:    `e.GPT is a command line tool running with ChatGPT.`,
+	Version: AppVersion,
+
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
