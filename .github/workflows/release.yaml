@@ -23,8 +23,10 @@ jobs:
     - uses: actions/checkout@v3
     - name: "Update build.go"
       run: |
-        echo "package main\n" > ./build.go &&
-        echo "import \"runtime\"\n" >> ./build.go &&
+        echo "package main" > ./build.go &&
+        echo "" >> ./build.go &&
+        echo "import \"runtime\"" >> ./build.go &&
+        echo "" >> ./build.go &&
         echo "const AppVersion = \"$(echo ${GITHUB_REF#refs/tags/} | cut -c 2-)\"" >> ./build.go &&
         echo "const BuildArch = runtime.GOARCH" >> ./build.go &&
         echo "const BuildOS = runtime.GOOS" >> ./build.go
