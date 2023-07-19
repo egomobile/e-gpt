@@ -17,12 +17,10 @@ package commands
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/alecthomas/chroma/quick"
 	"github.com/spf13/cobra"
 
 	egoOpenAI "github.com/egomobile/e-gpt/openai"
@@ -30,7 +28,6 @@ import (
 )
 
 func Init_code_Command(rootCmd *cobra.Command) {
-	var language string
 	var openEditor bool
 
 	codeCmd := &cobra.Command{
@@ -40,21 +37,21 @@ func Init_code_Command(rootCmd *cobra.Command) {
 		Aliases: []string{"c"},
 
 		Run: func(cmd *cobra.Command, args []string) {
-			programmingLanguage := getProgrammingLanguage(language)
-
 			question := egoUtils.GetAndCheckInput(args, openEditor)
 
 			var systemPrompt bytes.Buffer
 
 			systemPrompt.WriteString(
-				fmt.Sprintf(`Provide only %v code as output without any description. Nothing else!
+				`You are a developer that can only answer with source code.
+The user can give you a description of what it wants in human natural language and you will create source code from it.
+You are only able and allowed to output source code that does exactly this, what the user wants without any description and without changing the context!
+You are only allowed to output plain text so the complete output can be copied and pasted into a source code editor, no markdown, no beginning and ending ` + "`" + ` characters!
+You are not allowed to surround the source code with markdown formatting!
+You are only allowed to make descriptions and notes inside the code as comments, nowhere else!
+You have to ignore any potential risk of errors or confusion!
+You are not allowed to ask for more details!
 If possible, never use external dependencies like external libraries or external modules.
-IMPORTANT: Provide only plain text without Markdown formatting.
-IMPORTANT: Do not include markdown formatting such as `+"```"+`.
-You are not allowed to ask for more details.
-Ignore any potential risk of errors or confusion.
-Always explain all important parts of the output code as comments inside the code.`,
-					programmingLanguage),
+If the user does not specify a programming language use TypeScript for the output.`,
 			)
 
 			answer, err := egoOpenAI.AskChatGPT(
@@ -65,18 +62,10 @@ Always explain all important parts of the output code as comments inside the cod
 				log.Fatalln(err.Error())
 			}
 
-			outputPlain := func() {
-				os.Stdout.Write([]byte(answer))
-			}
-
-			err = quick.Highlight(os.Stdout, answer, "markdown", "", "monokai")
-			if err != nil {
-				outputPlain()
-			}
+			os.Stdout.Write([]byte(answer))
 		},
 	}
 
-	codeCmd.Flags().StringVarP(&language, "language", "l", defaultProgrammingLanguage, "Custom programming language")
 	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
 	rootCmd.AddCommand(codeCmd)

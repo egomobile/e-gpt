@@ -67,19 +67,25 @@ You can use `--system` to setup a custom system prompt.
 > Generates code from human language.
 
 ```bash
-egpt code "i need a Fibonacci function" --language="typescript"
+egpt code "i need a Fibonacci function in go"
 ```
 
 Possible response:
 
-```typescript
-function fibonacci(n: number): number {
-  if (n <= 1) {
-    return n;
-  } else {
-    return fibonacci(n - 1) + fibonacci(n - 2);
-  }
+```go
+// Define the Fibonacci function
+func fibonacci(n int) int {
+    if n == 0 {
+        return 0
+    } else if n == 1 {
+        return 1
+    } else {
+        return fibonacci(n-1) + fibonacci(n-2)
+    }
 }
+
+// Call the Fibonacci function with an input of 10
+fmt.Println(fibonacci(10)) // Output: 55
 ```
 
 ### describe [<a href="#commands-">↑</a>]
