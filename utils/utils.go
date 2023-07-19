@@ -319,6 +319,19 @@ func GetShellName() string {
 	return "Unknown"
 }
 
+func RemoveMarkdownCode(str string) string {
+	// remove beginning `
+	for strings.HasPrefix(str, "`") {
+		str = strings.TrimSpace(str[1:])
+	}
+	// remove ending `
+	for strings.HasSuffix(str, "`") {
+		str = strings.TrimSpace(str[:len(str)-1])
+	}
+
+	return str
+}
+
 func TryGetBestOpenEditorCommand(filePath string) (string, []string) {
 	osName := runtime.GOOS
 

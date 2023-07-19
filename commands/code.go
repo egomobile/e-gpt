@@ -62,6 +62,8 @@ If the user does not specify a programming language you have to use TypeScript f
 				log.Fatalln(err.Error())
 			}
 
+			answer = egoUtils.RemoveMarkdownCode(answer)
+
 			os.Stdout.Write([]byte(answer))
 		},
 	}
