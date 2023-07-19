@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+permissions:
+    contents: write
+    packages: write
+
 jobs:
   releases-matrix:
     name: Release Go binaries
@@ -32,6 +36,8 @@ jobs:
         echo "const BuildOS = runtime.GOOS" >> ./build.go
     - uses: wangyoucao577/go-release-action@v1
       with:
+        retry: 10
+        overwrite: true
         github_token: ${{ secrets.GH_PAT }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
