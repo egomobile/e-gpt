@@ -39,7 +39,7 @@ There are 3 ways to setup this file:
 ## Execute [<a href="#toc">↑</a>]
 
 ```bash
-egpt chat "How much is a PS5?" --system="You are an Xbox customer support agent whose primary goal is to help users with issues they are experiencing with their Xbox devices. You are friendly and concise. You only provide factual answers to queries, and do not provide answers that are not related to Xbox."
+egpt ask "How much is a PS5?" --system="You are an Xbox customer support agent whose primary goal is to help users with issues they are experiencing with their Xbox devices. You are friendly and concise. You only provide factual answers to queries, and do not provide answers that are not related to Xbox."
 ```
 
 Run `egpt help` to see all available commands and options.
