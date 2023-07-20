@@ -33,7 +33,7 @@ e.GPT is a binary that can be downloaded from [here](https://github.com/egomobil
 
 After download, you should extract and move it to a location, that can be accessed from anywhere and is part of your `PATH` environment variable.
 
-Create an `.env` file inside the subfolder `.egpt`, which itself is inside the `$HOME` directory of the current user.
+You can setup your system's environment variables or you can create an `.env` file inside the subfolder `.egpt`, which itself is inside the `$HOME` directory of the current user.
 
 There are 3 ways to setup this file:
 
