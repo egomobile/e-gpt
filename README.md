@@ -29,13 +29,13 @@
 
 ## Install [<a href="#toc">↑</a>]
 
-e.GPT is a binary that can be downloaded from [here](https://github.com/egomobile/e-gpt/releases).
+e.GPT is shipped as a single binary that can be downloaded from [here](https://github.com/egomobile/e-gpt/releases).
 
 After download, you should extract and move it to a location, that can be accessed from anywhere and is part of your `PATH` environment variable.
 
 You can setup your system's environment variables or you can create an `.env` file inside the subfolder `.egpt`, which itself is inside the `$HOME` directory of the current user.
 
-There are 3 ways to setup this file:
+There are 3 ways to setup environment variables for the tool:
 
 1. The most common way is to setup the `OPENAI_API_KEY` environment variable, which should hold the [API key from OpenAI](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key). This will let the CLI connect to the [official API](https://platform.openai.com/docs/guides/gpt).
 2. Another way is to setup `CHAT_API_KEY`, which will connect to a simplified and more generic version of a chat REST API. This also requires `CHAT_API_CLIENT_ID` and `CHAT_API_URL` to be defined.
