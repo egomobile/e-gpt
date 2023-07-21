@@ -18,6 +18,7 @@
   - [ask - Chat with Bot](#ask-)
   - [code - Convert human language to source code](#code-)
   - [describe - Describe a shell command](#describe-)
+  - [environment - Show or edit environment settings](#environment-)
   - [explain - Explain source code](#explain-)
   - [optimize - Optimizes source code](#optimize-)
   - [shell - Create shell command from human language](#shell-)
@@ -106,6 +107,16 @@ Possible response:
 ```
 This command downloads the latest release of the "egpt" tool from the "egomobile/e-gpt" GitHub repository for macOS devices with ARM64 architecture, extracts the binary from the downloaded archive, and saves it as an executable file in the "/usr/local/bin" directory.
 ```
+
+### environment [<a href="#commands-">↑</a>]
+
+> Outputs or edits the tool's own `.env` file.
+
+```bash
+egpt environment -e
+```
+
+This will open the `.env` file in editor and ensures that `${HOME}/.egpt` folder exists.
 
 ### explain [<a href="#commands-">↑</a>]
 

@@ -30,10 +30,6 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
-func ExecuteAskCommand() {
-
-}
-
 func Init_ask_Command(rootCmd *cobra.Command) {
 	var noAdditionalInfo bool
 	var noSysInfo bool

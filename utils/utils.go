@@ -190,6 +190,15 @@ func GetAndCheckInput(args []string, openEditor bool) string {
 	return input
 }
 
+func GetEnvFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return path.Join(homeDir, ".egpt/.env"), nil
+}
+
 func GetInput(args []string, openEditor bool) (string, error) {
 	// first add arguments from CLI
 	var parts []string

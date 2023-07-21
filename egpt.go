@@ -19,12 +19,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 
 	egoCommands "github.com/egomobile/e-gpt/commands"
+	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
 var rootCmd = &cobra.Command{
@@ -42,6 +42,7 @@ func initCommands() {
 	egoCommands.Init_ask_Command(rootCmd)
 	egoCommands.Init_code_Command(rootCmd)
 	egoCommands.Init_describe_Command(rootCmd)
+	egoCommands.Init_environment_Command(rootCmd)
 	egoCommands.Init_explain_Command(rootCmd)
 	egoCommands.Init_optimize_Command(rootCmd)
 	egoCommands.Init_shell_Command(rootCmd)
@@ -52,18 +53,16 @@ func initCommands() {
 func main() {
 	// try to load .env file from
 	// ${HOME}/.egpt
-	homeDir, err := os.UserHomeDir()
-	if err == nil {
-		egptEnv := path.Join(homeDir, ".egpt/.env")
-
+	egptEnv, err := egoUtils.GetEnvFilePath()
+	if err != nil {
+		log.Println("[WARN]", fmt.Sprintf("Could not detect home directory: %v", err.Error()))
+	} else {
 		if _, err := os.Stat(egptEnv); err == nil {
 			err := godotenv.Load(egptEnv)
 			if err != nil {
 				log.Fatalf("Error loading .egpt/.env file: %v", err.Error())
 			}
 		}
-	} else {
-		log.Println("[WARN]", fmt.Sprintf("Could not detect home directory: %v", err.Error()))
 	}
 
 	// try to load .env from current working directory
