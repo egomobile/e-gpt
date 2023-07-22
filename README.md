@@ -99,7 +99,7 @@ fmt.Println(fibonacci(10)) // Output: 55
 > Handles a user input as shell command and tries to describe it.
 
 ```bash
-egpt describe "curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64"))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt"
+egpt describe "curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64") and (. | tostring | contains("sha256") | not))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt"
 ```
 
 Possible response:
@@ -212,7 +212,7 @@ Think about the following bash script that:
 A possible output in a `zsh` shell could be:
 
 ```
-curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64"))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt
+curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.assets[].browser_download_url | select(contains("darwin") and contains("arm64") and (. | tostring | contains("sha256") | not))' | xargs curl -sL | tar xzOf - egpt | sudo tee /usr/local/bin/egpt > /dev/null && sudo chmod +x /usr/local/bin/egpt
 [E]xecute, [a]bort >
 ```
 
