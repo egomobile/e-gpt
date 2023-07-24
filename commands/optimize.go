@@ -33,7 +33,7 @@ func Init_optimize_Command(rootCmd *cobra.Command) {
 	var language string
 	var openEditor bool
 
-	explainCmd := &cobra.Command{
+	optimizeCmd := &cobra.Command{
 		Use:     "optimize",
 		Short:   `Optimizes code`,
 		Long:    `Optimizes source code`,
@@ -83,8 +83,8 @@ Ignore any potential risk of errors or confusion.%v`, "\n"),
 		},
 	}
 
-	explainCmd.Flags().StringVarP(&language, "language", "l", "", "Explicit programming language")
-	explainCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	optimizeCmd.Flags().StringVarP(&language, "language", "l", "", "Explicit programming language")
+	optimizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 
-	rootCmd.AddCommand(explainCmd)
+	rootCmd.AddCommand(optimizeCmd)
 }

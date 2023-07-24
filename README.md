@@ -22,6 +22,7 @@
   - [explain - Explain source code](#explain-)
   - [optimize - Optimizes source code](#optimize-)
   - [shell - Create shell command from human language](#shell-)
+  - [sql - Execute SQL from human language](#sql-)
   - [summarize - Creates a short version of a long text](#summarize-)
   - [translate - Translates a text](#translate-)
 - [Inputs](#inputs-)
@@ -218,6 +219,33 @@ curl -s https://api.github.com/repos/egomobile/e-gpt/releases/latest | jq -r '.a
 
 Keep in mind: `E` is the default selection and will execute the given command.
 
+### sql [<a href="#commands-">↑</a>]
+
+> Execute SQL from human language.
+
+```bash
+egpt sql --csv "list all customers with last name Musk and select only name and address columns"
+```
+
+Possible response:
+
+```
+The following statements will be executed:
+- SELECT first_name, last_name, company_name, email_address, phone_number, street, city, post_code, country FROM public.customers WHERE lower(last_name) = 'musk'
+
+[E]xecute, [a]bort
+```
+
+Keep in mind: `E` is the default selection and will execute the given command.
+
+To setup the database connection, you can
+
+- setup `DATABASE_URL` environment variable with a connection string
+- use `connection` CLI flag with a connection string
+
+Currently supported are:
+- [PostgreSQL](https://github.com/lib/pq)
+
 ### summarize [<a href="#commands-">↑</a>]
 
 > Summarize a long text.
@@ -272,4 +300,5 @@ The module makes use of:
 
 - [Chroma](https://github.com/alecthomas/chroma) 
 - [Cobra](https://github.com/spf13/cobra)
+- [go-pretty](https://github.com/jedib0t/go-pretty)
 - [GoDotEnv](https://github.com/joho/godotenv)

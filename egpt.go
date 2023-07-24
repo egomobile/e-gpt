@@ -46,6 +46,7 @@ func initCommands() {
 	egoCommands.Init_explain_Command(rootCmd)
 	egoCommands.Init_optimize_Command(rootCmd)
 	egoCommands.Init_shell_Command(rootCmd)
+	egoCommands.Init_sql_Command(rootCmd)
 	egoCommands.Init_summarize_Command(rootCmd)
 	egoCommands.Init_translate_Command(rootCmd)
 }
