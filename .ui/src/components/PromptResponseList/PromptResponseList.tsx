@@ -33,13 +33,28 @@ const PromptResponseList: FC<PromptResponseListProps> = ({ responseList }) => {
   })
 
   useEffect(() => {
+    const lastItemIndex = responseList.length - 1;
+    const lastItem = responseList[lastItemIndex];
+    if (lastItem) {
+      const id = `ego-${lastItem.id}-${lastItemIndex}`;
+
+      const element = document.getElementById(id);
+      if (typeof element?.scrollIntoView === 'function') {
+        element.scrollIntoView();
+      }
+    }
+
     hljs.highlightAll();
   }, [responseList]);
 
   return (
     <div className="prompt-response-list" ref={responseListRef}>
-      {responseList.map((responseData) => (
-        <div className={"response-container " + (responseData.selfFlag ? 'my-question' : 'chatgpt-response')} key={responseData.id}>
+      {responseList.map((responseData, responseDataIndex) => (
+        <div
+          className={"response-container " + (responseData.selfFlag ? 'my-question' : 'chatgpt-response')}
+          key={responseData.id}
+          id={`ego-${responseData.id}-${responseDataIndex}`}
+        >
           <img className="avatar-image" src={responseData.selfFlag ? MyImg : ChatGptImg} alt="avatar" />
           <div className={(responseData.error ? 'error-response ' : '') + "prompt-content"} id={responseData.id}>
             {responseData.image &&
