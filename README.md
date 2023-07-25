@@ -25,6 +25,7 @@
   - [sql - Execute SQL from human language](#sql-)
   - [summarize - Creates a short version of a long text](#summarize-)
   - [translate - Translates a text](#translate-)
+  - [ui - Run local UI](#ui-)
 - [Inputs](#inputs-)
 - [Examples](#examples-)
 - [Custom system prompts](#custom-system-prompts-)
@@ -151,11 +152,11 @@ egpt explain < ./spagetti.bas --language=basic
 and may get an output like this:
 
 ```
-This is a simple program that calculates the square of numbers from 1 to 100 and prints them to the console. 
+This is a simple program that calculates the square of numbers from 1 to 100 and prints them to the console.
 
-The program starts by initializing a variable `i` with the value 0. It then enters a loop that increments `i` by 1, calculates the square of `i`, and prints the result to the console in the format "i squared= result". 
+The program starts by initializing a variable `i` with the value 0. It then enters a loop that increments `i` by 1, calculates the square of `i`, and prints the result to the console in the format "i squared= result".
 
-The loop continues until `i` is greater than or equal to 100, at which point the program skips to line 6 and continues executing. If `i` is less than 100, the program jumps back to line 2 and continues the loop. 
+The loop continues until `i` is greater than or equal to 100, at which point the program skips to line 6 and continues executing. If `i` is less than 100, the program jumps back to line 2 and continues the loop.
 
 Once the loop completes, the program prints "Program Completed." to the console and exits.
 ```
@@ -251,6 +252,7 @@ To setup the database connection, you can
 - setup `DATABASE_URL` environment variable with a connection string
 
 Currently supported are:
+
 - [PostgreSQL](https://github.com/lib/pq)
 
 ### summarize [<a href="#commands-">↑</a>]
@@ -279,6 +281,14 @@ Possible response:
 
 ```
 Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und wirft dem Unternehmen vor, sich von den Prinzipien der Open-Source-Community abzuwenden und zu einem gewöhnlichen Software-Unternehmen zu werden. Der Autor weist darauf hin, dass die jüngsten Maßnahmen von Red Hat, wie die Entlassung des Teams der Open-Source-Community-Website und die Rücknahme des RHEL-Codes, Verrat an der Open-Source-Community sind. Der Autor hält Alternativen wie Rocky Linux und AlmaLinux für wichtig, da viele Unternehmen eine kostenlose RHEL-Klon-Version benötigen, ohne hohe Kosten zu zahlen. Der Autor betrachtet dieses Verhalten als respektlos gegenüber der Open-Source-Community und widersprüchlich zu früheren Äußerungen von Red Hat.
+```
+
+### ui [<a href="#ui-">↑</a>]
+
+> Serves a local web UI.
+
+```bash
+egpt ui
 ```
 
 ## Inputs [<a href="#toc">↑</a>]
@@ -323,7 +333,7 @@ To reset to default prompt, simply delete the file or fill it with whitespaces o
 
 The module makes use of:
 
-- [Chroma](https://github.com/alecthomas/chroma) 
+- [Chroma](https://github.com/alecthomas/chroma)
 - [Cobra](https://github.com/spf13/cobra)
 - [go-pretty](https://github.com/jedib0t/go-pretty)
 - [GoDotEnv](https://github.com/joho/godotenv)

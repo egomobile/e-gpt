@@ -418,3 +418,20 @@ func TryGetExecutablePath(command string) string {
 
 	return exePath
 }
+
+func TryOpen(resource string) error {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", resource).Start()
+	case "windows":
+		err = exec.Command("cmd", "/c", "start", resource).Start()
+	case "darwin":
+		err = exec.Command("open", resource).Start()
+	default:
+		err = exec.Command("xdg-open", resource).Start()
+	}
+
+	return err
+}

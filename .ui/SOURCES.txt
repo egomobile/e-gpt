@@ -1,0 +1,1 @@
+- Original code from: https://github.com/ioanmo226/chatgpt-react-application

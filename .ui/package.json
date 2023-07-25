@@ -1,0 +1,52 @@
+{
+  "name": "egpt-ui",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=18 < 20",
+    "npm": ">=9 < 10"
+  },
+  "dependencies": {
+    "@types/node": "18.11.9",
+    "@types/react": "18.2.16",
+    "@types/react-dom": "18.2.7",
+    "axios": "1.4.0",
+    "highlight.js": "11.8.0",
+    "react": "18.2.0",
+    "react-contenteditable": "3.3.7",
+    "react-dom": "18.2.0",
+    "react-markdown": "8.0.7",
+    "react-scripts": "5.0.1",
+    "sass": "^1.64.1",
+    "typescript": "4.9.5"
+  },
+  "scripts": {
+    "start": "node ./server.js & react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@egomobile/http-server": "^0.63.1",
+    "@types/cors": "^2.8.13",
+    "cors": "^2.8.5"
+  }
+}
