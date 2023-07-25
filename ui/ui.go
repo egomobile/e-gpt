@@ -21,6 +21,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	egoUtils "github.com/egomobile/e-gpt/utils"
@@ -33,7 +34,7 @@ func getAssets() (fs.FS, error) {
 	return fs.Sub(assets, "build")
 }
 
-func StartUI(addr string, port int32, shouldOpenBrowser bool) {
+func StartUI(addr string, port int32, backendAddr string, backendPort int32, shouldOpenBrowser bool) {
 	assets, _ := getAssets()
 
 	fs := http.FileServer(http.FS(assets))
@@ -43,7 +44,12 @@ func StartUI(addr string, port int32, shouldOpenBrowser bool) {
 
 	if shouldOpenBrowser {
 		go func() {
-			browserUrl := fmt.Sprintf("http://%v:%v", addr, port)
+			browserUrl := fmt.Sprintf(
+				"http://%v:%v?address=%v&port=%v",
+				addr, port,
+				url.QueryEscape(backendAddr),
+				url.QueryEscape(fmt.Sprintf("%v", backendPort)),
+			)
 
 			fmt.Println("Will open browser at", browserUrl, "in 1 second ...")
 
@@ -51,7 +57,7 @@ func StartUI(addr string, port int32, shouldOpenBrowser bool) {
 
 			err := egoUtils.TryOpen(browserUrl)
 			if err != nil {
-				log.Println("[WARN]", "Could not open browser:", err)
+				log.Println("[WARN]", "Could not open browser url", browserUrl, ":", err)
 			}
 		}()
 	}

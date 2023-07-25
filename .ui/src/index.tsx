@@ -18,7 +18,19 @@ import ReactDOM from 'react-dom/client';
 import App from './components/App/App';
 import axios from "axios";
 
-axios.defaults.baseURL = 'http://127.0.0.1:8181/api';
+const params = new URLSearchParams(window.location.search || '');
+
+let backendPort = parseInt(params.get('port')?.trim() || '');
+if (Number.isNaN(backendPort)) {
+  backendPort = 8181;
+}
+
+let backendAddress = params.get('address')?.trim() || '';
+if (!backendAddress) {
+  backendAddress = "127.0.0.1";
+}
+
+axios.defaults.baseURL = `http://${backendAddress}:${backendPort}/api`;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

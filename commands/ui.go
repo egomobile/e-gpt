@@ -16,9 +16,12 @@
 package commands
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
+	"time"
 
 	"github.com/fasthttp/router"
 	"github.com/spf13/cobra"
@@ -38,18 +41,45 @@ type ChatResponse struct {
 }
 
 func Init_ui_Command(rootCmd *cobra.Command) {
+	var apiListenerAddr = "127.0.0.1"
+	var apiPort int32 = 8181
+	var noAdditionalInfo bool
+	var noSysInfo bool
+	var noTime bool
 	shouldNotOpenBrowser := false
+	var system string
+	var uiListenerAddr = "127.0.0.1"
+	var uiPort int32 = 8080
 
 	uiCmd := &cobra.Command{
-		Use:   "ui",
-		Short: `Start local UI`,
-		Long:  `Starts a local web server with a local UI`,
+		Use:     "ui",
+		Short:   `Start local UI`,
+		Long:    `Starts a local web server with a local UI`,
+		Aliases: []string{"u"},
 
 		Run: func(cmd *cobra.Command, args []string) {
-			go egoUI.StartUI("127.0.0.1", 8080, !shouldNotOpenBrowser)
+			go egoUI.StartUI(uiListenerAddr, uiPort, apiListenerAddr, apiPort, !shouldNotOpenBrowser)
 
-			backendAddr := "127.0.0.1"
-			var backendPort int32 = 8181
+			var additionalInfo []string
+			var systemPromptBuff bytes.Buffer
+
+			addInfos := func(infos ...string) {
+				additionalInfo = append(additionalInfo, infos...)
+			}
+
+			customSystemPrompt := strings.TrimSpace(system)
+			if customSystemPrompt != "" {
+				systemPromptBuff.WriteString(fmt.Sprintln(customSystemPrompt))
+			} else {
+				defaultSystemPrompt, _, err := egoUtils.GetSystemPrompt()
+				if err != nil {
+					panic(err)
+				}
+
+				systemPromptBuff.WriteString(fmt.Sprintln(defaultSystemPrompt))
+			}
+
+			systemPromptTemplate := systemPromptBuff.String()
 
 			router := router.New()
 			router.HandleOPTIONS = true
@@ -61,14 +91,18 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 				ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 			}
 
+			// CORS
 			router.OPTIONS("/api/chat", func(ctx *fasthttp.RequestCtx) {
 				cors(ctx)
 
 				ctx.SetStatusCode(204)
 			})
 
+			// chat
 			router.POST("/api/chat", func(ctx *fasthttp.RequestCtx) {
 				cors(ctx)
+
+				now := time.Now()
 
 				sendError := func(err error) {
 					ctx.SetStatusCode(500)
@@ -84,14 +118,45 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 					return
 				}
 
-				systemPrompt, _, err := egoUtils.GetSystemPrompt()
-				if err != nil {
-					sendError(err)
-					return
+				var finalSystemPrompt bytes.Buffer
+				finalSystemPrompt.WriteString(systemPromptTemplate)
+
+				if !noSysInfo {
+					if !noTime {
+						zoneName, zoneOffset := now.Zone()
+
+						addInfos(fmt.Sprintf(
+							"The current timezone is %v with an offset of %v seconds from UTC.",
+							zoneName,
+							zoneOffset,
+						))
+
+						addInfos(fmt.Sprintf(
+							"The current date with time is %v, while the current local weekday is %v. Always output the time in a format that matches the current language.",
+							now.Local().Weekday(),
+							now.Local().Format("2006-01-02T15:04:05-0700"),
+						))
+
+						addInfos("You will always act as if you have access to a time server and not tell the user.")
+					}
+				}
+
+				if !noAdditionalInfo {
+					// collect additional info, if available
+					if len(additionalInfo) > 0 {
+						finalSystemPrompt.WriteString(fmt.Sprintln())
+						finalSystemPrompt.WriteString(fmt.Sprintln("In addition, the following information is available to you:"))
+
+						for _, info := range additionalInfo {
+							finalSystemPrompt.WriteString(info)
+						}
+
+						finalSystemPrompt.WriteString(fmt.Sprintln())
+					}
 				}
 
 				answer, err := egoOpenAI.AskChatGPT(
-					systemPrompt,
+					finalSystemPrompt.String(),
 					chatRequest.Conversation...,
 				)
 				if err != nil {
@@ -111,13 +176,26 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 				ctx.Write(data)
 			})
 
-			log.Println(fmt.Sprintf("Chat backend will listen on %v:%v ...", backendAddr, backendPort))
-			log.Fatal(fasthttp.ListenAndServe(fmt.Sprintf("%v:%v", backendAddr, backendPort), router.Handler))
+			log.Println(fmt.Sprintf("Chat backend will listen on %v:%v ...", apiListenerAddr, apiPort))
+			log.Fatal(fasthttp.ListenAndServe(fmt.Sprintf("%v:%v", apiListenerAddr, apiPort), router.Handler))
 		},
 	}
 
+	uiCmd.Flags().StringVarP(&uiListenerAddr, "address", "a", "127.0.0.1", "Custom UI listener address")
+	uiCmd.Flags().StringVarP(&apiListenerAddr, "api-address", "", "127.0.0.1", "Custom API listener address")
+	uiCmd.Flags().StringVarP(&apiListenerAddr, "aa", "", "127.0.0.1", "Custom API listener address")
+	uiCmd.Flags().Int32VarP(&apiPort, "api-port", "", 8181, "Custom API port")
+	uiCmd.Flags().Int32VarP(&apiPort, "ap", "", 8181, "Custom API port")
+	uiCmd.Flags().BoolVarP(&noTime, "no-time", "", false, "Do not add current time to system prompt")
+	uiCmd.Flags().BoolVarP(&noTime, "nt", "", false, "Do not add current time to system prompt")
+	uiCmd.Flags().BoolVarP(&noSysInfo, "no-sys-info", "", false, "Do not add information about the system at all")
+	uiCmd.Flags().BoolVarP(&noSysInfo, "nsi", "", false, "Do not add information about the system at all")
+	uiCmd.Flags().BoolVarP(&noAdditionalInfo, "no-additional-info", "", false, "Do not add additional info to system prompt at all")
+	uiCmd.Flags().BoolVarP(&noAdditionalInfo, "nai", "", false, "Do not add additional info to system prompt at all")
 	uiCmd.Flags().BoolVarP(&shouldNotOpenBrowser, "do-not-open", "", false, "Do not open browser after start")
 	uiCmd.Flags().BoolVarP(&shouldNotOpenBrowser, "dno", "", false, "Do not open browser after start")
+	uiCmd.Flags().StringVarP(&system, "system", "s", "", "Custom system prompt")
+	uiCmd.Flags().Int32VarP(&uiPort, "port", "p", 8080, "Custom UI port")
 
 	rootCmd.AddCommand(uiCmd)
 }
