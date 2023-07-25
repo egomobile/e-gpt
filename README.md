@@ -27,6 +27,7 @@
   - [translate - Translates a text](#translate-)
 - [Inputs](#inputs-)
 - [Examples](#examples-)
+- [Custom system prompts](#custom-system-prompts-)
 - [Credits](#credits-)
 
 ## Install [<a href="#toc">↑</a>]
@@ -111,13 +112,19 @@ This command downloads the latest release of the "egpt" tool from the "egomobile
 
 ### environment [<a href="#commands-">↑</a>]
 
-> Outputs or edits the tool's own `.env` file.
+> Outputs or edits the tool's own application file, like `.env` or `.system`.
 
 ```bash
 egpt environment -e
 ```
 
 This will open the `.env` file in editor and ensures that `${HOME}/.egpt` folder exists.
+
+You are also able to open `${HOME}/.egpt/.system`, which contains optional and custom system prompt for [ask command](#ask-):
+
+```bash
+egpt environment -e --system
+```
 
 ### explain [<a href="#commands-">↑</a>]
 
@@ -240,8 +247,8 @@ Keep in mind: `E` is the default selection and will execute the given command.
 
 To setup the database connection, you can
 
-- setup `DATABASE_URL` environment variable with a connection string
 - use `connection` CLI flag with a connection string
+- setup `DATABASE_URL` environment variable with a connection string
 
 Currently supported are:
 - [PostgreSQL](https://github.com/lib/pq)
@@ -274,10 +281,6 @@ Possible response:
 Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und wirft dem Unternehmen vor, sich von den Prinzipien der Open-Source-Community abzuwenden und zu einem gewöhnlichen Software-Unternehmen zu werden. Der Autor weist darauf hin, dass die jüngsten Maßnahmen von Red Hat, wie die Entlassung des Teams der Open-Source-Community-Website und die Rücknahme des RHEL-Codes, Verrat an der Open-Source-Community sind. Der Autor hält Alternativen wie Rocky Linux und AlmaLinux für wichtig, da viele Unternehmen eine kostenlose RHEL-Klon-Version benötigen, ohne hohe Kosten zu zahlen. Der Autor betrachtet dieses Verhalten als respektlos gegenüber der Open-Source-Community und widersprüchlich zu früheren Äußerungen von Red Hat.
 ```
 
-## Examples [<a href="#toc">↑</a>]
-
-A list of useful examples, can be found [here](./examples/README.md).
-
 ## Inputs [<a href="#toc">↑</a>]
 
 You have the following sources for input data:
@@ -294,6 +297,28 @@ You can combine all kind of inputs. All texts will be concatenated in the given 
 
 Keep in mind: The final prompt will be trimmed (start + end).
 
+## Examples [<a href="#toc">↑</a>]
+
+A list of useful examples, can be found [here](./examples/README.md).
+
+## Custom system prompts [<a href="#toc">↑</a>]
+
+In `${HOME}/.egpt` folder, you can create/edit a `.system` file, with a custom system prompt.
+
+If the file exists and contains data, it will be used for [ask command](#ask-) as default, if `--system` flag is not defined.
+
+To edit the file, simply execute
+
+```bash
+./egpt env -s -e
+```
+
+in your terminal.
+
+KEEP IN MIND: Additional prompt information like time and timezone will be added automatically! Use `--no-sys-info` and/or `--no-time` CLI flags to prevent this.
+
+To reset to default prompt, simply delete the file or fill it with whitespaces only (make it "empty").
+
 ## Credits [<a href="#toc">↑</a>]
 
 The module makes use of:
@@ -302,3 +327,4 @@ The module makes use of:
 - [Cobra](https://github.com/spf13/cobra)
 - [go-pretty](https://github.com/jedib0t/go-pretty)
 - [GoDotEnv](https://github.com/joho/godotenv)
+- [PostgreSQL driver](https://github.com/lib/pq)

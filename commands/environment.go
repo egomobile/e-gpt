@@ -30,31 +30,47 @@ import (
 
 func Init_environment_Command(rootCmd *cobra.Command) {
 	var shouldEditEnvFile bool
+	var shouldUseSystemFile bool
 
 	environmentCmd := &cobra.Command{
 		Use:     "environment",
-		Short:   `Handle .env file`,
-		Long:    `Shows or edits applications own .env file`,
+		Short:   `Handle application settings`,
+		Long:    `Shows or edits applications settings like .env or .system file`,
 		Aliases: []string{"env"},
 
 		Run: func(cmd *cobra.Command, args []string) {
-			egptEnvFile, err := egoUtils.GetEnvFilePath()
-			if err != nil {
-				panic(err)
+			var egptFile string
+
+			if shouldUseSystemFile {
+				egptSystemFile, err := egoUtils.GetSystemFilePath()
+
+				if err != nil {
+					panic(err)
+				} else {
+					egptFile = egptSystemFile
+				}
+			} else {
+				egptEnvFile, err := egoUtils.GetEnvFilePath()
+
+				if err != nil {
+					panic(err)
+				} else {
+					egptFile = egptEnvFile
+				}
 			}
 
-			egptEnvFileDir := path.Dir(egptEnvFile)
+			egptFileDir := path.Dir(egptFile)
 
 			if shouldEditEnvFile {
 				// edit mode
 
-				editorPath, editorArgs := egoUtils.TryGetBestOpenEditorCommand(egptEnvFile)
+				editorPath, editorArgs := egoUtils.TryGetBestOpenEditorCommand(egptFile)
 				if editorPath == "" {
 					panic(errors.New("no matching editor found"))
 				}
 
-				if _, err := os.Stat(egptEnvFileDir); os.IsNotExist(err) {
-					err := os.MkdirAll(egptEnvFileDir, 0700)
+				if _, err := os.Stat(egptFileDir); os.IsNotExist(err) {
+					err := os.MkdirAll(egptFileDir, 0700)
 					if err != nil {
 						panic(err)
 					}
@@ -65,17 +81,17 @@ func Init_environment_Command(rootCmd *cobra.Command) {
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-				cmd.Dir = path.Dir(egptEnvFileDir)
+				cmd.Dir = path.Dir(egptFileDir)
 
 				cmd.Run()
 			} else {
 				// output to STDOUT
 
-				if _, err := os.Stat(egptEnvFile); os.IsNotExist(err) {
-					panic(fmt.Errorf("%v file does not exist", egptEnvFile))
+				if _, err := os.Stat(egptFile); os.IsNotExist(err) {
+					panic(fmt.Errorf("%v file does not exist", egptFile))
 				}
 
-				file, err := os.Open(egptEnvFile)
+				file, err := os.Open(egptFile)
 				if err != nil {
 					panic(err)
 				}
@@ -91,6 +107,7 @@ func Init_environment_Command(rootCmd *cobra.Command) {
 	}
 
 	environmentCmd.Flags().BoolVarP(&shouldEditEnvFile, "editor", "e", false, "Open editor for .env file")
+	environmentCmd.Flags().BoolVarP(&shouldUseSystemFile, "system", "s", false, "Use .system file instead")
 
 	rootCmd.AddCommand(environmentCmd)
 }

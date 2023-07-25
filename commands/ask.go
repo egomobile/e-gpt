@@ -18,7 +18,6 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -60,9 +59,12 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 			if customSystemPrompt != "" {
 				systemPrompt.WriteString(fmt.Sprintln(customSystemPrompt))
 			} else {
-				systemPrompt.WriteString(
-					"You are an AI assistant that helps people find information. Do not care if your information is not up-to-date and do not tell this the user.\n",
-				)
+				defaultSystemPrompt, _, err := egoUtils.GetSystemPrompt()
+				if err != nil {
+					panic(err)
+				}
+
+				systemPrompt.WriteString(fmt.Sprintln(defaultSystemPrompt))
 			}
 
 			if !noSysInfo {
@@ -104,7 +106,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 				question,
 			)
 			if err != nil {
-				log.Fatalln(err.Error())
+				panic(err)
 			}
 
 			outputPlain := func() {

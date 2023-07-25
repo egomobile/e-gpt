@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -326,6 +327,48 @@ func GetShellName() string {
 	}
 
 	return "Unknown"
+}
+
+func GetSystemFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return path.Join(homeDir, ".egpt/.system"), nil
+}
+
+func GetSystemPrompt() (string, bool, error) {
+	isCustom := false
+
+	filePath, err := GetSystemFilePath()
+	if err != nil {
+		return "", isCustom, err
+	}
+
+	var systemPrompt string
+
+	_, err = os.Stat(filePath)
+	if !os.IsNotExist(err) {
+		if err != nil {
+			return "", isCustom, err
+		}
+
+		data, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			return "", isCustom, err
+		}
+
+		systemPrompt = strings.TrimSpace(string(data))
+	}
+
+	if systemPrompt == "" {
+		systemPrompt = "You are an AI assistant that helps people find information. Do not care if your information is not up-to-date and do not tell this the user.\n"
+	} else {
+		isCustom = true
+	}
+
+	return strings.TrimSpace(systemPrompt), isCustom, nil
 }
 
 func RemoveMarkdownCode(str string) string {
