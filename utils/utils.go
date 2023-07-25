@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -212,18 +211,6 @@ func GetInput(args []string, openEditor bool) (string, error) {
 
 	addPart(strings.Join(args, " "))
 
-	stdinStat, _ := os.Stdin.Stat()
-	if (stdinStat.Mode() & os.ModeCharDevice) == 0 {
-		scanner := bufio.NewScanner(os.Stdin)
-
-		temp := ""
-		for scanner.Scan() {
-			temp += scanner.Text()
-		}
-
-		addPart(temp)
-	}
-
 	if openEditor {
 		// at last: try editor
 
@@ -261,6 +248,18 @@ func GetInput(args []string, openEditor bool) (string, error) {
 		}
 
 		addPart(string(tmpData))
+	}
+
+	stdinStat, _ := os.Stdin.Stat()
+	if (stdinStat.Mode() & os.ModeCharDevice) == 0 {
+		scanner := bufio.NewScanner(os.Stdin)
+
+		temp := ""
+		for scanner.Scan() {
+			temp += scanner.Text()
+		}
+
+		addPart(temp)
 	}
 
 	return strings.TrimSpace(strings.Join(parts, " ")), nil
@@ -354,7 +353,7 @@ func GetSystemPrompt() (string, bool, error) {
 			return "", isCustom, err
 		}
 
-		data, err := ioutil.ReadFile(filePath)
+		data, err := os.ReadFile(filePath)
 		if err != nil {
 			return "", isCustom, err
 		}

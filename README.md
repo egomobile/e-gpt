@@ -300,11 +300,11 @@ You have the following sources for input data:
 
 1. One or more non-flag command line arguments. All will be concatenate and seperated by space to one string.
    - Example: `egpt ask who is bill gates`
-2. The [STDIN](https://en.wikipedia.org/wiki/Standard_streams):
+2. The standard editor:
+   - Example: `egpt ask summarize the following text --editor`
+3. The [STDIN](https://en.wikipedia.org/wiki/Standard_streams):
    - Example #1: `egpt ask "please summarize" < ./long-text.txt`
    - Example #2: `curl -sSL "https://raw.githubusercontent.com/egomobile/e-gpt/main/LICENSE" | ./egpt ask summarize the following text`
-3. The standard editor:
-   - Example: `egpt ask summarize the following text --editor`
 
 You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
 

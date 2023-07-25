@@ -1,5 +1,12 @@
 # Change Log (e.GPT)
 
+## 0.6.0
+
+- **BREAKING CHANGE**: changed input order to:
+  1. arguments
+  2. editor
+  3. STDIN
+
 ## 0.5.0
 
 - implement `ui` command, which open a local UI, thanks to [jbonot](https://github.com/egomobile/e-gpt/issues/2)
