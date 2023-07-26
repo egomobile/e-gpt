@@ -1,1 +1,2 @@
-- Original code from: https://github.com/ioanmo226/chatgpt-react-application
+- Original code from: https://github.com/mckaywrigley/chatbot-ui
+

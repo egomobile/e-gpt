@@ -336,7 +336,7 @@ To reset to default prompt, simply delete the file or fill it with whitespaces o
 
 The module makes use of:
 
-- [ChatGPT Web Application](https://github.com/ioanmo226/chatgpt-react-application)
+- [Chatbot UI](https://github.com/mckaywrigley/chatbot-ui)
 - [Chroma](https://github.com/alecthomas/chroma)
 - [Cobra](https://github.com/spf13/cobra)
 - [go-pretty](https://github.com/jedib0t/go-pretty)

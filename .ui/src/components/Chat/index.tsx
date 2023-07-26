@@ -13,16 +13,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-/* Style for the prompt input */
-#prompt-input {
-  flex-grow: 1;
-  padding: 10px;
-  border-radius: 5px;
-  min-height: 20px;
-  color: white;
-  overflow: auto;
+// system import
+import React from 'react';
+
+interface IChatProps {
 }
 
-#prompt-input:focus {
-  outline: none !important;
-}
+const Chat: React.FC<IChatProps> = () => {
+  return (
+    <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">
+      &nbsp;
+    </div>
+  );
+};
+
+export default Chat;
