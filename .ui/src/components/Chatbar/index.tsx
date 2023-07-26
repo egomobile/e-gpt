@@ -97,6 +97,7 @@ const Chatbar: React.FC = () => {
       folderId: '',
       id: `${Date.now()}-${v4()}`,
       title: `New Conversation #${newNextNewConversationIndex}`,
+      messages: []
     };
 
     setItems([...items, newConversation]);

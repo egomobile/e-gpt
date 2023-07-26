@@ -21,23 +21,25 @@ export type ChatPromptItem =
   IChatPromptFolder |
   IChatPrompt;
 
-export interface IFolder {
-  id: string;
-  title: string;
-  type: FolderType;
-}
+export type ChatRole = 'assistant' | 'user';
 
 export type FolderType = 'chat' | 'prompt';
 
 export interface IChatConversation {
   folderId: string;
   id: string;
+  messages: IChatMessage[];
   title: string;
 }
 
 export interface IChatConversationFolder extends IFolder {
   conversations: IChatConversation[];
   type: 'chat';
+}
+
+export interface IChatMessage {
+  content: string;
+  role: ChatRole;
 }
 
 export interface IChatPromptFolder extends IFolder {
@@ -51,4 +53,10 @@ export interface IChatPrompt {
   folderId: string;
   id: string;
   title: string;
+}
+
+export interface IFolder {
+  id: string;
+  title: string;
+  type: FolderType;
 }

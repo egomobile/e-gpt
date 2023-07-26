@@ -34,7 +34,13 @@ const App: React.FC = () => {
           <Chatbar />
 
           <div className="flex flex-1">
-            <Chat />
+            <Chat prompts={[{
+              id: '46e35092-5cb7-44b0-aae3-9c5bf0566672',
+              folderId: '46e35092-5cb7-44b0-aae3-9c5bf0566673',
+              content: 'You are an AI assistant that helps people find information. Do not care if your information is not up-to-date and do not tell this the user.',
+              description: 'A test prompt',
+              title: 'Test prompt'
+            }]} />
           </div>
 
           <Promptbar />
