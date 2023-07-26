@@ -165,7 +165,7 @@ const Promptbar: React.FC = () => {
   return (
     <>
       <Sidebar
-        side={'left'}
+        side={'right'}
         isOpen={isOpen}
         addItemButtonTitle={'New prompt'}
         itemComponent={
