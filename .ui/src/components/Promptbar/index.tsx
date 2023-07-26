@@ -14,7 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 } from 'uuid';
 
 // internal imports
@@ -24,9 +24,16 @@ import Sidebar from '../Sidebar';
 import { ChatPromptItem, IChatPrompt, IChatPromptFolder } from '../../types';
 import { filterChatPrompts } from '../../utils';
 
-const Promptbar: React.FC = () => {
+interface IPromptbarProps {
+  items: ChatPromptItem[];
+  onPromptItemsUpdate: (items: ChatPromptItem[]) => void;
+}
+
+const Promptbar: React.FC<IPromptbarProps> = ({
+  items,
+  onPromptItemsUpdate
+}) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [items, setItems] = useState<ChatPromptItem[]>([]);
   const [nextNewFolderIndex, setNextNewFolderIndex] = useState(0);
   const [nextNewPromptIndex, setNextNewPromptIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +54,10 @@ const Promptbar: React.FC = () => {
     return filterChatPrompts(prompts, searchTerm);
   }, [prompts, searchTerm]);
 
+  const handleItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
+    onPromptItemsUpdate(newList);
+  }, [onPromptItemsUpdate]);
+
   const handleDrop = useCallback((e: any) => {
     console.log('Chatbar.handleDrop');
   }, []);
@@ -61,9 +72,9 @@ const Promptbar: React.FC = () => {
       type: 'prompt',
     };
 
-    setItems([...items, newFolder]);
+    handleItemsUpdate([...items, newFolder]);
     setNextNewFolderIndex(newNextFolderIndex);
-  }, [items, nextNewFolderIndex]);
+  }, [handleItemsUpdate, items, nextNewFolderIndex]);
 
   const handleToggleChatbar = useCallback(() => {
     setIsOpen(!isOpen);
@@ -80,9 +91,9 @@ const Promptbar: React.FC = () => {
       description: ''
     };
 
-    setItems([...items, newPrompt]);
+    handleItemsUpdate([...items, newPrompt]);
     setNextNewPromptIndex(newNextNewPromptIndex);
-  }, [items, nextNewPromptIndex]);
+  }, [handleItemsUpdate, items, nextNewPromptIndex]);
 
   const handleSearchTerm = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
@@ -97,8 +108,8 @@ const Promptbar: React.FC = () => {
       }
     });
 
-    setItems(newList);
-  }, [items]);
+    handleItemsUpdate(newList);
+  }, [handleItemsUpdate, items]);
 
   const handleDeleteFolder = useCallback((folder: IChatPromptFolder) => {
     const newItemList = items.filter((item) => {
@@ -109,8 +120,8 @@ const Promptbar: React.FC = () => {
       return item.folderId !== folder.id;
     });
 
-    setItems([...newItemList]);
-  }, [items]);
+    handleItemsUpdate([...newItemList]);
+  }, [handleItemsUpdate, items]);
 
   const handleDeletePrompt = useCallback((prompt: IChatPrompt) => {
     const newItemList = items.filter((item) => {
@@ -121,8 +132,8 @@ const Promptbar: React.FC = () => {
       return true;
     });
 
-    setItems([...newItemList]);
-  }, [items]);
+    handleItemsUpdate([...newItemList]);
+  }, [handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatPromptFolder, newTitle: string) => {
     newTitle = newTitle.trim();
@@ -138,8 +149,12 @@ const Promptbar: React.FC = () => {
       }
     });
 
-    setItems([...newItemList]);
-  }, [items]);
+    handleItemsUpdate([...newItemList]);
+  }, [handleItemsUpdate, items]);
+
+  useEffect(() => {
+    onPromptItemsUpdate(items);
+  }, [items, onPromptItemsUpdate]);
 
   return (
     <>

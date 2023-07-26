@@ -27,10 +27,14 @@ import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
 
 interface IChatProps {
+  onConversationUpdate: (conversation: IChatConversation) => void;
   prompts: IChatPrompt[];
 }
 
-const Chat: React.FC<IChatProps> = ({ prompts }) => {
+const Chat: React.FC<IChatProps> = ({
+  onConversationUpdate,
+  prompts
+}) => {
   const [showScrollDownButton, setShowScrollDownButton] =
     useState<boolean>(false);
 
@@ -77,9 +81,13 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
     return throttle(scrollDown, 250);
   }, [scrollDown]);
 
-  const handleUpdateConversation = useCallback((conversation: IChatConversation, data: any) => {
-    //
-  }, []);
+  const handleUpdateConversationPromptChange = useCallback((conversation: IChatConversation, newPrompt: string) => {
+    onConversationUpdate({
+      ...conversation,
+
+      systemPrompt: newPrompt,
+    });
+  }, [onConversationUpdate]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -127,19 +135,17 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
             <>
               <div className="mx-auto flex flex-col space-y-5 md:space-y-10 px-3 pt-5 md:pt-12 sm:max-w-[600px]">
                 <div className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                  e.GPT UI
+                  e.GPT by e.GO
                 </div>
 
                 {selectedConversation && (
                   <SystemPrompt
                     conversation={selectedConversation}
+                    disabled={!!selectedConversation?.messages.length}
                     prompts={prompts}
-                    onChangePrompt={(prompt) =>
-                      handleUpdateConversation(selectedConversation, {
-                        key: 'prompt',
-                        value: prompt,
-                      })
-                    }
+                    onPromptChange={(prompt) => {
+                      handleUpdateConversationPromptChange(selectedConversation, prompt);
+                    }}
                   />
                 )}
               </div>
@@ -183,7 +189,7 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
         />
       </>
     );
-  }, [handleScroll, handleScrollDown, handleUpdateConversation, isLoading, prompts, selectedConversation, showScrollDownButton]);
+  }, [handleScroll, handleScrollDown, handleUpdateConversationPromptChange, isLoading, prompts, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
     const apiKey = 'TEST';  // TODO: replace

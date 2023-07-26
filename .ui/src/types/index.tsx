@@ -34,6 +34,7 @@ export interface IChatConversation {
     name: string;
     tokenLimit: number;
   };
+  systemPrompt: string;
   title: string;
 }
 

@@ -24,16 +24,18 @@ import VariableModal from '../VariableModal';
 import { defaultSystemPrompt } from '../../../../constants';
 import { filterChatPrompts, parseVariables } from '../../../../utils';
 
-interface Props {
+interface ISystemPromptProps {
   conversation: IChatConversation;
-  onChangePrompt: (prompt: string) => void;
+  disabled: boolean;
+  onPromptChange: (prompt: string) => void;
   prompts: IChatPrompt[];
 }
 
-const SystemPrompt: React.FC<Props> = ({
+const SystemPrompt: React.FC<ISystemPromptProps> = ({
   conversation,
+  disabled,
   prompts,
-  onChangePrompt,
+  onPromptChange,
 }) => {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -85,9 +87,9 @@ const SystemPrompt: React.FC<Props> = ({
     updatePromptListVisibility(value);
 
     if (value.length > 0) {
-      onChangePrompt(value);
+      onPromptChange(value);
     }
-  }, [maxLength, onChangePrompt, updatePromptListVisibility]);
+  }, [maxLength, onPromptChange, updatePromptListVisibility]);
 
   const handlePromptSelect = useCallback((prompt: IChatPrompt) => {
     const parsedVariables = parseVariables(prompt.content);
@@ -99,11 +101,11 @@ const SystemPrompt: React.FC<Props> = ({
       const updatedContent = value?.replace(/\/\w*$/, prompt.content);
 
       setValue(updatedContent);
-      onChangePrompt(updatedContent);
+      onPromptChange(updatedContent);
 
       updatePromptListVisibility(prompt.content);
     }
-  }, [onChangePrompt, updatePromptListVisibility, value]);
+  }, [onPromptChange, updatePromptListVisibility, value]);
 
   const handleInitModal = useCallback(() => {
     const selectedPrompt = filteredPrompts[activePromptIndex];
@@ -122,12 +124,12 @@ const SystemPrompt: React.FC<Props> = ({
     });
 
     setValue(newContent);
-    onChangePrompt(newContent);
+    onPromptChange(newContent);
 
     if (textareaRef && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [onChangePrompt, value, variables]);
+  }, [onPromptChange, value, variables]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (showPromptList) {
@@ -198,6 +200,7 @@ const SystemPrompt: React.FC<Props> = ({
       <textarea
         ref={textareaRef}
         className="w-full rounded-lg border border-neutral-200 bg-transparent px-4 py-3 text-neutral-900 dark:border-neutral-600 dark:text-neutral-100"
+        readOnly={disabled}
         style={{
           resize: 'none',
           bottom: `${textareaRef?.current?.scrollHeight}px`,

@@ -19,7 +19,6 @@ import {
   IconCheck,
   IconCopy,
   IconEdit,
-  IconRobot,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
@@ -29,9 +28,10 @@ import remarkMath from 'remark-math';
 
 // internal imports
 import CodeBlock from '../../../CodeBlock';
+import EgoLogo from '../../../../assets/img/ego.png';
 import MemoizedReactMarkdown from '../../../MemoizedReactMarkdown';
-import type { IChatMessage } from '../../../../types';
 import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
+import type { IChatMessage } from '../../../../types';
 
 export interface IChatMessageProps {
   message: IChatMessage;
@@ -115,9 +115,12 @@ export const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, message
       <div className="relative m-auto flex p-4 text-base md:max-w-2xl md:gap-6 md:py-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl">
         <div className="min-w-[40px] text-right font-bold">
           {message.role === 'assistant' ? (
-            <IconRobot size={30} />
+            <img
+              src={EgoLogo} width={24} alt={"e.GO Logo"}
+              className='relative m-auto'
+            />
           ) : (
-            <IconUser size={30} />
+            <IconUser size={30} className='relative m-auto' />
           )}
         </div>
 
@@ -240,7 +243,7 @@ export const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, message
                   },
                 }}
               >
-                {`${message.content}}`}
+                {`${message.content}`}
               </MemoizedReactMarkdown>
 
               <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">

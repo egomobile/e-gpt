@@ -15,7 +15,7 @@
 
 // system imports
 import _ from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 } from 'uuid';
 
 // internal imports
@@ -26,14 +26,19 @@ import { ChatConversationItem, IChatConversation, IChatConversationFolder } from
 import { toSearchString } from '../../utils';
 
 interface IChatbarProps {
+  items: ChatConversationItem[];
   onConversationClick: (conversation: IChatConversation) => void;
+  onConversationDelete: (conversationId: string) => void;
+  onConversationItemsUpdate: (items: ChatConversationItem[]) => void;
 }
 
 const Chatbar: React.FC<IChatbarProps> = ({
-  onConversationClick
+  items,
+  onConversationClick,
+  onConversationDelete,
+  onConversationItemsUpdate
 }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [items, setItems] = useState<ChatConversationItem[]>([]);
   const [nextNewConversationIndex, setNextNewConversationIndex] = useState(0);
   const [nextNewFolderIndex, setNextNewFolderIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,6 +79,10 @@ const Chatbar: React.FC<IChatbarProps> = ({
     });
   }, [conversations, searchTerm]);
 
+  const handleItemsUpdate = useCallback((newList: ChatConversationItem[]) => {
+    onConversationItemsUpdate(newList);
+  }, [onConversationItemsUpdate]);
+
   const handleDrop = useCallback((e: any) => {
     console.log('Chatbar.handleDrop');
   }, []);
@@ -88,9 +97,9 @@ const Chatbar: React.FC<IChatbarProps> = ({
       type: 'chat',
     };
 
-    setItems([...items, newFolder]);
+    handleItemsUpdate([...items, newFolder]);
     setNextNewFolderIndex(newNextFolderIndex);
-  }, [items, nextNewFolderIndex]);
+  }, [handleItemsUpdate, items, nextNewFolderIndex]);
 
   const handleToggleChatbar = useCallback(() => {
     setIsOpen(!isOpen);
@@ -108,12 +117,13 @@ const Chatbar: React.FC<IChatbarProps> = ({
         maxLength: 12000,
         name: 'GPT-3.5',
         tokenLimit: 4000
-      }
+      },
+      systemPrompt: ''
     };
 
-    setItems([...items, newConversation]);
+    handleItemsUpdate([...items, newConversation]);
     setNextNewConversationIndex(newNextNewConversationIndex);
-  }, [items, nextNewConversationIndex]);
+  }, [handleItemsUpdate, items, nextNewConversationIndex]);
 
   const handleSearchTerm = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
@@ -128,8 +138,10 @@ const Chatbar: React.FC<IChatbarProps> = ({
       return true;
     });
 
-    setItems(newItemList);
-  }, [items]);
+    handleItemsUpdate(newItemList);
+
+    onConversationDelete(conversation.id);
+  }, [handleItemsUpdate, items, onConversationDelete]);
 
   const handleDeleteFolder = useCallback((folder: IChatConversationFolder) => {
     const newItemList = items.filter((item) => {
@@ -140,8 +152,8 @@ const Chatbar: React.FC<IChatbarProps> = ({
       return item.folderId !== folder.id;
     });
 
-    setItems([...newItemList]);
-  }, [items]);
+    handleItemsUpdate([...newItemList]);
+  }, [handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatConversationFolder, newTitle: string) => {
     newTitle = newTitle.trim();
@@ -157,8 +169,8 @@ const Chatbar: React.FC<IChatbarProps> = ({
       }
     });
 
-    setItems([...newItemList]);
-  }, [items]);
+    handleItemsUpdate([...newItemList]);
+  }, [handleItemsUpdate, items]);
 
   const handleUpdateConversation = useCallback((newData: IChatConversation) => {
     const newList = [...items];
@@ -169,8 +181,12 @@ const Chatbar: React.FC<IChatbarProps> = ({
       }
     });
 
-    setItems(newList);
-  }, [items]);
+    handleItemsUpdate(newList);
+  }, [handleItemsUpdate, items]);
+
+  useEffect(() => {
+    onConversationItemsUpdate(items);
+  }, [items, onConversationItemsUpdate]);
 
   return (
     <>
