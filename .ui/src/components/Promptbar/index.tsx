@@ -14,7 +14,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import _ from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { v4 } from 'uuid';
 
@@ -23,7 +22,7 @@ import Prompts from '../Prompts';
 import PromptFolders from '../PromptFolders';
 import Sidebar from '../Sidebar';
 import { ChatPromptItem, IChatPrompt, IChatPromptFolder } from '../../types';
-import { toSearchString } from '../../utils';
+import { filterChatPrompts } from '../../utils';
 
 const Promptbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -45,27 +44,7 @@ const Promptbar: React.FC = () => {
   }, [items]);
 
   const filteredPrompts = useMemo(() => {
-    const parts = _(toSearchString(searchTerm).split(' '))
-      .map((p) => {
-        return p.trim();
-      })
-      .filter((p) => {
-        return p !== '';
-      })
-      .uniq()
-      .value();
-
-    if (!parts.length) {
-      return [...prompts];
-    }
-
-    return prompts.filter((pr) => {
-      const title = toSearchString(pr.title);
-
-      return parts.every((p) => {
-        return title.includes(p);
-      });
-    });
+    return filterChatPrompts(prompts, searchTerm);
   }, [prompts, searchTerm]);
 
   const handleDrop = useCallback((e: any) => {

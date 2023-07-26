@@ -14,24 +14,31 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import React from 'react';
+import React, { useState } from 'react';
+import type { Nullable } from '@egomobile/types';
 
 // internal imports
 import Chat from './components/Chat';
 import Chatbar from './components/Chatbar';
 import Promptbar from './components/Promptbar';
+import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
+import type { IChatConversation } from './types';
 
 // styles
 import './App.css';
 
 const App: React.FC = () => {
+  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
+
   return (
-    <>
+    <SelectedChatConversationContext.Provider value={selectedConversation}>
       <div
         className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
       >
         <div className="flex h-full w-full pt-[48px] sm:pt-0">
-          <Chatbar />
+          <Chatbar
+            onConversationClick={setSelectedConversation}
+          />
 
           <div className="flex flex-1">
             <Chat prompts={[{
@@ -46,7 +53,7 @@ const App: React.FC = () => {
           <Promptbar />
         </div>
       </div>
-    </>
+    </SelectedChatConversationContext.Provider>
   );
 };
 

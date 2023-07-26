@@ -26,12 +26,12 @@ import {
 import rehypeMathjax from 'rehype-mathjax';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import type { Nullable } from '@egomobile/types';
 
 // internal imports
 import CodeBlock from '../../../CodeBlock';
 import MemoizedReactMarkdown from '../../../MemoizedReactMarkdown';
-import type { IChatConversation, IChatMessage } from '../../../../types';
+import type { IChatMessage } from '../../../../types';
+import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
 
 export interface IChatMessageProps {
   message: IChatMessage;
@@ -44,9 +44,10 @@ export const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, message
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageContent, setMessageContent] = useState(message.content);
   const [messagedCopied, setMessageCopied] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const selectedConversation = useSelectedChatConversation();
 
   const toggleEditing = useCallback(() => {
     setIsEditing(!isEditing);

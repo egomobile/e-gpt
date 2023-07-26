@@ -22,12 +22,12 @@ import {
   IconRepeat,
   IconSend,
 } from '@tabler/icons-react';
-import type { Nullable } from '@egomobile/types';
 
 // internal imports
 import PromptList from '../PromptList';
+import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
 import VariableModal from '../VariableModal';
-import type { IChatConversation, IChatMessage, IChatPrompt } from '../../../../types';
+import type { IChatMessage, IChatPrompt } from '../../../../types';
 import { isMobile, parseVariables, toSearchString } from '../../../../utils';
 
 interface IChatInputProps {
@@ -38,8 +38,6 @@ interface IChatInputProps {
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
   showScrollDownButton: boolean;
 }
-
-const maxLength = 12000;
 
 const ChatInput = ({
   onSend,
@@ -55,12 +53,17 @@ const ChatInput = ({
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [plugin, setPlugin] = useState<Plugin | null>(null);
   const [promptInputValue, setPromptInputValue] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
   const [showPluginSelect, setShowPluginSelect] = useState(false);
   const [showPromptList, setShowPromptList] = useState(false);
   const [variables, setVariables] = useState<string[]>([]);
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
+
+  const selectedConversation = useSelectedChatConversation();
+
+  const maxLength = useMemo(() => {
+    return selectedConversation?.model.maxLength ?? null;
+  }, [selectedConversation?.model.maxLength]);
 
   const filteredPrompts = useMemo(() => {
     return prompts.filter((prompt) =>
@@ -92,7 +95,7 @@ const ChatInput = ({
 
     setContent(value);
     updatePromptListVisibility(value);
-  }, [updatePromptListVisibility]);
+  }, [maxLength, updatePromptListVisibility]);
 
   const handleSend = useCallback(() => {
     if (!content) {

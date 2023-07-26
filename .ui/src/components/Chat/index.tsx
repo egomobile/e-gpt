@@ -21,6 +21,8 @@ import type { Nullable } from '@egomobile/types';
 import ChatInput from './components/ChatInput';
 import ChatLoader from './components/ChatLoader';
 import MemoizedChatMessage from './components/MemoizedChatMessage';
+import SystemPrompt from './components/SystemPrompt';
+import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
 import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
 
@@ -35,7 +37,8 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [currentMessage, setCurrentMessage] = useState<Nullable<IChatMessage>>();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
+
+  const selectedConversation = useSelectedChatConversation();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,9 +72,14 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
       messagesEndRef.current?.scrollIntoView(true);
     }
   }, [autoScrollEnabled]);
+
   const throttledScrollDown = useMemo(() => {
     return throttle(scrollDown, 250);
   }, [scrollDown]);
+
+  const handleUpdateConversation = useCallback((conversation: IChatConversation, data: any) => {
+    //
+  }, []);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -121,6 +129,19 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
                 <div className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100">
                   e.GPT UI
                 </div>
+
+                {selectedConversation && (
+                  <SystemPrompt
+                    conversation={selectedConversation}
+                    prompts={prompts}
+                    onChangePrompt={(prompt) =>
+                      handleUpdateConversation(selectedConversation, {
+                        key: 'prompt',
+                        value: prompt,
+                      })
+                    }
+                  />
+                )}
               </div>
             </>
           ) : (
@@ -162,7 +183,7 @@ const Chat: React.FC<IChatProps> = ({ prompts }) => {
         />
       </>
     );
-  }, [handleScroll, handleScrollDown, isLoading, prompts, selectedConversation?.messages, showScrollDownButton]);
+  }, [handleScroll, handleScrollDown, handleUpdateConversation, isLoading, prompts, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
     const apiKey = 'TEST';  // TODO: replace

@@ -26,23 +26,25 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import type { Nullable } from '@egomobile/types';
 
 // internal imports
 import SidebarActionButton from '../SidebarActionButton';
+import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
 import type { IChatConversation } from '../../types';
 
 interface IConversationProps {
   conversation: IChatConversation;
+  onClick: () => void;
   onDelete: () => void;
   onUpdate: (newData: IChatConversation) => void;
 }
 
-const Conversation: React.FC<IConversationProps> = ({ conversation, onDelete, onUpdate }) => {
+const Conversation: React.FC<IConversationProps> = ({ conversation, onClick, onDelete, onUpdate }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
+
+  const selectedConversation = useSelectedChatConversation();
 
   const handleRename = useCallback((conversation: IChatConversation) => {
     const newTitle = renameValue.trim();
@@ -131,7 +133,7 @@ const Conversation: React.FC<IConversationProps> = ({ conversation, onDelete, on
               ? 'bg-[#343541]/90'
               : ''
             }`}
-          onClick={() => setSelectedConversation(conversation)}
+          onClick={onClick}
           draggable="true"
         >
           <IconMessage size={18} />

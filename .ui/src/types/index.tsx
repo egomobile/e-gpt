@@ -29,6 +29,11 @@ export interface IChatConversation {
   folderId: string;
   id: string;
   messages: IChatMessage[];
+  model: {
+    maxLength: number;
+    name: string;
+    tokenLimit: number;
+  };
   title: string;
 }
 

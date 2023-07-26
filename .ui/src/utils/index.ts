@@ -14,12 +14,40 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
+import _ from 'lodash';
 import UAParser from 'ua-parser-js';
 import { toStringSafe } from "@egomobile/nodelike-utils";
 import type { Nilable } from "@egomobile/types";
 
+// internal imports
+import type { IChatPrompt } from '../types';
+
 export interface IToSearchStringOptions {
-  noWhitespaces?: boolean;
+  noWhitespaces?: Nilable<boolean>;
+}
+
+export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): IChatPrompt[] {
+  const parts = _(toSearchString(searchTerm).split(' '))
+    .map((p) => {
+      return p.trim();
+    })
+    .filter((p) => {
+      return p !== '';
+    })
+    .uniq()
+    .value();
+
+  if (!parts.length) {
+    return [...prompts];
+  }
+
+  return prompts.filter((pr) => {
+    const title = toSearchString(pr.title);
+
+    return parts.every((p) => {
+      return title.includes(p);
+    });
+  });
 }
 
 export const generateRandomString = (length: number, lowercase = false) => {

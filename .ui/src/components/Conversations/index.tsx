@@ -22,11 +22,12 @@ import type { IChatConversation } from '../../types';
 
 interface IConversationsProps {
   conversations: IChatConversation[];
+  onClick: (conversation: IChatConversation) => void;
   onDelete: (conversation: IChatConversation) => void;
   onUpdate: (newData: IChatConversation) => void;
 }
 
-const Conversations: React.FC<IConversationsProps> = ({ conversations, onDelete, onUpdate }: IConversationsProps) => {
+const Conversations: React.FC<IConversationsProps> = ({ conversations, onClick, onDelete, onUpdate }: IConversationsProps) => {
   return (
     <div className="flex w-full flex-col gap-1">
       {conversations
@@ -37,6 +38,7 @@ const Conversations: React.FC<IConversationsProps> = ({ conversations, onDelete,
           <Conversation
             key={`chat-conversation-${conversationIndex}`}
             conversation={conversation}
+            onClick={() => onClick(conversation)}
             onDelete={() => onDelete(conversation)}
             onUpdate={onUpdate}
           />

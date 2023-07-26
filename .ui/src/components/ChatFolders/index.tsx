@@ -24,6 +24,7 @@ import { toSearchString } from '../../utils';
 
 interface IChatFoldersProps {
   folders: IChatConversationFolder[];
+  onConversationClick: (conversation: IChatConversation) => void;
   onDeleteConversation: (conversation: IChatConversation) => void;
   onDeleteFolder: (folder: IChatConversationFolder) => void;
   onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void
@@ -31,11 +32,19 @@ interface IChatFoldersProps {
   searchTerm: string;
 }
 
-const getFolder = (
-  currentFolder: IChatConversationFolder,
-  onDeleteConversation: (conversation: IChatConversation) => void,
-  onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void,
-) => {
+interface IGetFolderOptions {
+  currentFolder: IChatConversationFolder;
+  onConversationClick: (conversation: IChatConversation) => void;
+  onDeleteConversation: (conversation: IChatConversation) => void;
+  onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void;
+}
+
+const getFolder = ({
+  currentFolder,
+  onConversationClick,
+  onDeleteConversation,
+  onUpdateConversation
+}: IGetFolderOptions) => {
   const {
     conversations
   } = currentFolder;
@@ -56,6 +65,7 @@ const getFolder = (
           <div key={index} className="ml-5 gap-2 border-l pl-2">
             <Conversation
               conversation={conversation}
+              onClick={() => onConversationClick(conversation)}
               onDelete={() => onDeleteConversation(conversation)}
               onUpdate={(newData) => onUpdateConversation(currentFolder, newData)}
             />
@@ -67,6 +77,7 @@ const getFolder = (
 
 const ChatFolders: React.FC<IChatFoldersProps> = ({
   folders,
+  onConversationClick,
   onDeleteConversation,
   onDeleteFolder,
   onUpdateConversation,
@@ -93,7 +104,12 @@ const ChatFolders: React.FC<IChatFoldersProps> = ({
           <Folder
             key={folderIndex}
             currentFolder={folder}
-            folderComponent={getFolder(folder, onDeleteConversation, onUpdateConversation) as any}
+            folderComponent={getFolder({
+              currentFolder: folder,
+              onConversationClick,
+              onDeleteConversation,
+              onUpdateConversation
+            }) as any}
             onDelete={() => handleDeleteFolder(folder)}
             onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}
             searchTerm={searchTerm}

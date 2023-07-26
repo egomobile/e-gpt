@@ -25,7 +25,13 @@ import Sidebar from '../Sidebar';
 import { ChatConversationItem, IChatConversation, IChatConversationFolder } from '../../types';
 import { toSearchString } from '../../utils';
 
-const Chatbar: React.FC = () => {
+interface IChatbarProps {
+  onConversationClick: (conversation: IChatConversation) => void;
+}
+
+const Chatbar: React.FC<IChatbarProps> = ({
+  onConversationClick
+}) => {
   const [isOpen, setIsOpen] = useState(true);
   const [items, setItems] = useState<ChatConversationItem[]>([]);
   const [nextNewConversationIndex, setNextNewConversationIndex] = useState(0);
@@ -97,7 +103,12 @@ const Chatbar: React.FC = () => {
       folderId: '',
       id: `${Date.now()}-${v4()}`,
       title: `New Conversation #${newNextNewConversationIndex}`,
-      messages: []
+      messages: [],
+      model: {
+        maxLength: 12000,
+        name: 'GPT-3.5',
+        tokenLimit: 4000
+      }
     };
 
     setItems([...items, newConversation]);
@@ -170,6 +181,7 @@ const Chatbar: React.FC = () => {
         itemComponent={(
           <Conversations
             conversations={filteredConversations}
+            onClick={onConversationClick}
             onDelete={handleDeleteConversation}
             onUpdate={handleUpdateConversation}
           />
@@ -178,6 +190,7 @@ const Chatbar: React.FC = () => {
           <ChatFolders
             folders={folders}
             searchTerm={searchTerm}
+            onConversationClick={onConversationClick}
             onDeleteConversation={handleDeleteConversation}
             onDeleteFolder={handleDeleteFolder} onUpdateFolderTitle={handleUpdateFolderTitle}
             onUpdateConversation={(folder, newData) => {
