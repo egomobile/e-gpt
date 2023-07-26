@@ -19,17 +19,23 @@ import React, { useCallback } from 'react';
 // internal imports
 import Conversation from '../Conversation';
 import Folder from '../Folder';
-import type { IChatConversation, IChatConversationFolder, IFolder } from '../../types';
+import type { IChatConversation, IChatConversationFolder } from '../../types';
 import { toSearchString } from '../../utils';
 
 interface IChatFoldersProps {
   folders: IChatConversationFolder[];
+  onDeleteConversation: (conversation: IChatConversation) => void;
   onDeleteFolder: (folder: IChatConversationFolder) => void;
+  onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void
   onUpdateFolderTitle: (folder: IChatConversationFolder, title: string) => void;
   searchTerm: string;
 }
 
-const getFolder = (currentFolder: IChatConversationFolder) => {
+const getFolder = (
+  currentFolder: IChatConversationFolder,
+  onDeleteConversation: (conversation: IChatConversation) => void,
+  onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void,
+) => {
   const {
     conversations
   } = currentFolder;
@@ -48,7 +54,11 @@ const getFolder = (currentFolder: IChatConversationFolder) => {
 
         return (
           <div key={index} className="ml-5 gap-2 border-l pl-2">
-            <Conversation conversation={conversation} />
+            <Conversation
+              conversation={conversation}
+              onDelete={() => onDeleteConversation(conversation)}
+              onUpdate={(newData) => onUpdateConversation(currentFolder, newData)}
+            />
           </div>
         );
       })
@@ -57,25 +67,12 @@ const getFolder = (currentFolder: IChatConversationFolder) => {
 
 const ChatFolders: React.FC<IChatFoldersProps> = ({
   folders,
+  onDeleteConversation,
   onDeleteFolder,
+  onUpdateConversation,
   onUpdateFolderTitle,
   searchTerm
 }) => {
-  const handleUpdateConversation = useCallback((conversation: IChatConversation, data: any) => {
-
-  }, []);
-
-  const handleDrop = useCallback((e: any, folder: IFolder) => {
-    if (e.dataTransfer) {
-      const conversation = JSON.parse(e.dataTransfer.getData('conversation'));
-
-      handleUpdateConversation(conversation, {
-        key: 'folderId',
-        value: folder.id,
-      });
-    }
-  }, [handleUpdateConversation]);
-
   const handleDeleteFolder = useCallback((folder: IChatConversationFolder) => {
     onDeleteFolder(folder);
   }, [onDeleteFolder]);
@@ -95,12 +92,11 @@ const ChatFolders: React.FC<IChatFoldersProps> = ({
         .map((folder, folderIndex) => (
           <Folder
             key={folderIndex}
-            searchTerm={searchTerm}
             currentFolder={folder}
-            handleDrop={handleDrop}
-            folderComponent={getFolder(folder) as any}
+            folderComponent={getFolder(folder, onDeleteConversation, onUpdateConversation) as any}
             onDelete={() => handleDeleteFolder(folder)}
             onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}
+            searchTerm={searchTerm}
           />
         ))}
     </div>

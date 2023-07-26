@@ -1,4 +1,3 @@
-
 // This file is part of the e.GPT distribution.
 // Copyright (c) Next.e.GO Mobile SE, Aachen, Germany (https://e-go-mobile.com/)
 //
@@ -18,6 +17,10 @@ export type ChatConversationItem =
   IChatConversationFolder |
   IChatConversation;
 
+export type ChatPromptItem =
+  IChatPromptFolder |
+  IChatPrompt;
+
 export interface IFolder {
   id: string;
   title: string;
@@ -34,4 +37,18 @@ export interface IChatConversation {
 
 export interface IChatConversationFolder extends IFolder {
   conversations: IChatConversation[];
+  type: 'chat';
+}
+
+export interface IChatPromptFolder extends IFolder {
+  prompts: IChatPrompt[];
+  type: 'prompt';
+}
+
+export interface IChatPrompt {
+  content: string;
+  description: string;
+  folderId: string;
+  id: string;
+  title: string;
 }

@@ -31,7 +31,6 @@ import type { IFolder } from '../../types';
 interface IFolderProps {
   currentFolder: IFolder;
   folderComponent: (React.ReactElement | undefined)[];
-  handleDrop: (e: any, folder: IFolder) => void;
   onDelete: () => void;
   onUpdateTitle: (newTitle: string) => void;
   searchTerm: string;
@@ -40,7 +39,6 @@ interface IFolderProps {
 const Folder: React.FC<IFolderProps> = ({
   currentFolder,
   folderComponent,
-  handleDrop,
   onDelete,
   onUpdateTitle,
   searchTerm,
@@ -71,16 +69,6 @@ const Folder: React.FC<IFolderProps> = ({
       handleRename();
     }
   }, [handleRename]);
-
-  const dropHandler = useCallback((e: any) => {
-    if (e.dataTransfer) {
-      setIsOpen(true);
-
-      handleDrop(e, currentFolder);
-
-      e.target.style.background = 'none';
-    }
-  }, [currentFolder, handleDrop]);
 
   const allowDrop = useCallback((e: any) => {
     e.preventDefault();
@@ -133,7 +121,6 @@ const Folder: React.FC<IFolderProps> = ({
           <button
             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-[#343541]/90`}
             onClick={() => setIsOpen(!isOpen)}
-            onDrop={(e) => dropHandler(e)}
             onDragOver={allowDrop}
             onDragEnter={highlightDrop}
             onDragLeave={removeHighlight}

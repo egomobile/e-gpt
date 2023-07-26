@@ -91,21 +91,33 @@ const Chatbar: React.FC = () => {
   }, [isOpen]);
 
   const handleCreateItem = useCallback(() => {
-    const newNextFolderIndex = nextNewConversationIndex + 1;
+    const newNextNewConversationIndex = nextNewConversationIndex + 1;
 
     const newConversation: IChatConversation = {
       folderId: '',
       id: `${Date.now()}-${v4()}`,
-      title: `New Folder #${newNextFolderIndex}`,
+      title: `New Conversation #${newNextNewConversationIndex}`,
     };
 
     setItems([...items, newConversation]);
-    setNextNewConversationIndex(nextNewConversationIndex);
+    setNextNewConversationIndex(newNextNewConversationIndex);
   }, [items, nextNewConversationIndex]);
 
   const handleSearchTerm = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
   }, []);
+
+  const handleDeleteConversation = useCallback((conversation: IChatConversation) => {
+    const newItemList = items.filter((item) => {
+      if (!('conversations' in item)) {
+        return item.id !== conversation.id;
+      }
+
+      return true;
+    });
+
+    setItems(newItemList);
+  }, [items]);
 
   const handleDeleteFolder = useCallback((folder: IChatConversationFolder) => {
     const newItemList = items.filter((item) => {
@@ -113,7 +125,7 @@ const Chatbar: React.FC = () => {
         return item.id !== folder.id;
       }
 
-      return true;
+      return item.folderId !== folder.id;
     });
 
     setItems([...newItemList]);
@@ -136,18 +148,40 @@ const Chatbar: React.FC = () => {
     setItems([...newItemList]);
   }, [items]);
 
+  const handleUpdateConversation = useCallback((newData: IChatConversation) => {
+    const newList = [...items];
+
+    [...newList].forEach((item, itemIndex) => {
+      if (item.id === newData.id) {
+        newList[itemIndex] = newData;
+      }
+    });
+
+    setItems(newList);
+  }, [items]);
+
   return (
     <>
       <Sidebar
         side={'left'}
         isOpen={isOpen}
         addItemButtonTitle={'New chat'}
-        itemComponent={<Conversations conversations={filteredConversations} />}
+        itemComponent={(
+          <Conversations
+            conversations={filteredConversations}
+            onDelete={handleDeleteConversation}
+            onUpdate={handleUpdateConversation}
+          />
+        )}
         folderComponent={
           <ChatFolders
             folders={folders}
             searchTerm={searchTerm}
+            onDeleteConversation={handleDeleteConversation}
             onDeleteFolder={handleDeleteFolder} onUpdateFolderTitle={handleUpdateFolderTitle}
+            onUpdateConversation={(folder, newData) => {
+              handleUpdateConversation(newData);
+            }}
           />}
         items={items}
         searchTerm={searchTerm}

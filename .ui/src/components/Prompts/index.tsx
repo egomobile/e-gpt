@@ -16,28 +16,27 @@
 // system imports
 import React from 'react';
 
-// internal import
-import Conversation from '../Conversation';
-import type { IChatConversation } from '../../types';
+// internal imports
+import Prompt from '../Prompt';
+import { IChatPrompt } from '../../types';
 
-interface IConversationsProps {
-  conversations: IChatConversation[];
-  onDelete: (conversation: IChatConversation) => void;
-  onUpdate: (newData: IChatConversation) => void;
+interface IPromptsProps {
+  onDelete: (prompt: IChatPrompt) => void;
+  onUpdate: (newData: IChatPrompt) => void;
+  prompts: IChatPrompt[];
 }
 
-const Conversations: React.FC<IConversationsProps> = ({ conversations, onDelete, onUpdate }: IConversationsProps) => {
+const Prompts: React.FC<IPromptsProps> = ({ onDelete, onUpdate, prompts }) => {
   return (
     <div className="flex w-full flex-col gap-1">
-      {conversations
-        .filter((conversation) => !conversation.folderId)
+      {prompts
         .slice()
         .reverse()
-        .map((conversation, conversationIndex) => (
-          <Conversation
-            key={`chat-conversation-${conversationIndex}`}
-            conversation={conversation}
-            onDelete={() => onDelete(conversation)}
+        .map((prompt, index) => (
+          <Prompt
+            key={index}
+            prompt={prompt}
+            onDelete={() => onDelete(prompt)}
             onUpdate={onUpdate}
           />
         ))}
@@ -45,4 +44,4 @@ const Conversations: React.FC<IConversationsProps> = ({ conversations, onDelete,
   );
 };
 
-export default Conversations;
+export default Prompts;
