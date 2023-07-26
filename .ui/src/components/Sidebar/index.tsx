@@ -14,7 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // internal imports
-import React from 'react';
+import React, { useCallback } from 'react';
 import { IconFolderPlus, IconMistOff, IconPlus } from '@tabler/icons-react';
 
 // internal imports
@@ -53,17 +53,31 @@ const Sidebar: React.FC<ISidebarProps> = ({
   handleCreateFolder,
   handleDrop,
 }) => {
-  const allowDrop = (e: any) => {
+  const allowDrop = useCallback((e: any) => {
     e.preventDefault();
-  };
+  }, []);
 
-  const highlightDrop = (e: any) => {
+  const highlightDrop = useCallback((e: any) => {
     e.target.style.background = '#343541';
-  };
+  }, []);
 
-  const removeHighlight = (e: any) => {
+  const removeHighlight = useCallback((e: any) => {
     e.target.style.background = 'none';
-  };
+  }, []);
+
+  const renderSearchButton = useCallback(() => {
+    if (!items.length) {
+      return null;
+    }
+
+    return (
+      <Search
+        placeholder={'Search...'}
+        searchTerm={searchTerm}
+        onSearch={handleSearchTerm}
+      />
+    );
+  }, [handleSearchTerm, items.length, searchTerm]);
 
   return isOpen ? (
     <div>
@@ -89,11 +103,8 @@ const Sidebar: React.FC<ISidebarProps> = ({
             <IconFolderPlus size={16} />
           </button>
         </div>
-        <Search
-          placeholder={'Search...'}
-          searchTerm={searchTerm}
-          onSearch={handleSearchTerm}
-        />
+
+        {renderSearchButton()}
 
         <div className="flex-grow overflow-auto">
           {items?.length > 0 && (

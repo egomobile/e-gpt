@@ -20,6 +20,7 @@ import React, { useCallback, useState } from 'react';
 import Sidebar from '../Sidebar';
 
 const Promptbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleDrop = useCallback((e: any) => {
@@ -31,22 +32,22 @@ const Promptbar: React.FC = () => {
   }, []);
 
   const handleTogglePromptbar = useCallback(() => {
-    console.log('Promptbar.handleTogglePromptbar');
-  }, []);
+    setIsOpen(!isOpen);
+  }, [isOpen]);
 
   const handleCreatePrompt = useCallback(() => {
     console.log('Promptbar.handleCreateItem');
   }, []);
 
   const handleSearchTerm = useCallback((searchTerm: string) => {
-    console.log('Promptbar.handleSearchTerm', searchTerm);
+    setSearchTerm(searchTerm);
   }, []);
 
   return (
     <>
       <Sidebar
         side={'right'}
-        isOpen
+        isOpen={isOpen}
         addItemButtonTitle={'New prompt'}
         itemComponent={null}
         folderComponent={null}

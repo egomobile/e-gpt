@@ -1,0 +1,110 @@
+// This file is part of the e.GPT distribution.
+// Copyright (c) Next.e.GO Mobile SE, Aachen, Germany (https://e-go-mobile.com/)
+//
+// e-gpt is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation, version 3.
+//
+// e-gpt is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+// system imports
+import React, { useCallback } from 'react';
+
+// internal imports
+import Conversation from '../Conversation';
+import Folder from '../Folder';
+import type { IChatConversation, IChatConversationFolder, IFolder } from '../../types';
+import { toSearchString } from '../../utils';
+
+interface IChatFoldersProps {
+  folders: IChatConversationFolder[];
+  onDeleteFolder: (folder: IChatConversationFolder) => void;
+  onUpdateFolderTitle: (folder: IChatConversationFolder, title: string) => void;
+  searchTerm: string;
+}
+
+const getFolder = (currentFolder: IChatConversationFolder) => {
+  const {
+    conversations
+  } = currentFolder;
+
+  if (!conversations) {
+    return;
+  }
+
+  return (
+    conversations
+      .filter((conversation) => conversation.folderId)
+      .map((conversation, index) => {
+        if (conversation.folderId !== currentFolder.id) {
+          return null;
+        }
+
+        return (
+          <div key={index} className="ml-5 gap-2 border-l pl-2">
+            <Conversation conversation={conversation} />
+          </div>
+        );
+      })
+  );
+};
+
+const ChatFolders: React.FC<IChatFoldersProps> = ({
+  folders,
+  onDeleteFolder,
+  onUpdateFolderTitle,
+  searchTerm
+}) => {
+  const handleUpdateConversation = useCallback((conversation: IChatConversation, data: any) => {
+
+  }, []);
+
+  const handleDrop = useCallback((e: any, folder: IFolder) => {
+    if (e.dataTransfer) {
+      const conversation = JSON.parse(e.dataTransfer.getData('conversation'));
+
+      handleUpdateConversation(conversation, {
+        key: 'folderId',
+        value: folder.id,
+      });
+    }
+  }, [handleUpdateConversation]);
+
+  const handleDeleteFolder = useCallback((folder: IChatConversationFolder) => {
+    onDeleteFolder(folder);
+  }, [onDeleteFolder]);
+
+  const handleUpdateFolderTitle = useCallback((folder: IChatConversationFolder, newTitle: string) => {
+    onUpdateFolderTitle(folder, newTitle);
+  }, [onUpdateFolderTitle]);
+
+  return (
+    <div className="flex w-full flex-col pt-2">
+      {folders
+        .sort((x, y) => {
+          return toSearchString(x.title).localeCompare(
+            toSearchString(y.title)
+          );
+        })
+        .map((folder, folderIndex) => (
+          <Folder
+            key={folderIndex}
+            searchTerm={searchTerm}
+            currentFolder={folder}
+            handleDrop={handleDrop}
+            folderComponent={getFolder(folder) as any}
+            onDelete={() => handleDeleteFolder(folder)}
+            onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}
+          />
+        ))}
+    </div>
+  );
+};
+
+export default ChatFolders;
