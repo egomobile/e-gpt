@@ -14,8 +14,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
+import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Nullable } from '@egomobile/types';
+import type { Nilable, Nullable } from '@egomobile/types';
 
 // internal imports
 import Chat from './components/Chat';
@@ -27,8 +28,10 @@ import type { ChatConversationItem, ChatPromptItem, IChatConversation } from './
 // styles
 import './App.css';
 
-const conversationsStorageKey = 'egoChatConversationList';
-const promptsStorageKey = 'egoChatPromptList';
+interface ISettings {
+  conversationItems: Nilable<ChatConversationItem[]>;
+  promptItems: Nilable<ChatPromptItem[]>;
+}
 
 const App: React.FC = () => {
   const [conversationItems, setConversationItems] = useState<Nullable<ChatConversationItem[]>>(null);
@@ -50,6 +53,61 @@ const App: React.FC = () => {
     }).flat();
   }, [promptItems]);
 
+  const reloadSettings = useCallback(async () => {
+    let newConversationItems: ChatConversationItem[] = [];
+    let newPromptItems: ChatPromptItem[] = [];
+
+    try {
+      const {
+        data, status
+      } = await axios.get<ISettings>('settings');
+
+      if (status === 200) {
+        newConversationItems = data.conversationItems!;
+        newPromptItems = data.promptItems!;
+      }
+    } catch (error) {
+      console.error('[ERROR]', 'App.reloadSettings', error);
+    }
+
+    const settings: ISettings = {
+      conversationItems: newConversationItems,
+      promptItems: newPromptItems
+    };
+
+    return settings;
+  }, []);
+
+  const updateSettings = useCallback(async (
+    newConversationList: Nilable<ChatConversationItem[]>,
+    newPromptList: Nilable<ChatPromptItem[]>
+  ) => {
+    if (!isInitialized) {
+      return;
+    }
+
+    if (!newConversationList || !newPromptList) {
+      return;
+    }
+
+    try {
+      const settings: ISettings = {
+        conversationItems: newConversationList,
+        promptItems: newPromptList
+      };
+
+      const {
+        status
+      } = await axios.put<ISettings>('settings', settings);
+
+      if (status !== 204) {
+        throw new Error(`Unexpected response: ${status}`);
+      }
+    } catch (error) {
+      console.error('[ERROR]', 'App.updateSettings', error);
+    }
+  }, [isInitialized]);
+
   const handleConversationDelete = useCallback((conversationId: string) => {
     if (selectedConversation?.id === conversationId) {
       setSelectedConversation(null);
@@ -57,75 +115,30 @@ const App: React.FC = () => {
   }, [selectedConversation?.id]);
 
   const handleConversationItemsUpdate = useCallback((newList: ChatConversationItem[]) => {
-    if (!Array.isArray(conversationItems)) {
-      return;
-    }
-
-    try {
-      localStorage.setItem(conversationsStorageKey, JSON.stringify(newList));
-    } catch (error) {
-      console.error('[ERROR]', 'App.handleConversationItemsUpdate', error);
-    }
-
     setConversationItems(newList);
-  }, [conversationItems]);
+
+    updateSettings(newList, promptItems);
+  }, [promptItems, updateSettings]);
 
   const handleConversationUpdate = useCallback((conversation: IChatConversation) => {
     //
   }, []);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
-    if (!Array.isArray(promptItems)) {
-      return;
-    }
-
-    try {
-      localStorage.setItem(promptsStorageKey, JSON.stringify(newList));
-    } catch (error) {
-      console.error('[ERROR]', 'App.handlePromptItemsUpdate', error);
-    }
-
     setPromptItems(newList);
-  }, [promptItems]);
+
+    updateSettings(conversationItems, newList);
+  }, [conversationItems, updateSettings]);
 
   useEffect(() => {
-    if (!isInitialized) {
-      return;
-    }
-
-    try {
-      const storedConversationItemsStr = window.localStorage.getItem(conversationsStorageKey);
-
-      if (storedConversationItemsStr) {
-        const storedConversationItems: ChatConversationItem[] = JSON.parse(storedConversationItemsStr);
-
-        if (Array.isArray(storedConversationItems)) {
-          setConversationItems(storedConversationItems);
-        }
-      }
-    } catch (error) {
-      console.error('[ERROR]', 'App.useEffect().conversationItems', error);
-    }
-
-    try {
-      const storedPromptItemsStr = window.localStorage.getItem(promptsStorageKey);
-
-      if (storedPromptItemsStr) {
-        const storedPromptItems: ChatPromptItem[] = JSON.parse(storedPromptItemsStr);
-
-        if (Array.isArray(storedPromptItems)) {
-          setPromptItems(storedPromptItems);
-        }
-      }
-    } catch (error) {
-      console.error('[ERROR]', 'App.useEffect().promptItems', error);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized]);
-
-  useEffect(() => {
-    setIsInitialized(true);
+    reloadSettings()
+      .then((settings) => {
+        setConversationItems(settings.conversationItems!);
+        setPromptItems(settings.promptItems!);
+      })
+      .finally(() => {
+        setIsInitialized(true);
+      });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

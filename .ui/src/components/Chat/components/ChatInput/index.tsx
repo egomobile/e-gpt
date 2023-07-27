@@ -17,8 +17,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import {
   IconArrowDown,
-  IconBolt,
-  IconBrandGoogle,
   IconRepeat,
   IconSend,
 } from '@tabler/icons-react';
@@ -31,7 +29,7 @@ import type { IChatMessage, IChatPrompt } from '../../../../types';
 import { isMobile, parseVariables, toSearchString } from '../../../../utils';
 
 interface IChatInputProps {
-  onSend: (message: IChatMessage, plugin: Plugin | null) => void;
+  onSend: (message: IChatMessage) => void;
   onRegenerate: () => void;
   onScrollDownClick: () => void;
   prompts: IChatPrompt[];
@@ -51,7 +49,6 @@ const ChatInput = ({
   const [content, setContent] = useState<string>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [plugin, setPlugin] = useState<Plugin | null>(null);
   const [promptInputValue, setPromptInputValue] = useState('');
   const [showPluginSelect, setShowPluginSelect] = useState(false);
   const [showPromptList, setShowPromptList] = useState(false);
@@ -107,14 +104,13 @@ const ChatInput = ({
       return;
     }
 
-    onSend({ role: 'user', content }, plugin);
+    onSend({ role: 'user', content });
     setContent('');
-    setPlugin(null);
 
     if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
       textareaRef.current.blur();
     }
-  }, [content, onSend, plugin, textareaRef]);
+  }, [content, onSend, textareaRef]);
 
   const handlePromptSelect = useCallback((prompt: IChatPrompt) => {
     const parsedVariables = parseVariables(prompt.content);
@@ -211,7 +207,9 @@ const ChatInput = ({
             }`,
         }}
         placeholder={
-          'Type a message or type "/" to select a prompt...'
+          isInputDiabled ?
+            'Please select a conversation on the left side first' :
+            'Type a message or type "/" to select a prompt ...'
         }
         value={content}
         rows={1}
@@ -223,39 +221,24 @@ const ChatInput = ({
     );
   }, [content, handleChange, handleKeyDown, isInputDiabled, textareaRef]);
 
-  useEffect(() => {
-    if (promptListRef.current) {
-      promptListRef.current.scrollTop = activePromptIndex * 30;
+  const renderSendButton = useCallback(() => {
+    if (isInputDiabled) {
+      return null;
     }
-  }, [activePromptIndex]);
 
-  useEffect(() => {
-    if (textareaRef && textareaRef.current) {
-      textareaRef.current.style.height = 'inherit';
-      textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
-      textareaRef.current.style.overflow = `${textareaRef?.current?.scrollHeight > 400 ? 'auto' : 'hidden'}`;
-    }
-  }, [content, textareaRef]);
+    return (
+      <button
+        className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
+        onClick={handleSend}
+        disabled={isInputDiabled}
+      >
+        <IconSend size={18} />
+      </button>
+    );
+  }, [handleSend, isInputDiabled]);
 
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (
-        promptListRef.current &&
-        !promptListRef.current.contains(e.target as Node)
-      ) {
-        setShowPromptList(false);
-      }
-    };
-
-    window.addEventListener('click', handleOutsideClick);
-
-    return () => {
-      window.removeEventListener('click', handleOutsideClick);
-    };
-  }, []);
-
-  return (
-    <div className="absolute bottom-0 left-0 w-full border-transparent bg-gradient-to-b from-transparent via-white to-white pt-6 dark:border-white/20 dark:via-[#343541] dark:to-[#343541] md:pt-2">
+  const renderContent = useCallback(() => {
+    return (
       <div className="stretch mx-2 mt-4 flex flex-row gap-3 last:mb-2 md:mx-4 md:mt-[52px] md:last:mb-6 lg:mx-auto lg:max-w-3xl">
         {selectedConversation &&
           selectedConversation.messages.length > 0 && (
@@ -269,14 +252,7 @@ const ChatInput = ({
 
         <div className="relative mx-2 flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
           {renderInputField()}
-
-          <button
-            className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
-            onClick={handleSend}
-            disabled={isInputDiabled}
-          >
-            <IconSend size={18} />
-          </button>
+          {renderSendButton()}
 
           {showScrollDownButton && (
             <div className="absolute bottom-12 right-0 lg:bottom-0 lg:-right-10">
@@ -311,6 +287,44 @@ const ChatInput = ({
           )}
         </div>
       </div>
+    );
+  }, [activePromptIndex, filteredPrompts, handleInitModal, handleSubmit, isModalVisible, onRegenerate, onScrollDownClick, renderInputField, renderSendButton, selectedConversation, showPromptList, showScrollDownButton, variables]);
+
+  useEffect(() => {
+    if (promptListRef.current) {
+      promptListRef.current.scrollTop = activePromptIndex * 30;
+    }
+  }, [activePromptIndex]);
+
+  useEffect(() => {
+    if (textareaRef && textareaRef.current) {
+      textareaRef.current.style.height = 'inherit';
+      textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
+      textareaRef.current.style.overflow = `${textareaRef?.current?.scrollHeight > 400 ? 'auto' : 'hidden'}`;
+    }
+  }, [content, textareaRef]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        promptListRef.current &&
+        !promptListRef.current.contains(e.target as Node)
+      ) {
+        setShowPromptList(false);
+      }
+    };
+
+    window.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('click', handleOutsideClick);
+    };
+  }, []);
+
+  return (
+    <div className="absolute bottom-0 left-0 w-full border-transparent bg-gradient-to-b from-transparent via-white to-white pt-6 dark:border-white/20 dark:via-[#343541] dark:to-[#343541] md:pt-2">
+      {renderContent()}
+
       <div className="px-3 pt-2 pb-3 text-center text-[12px] text-black/50 dark:text-white/50 md:px-4 md:pt-3 md:pb-6">
         <a
           href="https://github.com/egomobile/e-gpt"

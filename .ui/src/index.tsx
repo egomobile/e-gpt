@@ -14,6 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
+import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -22,6 +23,23 @@ import App from './App';
 
 // styles
 import './index.css';
+
+const params = new URLSearchParams(window.location.search || '');
+
+// setup API client
+{
+  let backendPort = parseInt(params.get('port')?.trim() || '');
+  if (Number.isNaN(backendPort)) {
+    backendPort = 8181;
+  }
+
+  let backendAddress = params.get('address')?.trim() || '';
+  if (!backendAddress) {
+    backendAddress = "127.0.0.1";
+  }
+
+  axios.defaults.baseURL = `http://${backendAddress}:${backendPort}/api/`;
+}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

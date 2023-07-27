@@ -40,7 +40,7 @@ const Chat: React.FC<IChatProps> = ({
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [currentMessage, setCurrentMessage] = useState<Nullable<IChatMessage>>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const selectedConversation = useSelectedChatConversation();
 
@@ -88,6 +88,19 @@ const Chat: React.FC<IChatProps> = ({
       systemPrompt: newPrompt,
     });
   }, [onConversationUpdate]);
+
+  const handleSend = useCallback((message: IChatMessage) => {
+    if (isLoading) {
+      return;
+    }
+
+    setCurrentMessage(message);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+  }, [isLoading]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -138,6 +151,14 @@ const Chat: React.FC<IChatProps> = ({
                   e.GPT by e.GO
                 </div>
 
+                {!selectedConversation && (
+                  <div className="text-center text-lg text-black dark:text-white">
+                    <div className="mb-2 font-bold">
+                      No conversation selected
+                    </div>
+                  </div>
+                )}
+
                 {selectedConversation && (
                   <SystemPrompt
                     conversation={selectedConversation}
@@ -178,9 +199,7 @@ const Chat: React.FC<IChatProps> = ({
         <ChatInput
           prompts={prompts}
           textareaRef={textareaRef}
-          onSend={(message, plugin) => {
-            //
-          }}
+          onSend={handleSend}
           onScrollDownClick={handleScrollDown}
           onRegenerate={() => {
             //
@@ -189,7 +208,7 @@ const Chat: React.FC<IChatProps> = ({
         />
       </>
     );
-  }, [handleScroll, handleScrollDown, handleUpdateConversationPromptChange, isLoading, prompts, selectedConversation, showScrollDownButton]);
+  }, [handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isLoading, prompts, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
     const apiKey = 'TEST';  // TODO: replace
