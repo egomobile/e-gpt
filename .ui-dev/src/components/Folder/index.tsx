@@ -74,18 +74,6 @@ const Folder: React.FC<IFolderProps> = ({
     }
   }, [handleRename]);
 
-  const allowDrop = useCallback((e: any) => {
-    e.preventDefault();
-  }, []);
-
-  const highlightDrop = useCallback((e: any) => {
-    e.target.style.background = '#343541';
-  }, []);
-
-  const removeHighlight = useCallback((e: any) => {
-    e.target.style.background = 'none';
-  }, []);
-
   const handleButtonClick = useCallback(() => {
     setIsOpen(!isOpen);
 
@@ -135,9 +123,6 @@ const Folder: React.FC<IFolderProps> = ({
           <button
             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-[#343541]/90`}
             onClick={handleButtonClick}
-            onDragOver={allowDrop}
-            onDragEnter={highlightDrop}
-            onDragLeave={removeHighlight}
           >
             {isOpen ? (
               <IconCaretDown size={18} />

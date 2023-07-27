@@ -134,7 +134,6 @@ const Conversation: React.FC<IConversationProps> = ({ conversation, onClick, onD
               : ''
             }`}
           onClick={onClick}
-          draggable="true"
         >
           <IconMessage size={18} />
           <div

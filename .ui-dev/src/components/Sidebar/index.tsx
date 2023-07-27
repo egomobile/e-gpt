@@ -51,18 +51,6 @@ const Sidebar: React.FC<ISidebarProps> = ({
   handleCreateItem,
   handleCreateFolder,
 }) => {
-  const allowDrop = useCallback((e: any) => {
-    e.preventDefault();
-  }, []);
-
-  const highlightDrop = useCallback((e: any) => {
-    e.target.style.background = '#343541';
-  }, []);
-
-  const removeHighlight = useCallback((e: any) => {
-    e.target.style.background = 'none';
-  }, []);
-
   const renderSearchButton = useCallback(() => {
     if (!items.length) {
       return null;
@@ -114,9 +102,6 @@ const Sidebar: React.FC<ISidebarProps> = ({
           {items?.length > 0 ? (
             <div
               className="pt-2"
-              onDragOver={allowDrop}
-              onDragEnter={highlightDrop}
-              onDragLeave={removeHighlight}
             >
               {itemComponent}
             </div>
