@@ -109,6 +109,27 @@ func getResponseErrorMessage(message string, response *http.Response) string {
 	return errorMessage
 }
 
+func EnsureDir(dirPath string) (string, error) {
+	_, err := os.Stat(dirPath)
+	if err == nil {
+		return dirPath, nil // exists
+	}
+
+	if !os.IsNotExist(err) {
+		return "", err // other error
+	}
+
+	// create ...
+	err = os.MkdirAll(dirPath, 0700)
+	if err != nil {
+		// ... failed
+		return "", err
+	}
+
+	// ... success
+	return dirPath, nil
+}
+
 func ExecuteCommand(rawCommand string) (*exec.Cmd, error) {
 	shellName := GetShellName()
 
@@ -368,6 +389,15 @@ func GetSystemPrompt() (string, bool, error) {
 	}
 
 	return strings.TrimSpace(systemPrompt), isCustom, nil
+}
+
+func GetUISettingsFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return path.Join(homeDir, ".egpt/settings.ui.json"), nil
 }
 
 func RemoveMarkdownCode(str string) string {

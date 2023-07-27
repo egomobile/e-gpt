@@ -172,7 +172,13 @@ const App: React.FC = () => {
 
     setConversationItems(newItems);
     updateSettings(newItems, promptItems);
-  }, [conversationItems, promptItems, updateSettings]);
+
+    if (selectedConversation?.id === conversation.id) {
+      setSelectedConversation({
+        ...conversation
+      });
+    }
+  }, [conversationItems, promptItems, selectedConversation?.id, updateSettings]);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
     setPromptItems(newList);

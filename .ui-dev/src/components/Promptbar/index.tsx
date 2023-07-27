@@ -145,13 +145,13 @@ const Promptbar: React.FC<IPromptbarProps> = ({
       return item.folderId !== folder.id;
     });
 
-    currentFolder?.prompts.forEach((prompt) => {
+    folder.prompts.forEach((prompt) => {
       handleDeletePrompt(prompt, false);
     });
 
     setCurrentFolder(null);
     handleItemsUpdate(newItemList);
-  }, [currentFolder?.prompts, handleDeletePrompt, handleItemsUpdate, items]);
+  }, [handleDeletePrompt, handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatPromptFolder, newTitle: string) => {
     newTitle = newTitle.trim();
@@ -173,10 +173,6 @@ const Promptbar: React.FC<IPromptbarProps> = ({
   useEffect(() => {
     onPromptItemsUpdate(items);
   }, [items, onPromptItemsUpdate]);
-
-  useEffect(() => {
-    console.log('currentFolder', currentFolder);
-  }, [currentFolder]);
 
   return (
     <>

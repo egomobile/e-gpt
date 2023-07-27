@@ -14,9 +14,10 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system import
+import _ from 'lodash';
 import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Nilable, Nullable } from '@egomobile/types';
+import type { Nilable } from '@egomobile/types';
 
 // internal imports
 import ChatInput from './components/ChatInput';
@@ -43,7 +44,6 @@ const Chat: React.FC<IChatProps> = ({
     useState<boolean>(false);
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
-  const [currentMessage, setCurrentMessage] = useState<Nullable<IChatMessage>>();
   const [isSending, setIsSending] = useState(false);
 
   const selectedConversation = useSelectedChatConversation();
@@ -51,6 +51,19 @@ const Chat: React.FC<IChatProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const currentUserMessage = useMemo(() => {
+    return _(selectedConversation?.messages ?? [])
+      .filter((m) => {
+        return m.role === 'user';
+      })
+      .last() ?? null;
+  }, [selectedConversation?.messages]);
+
+  const currentMessage = useMemo(() => {
+    return _(selectedConversation?.messages ?? [])
+      .last() ?? null;
+  }, [selectedConversation?.messages]);
 
   const handleScrollDown = useCallback(() => {
     chatContainerRef.current?.scrollTo({
@@ -98,7 +111,6 @@ const Chat: React.FC<IChatProps> = ({
       return;
     }
 
-    setCurrentMessage(message);
     setIsSending(true);
 
     try {
@@ -157,16 +169,16 @@ const Chat: React.FC<IChatProps> = ({
   }, [isSending, onConversationUpdate, onRefresh, selectedConversation]);
 
   const handleRegenerate = useCallback(() => {
-    if (!currentMessage) {
+    if (!currentUserMessage) {
       return;
     }
 
-    handleSend(currentMessage, (error) => {
+    handleSend(currentUserMessage, (error) => {
       if (error) {
         console.error('[ERROR]', 'Chat.handleRegenerate()', error);
       }
     });
-  }, [currentMessage, handleSend]);
+  }, [currentUserMessage, handleSend]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -214,10 +226,32 @@ const Chat: React.FC<IChatProps> = ({
             key={index}
             message={message}
             messageIndex={index}
-            onEdit={(editedMessage) => {
-              setCurrentMessage(editedMessage);
+            onDelete={(messageIndex, conversation) => {
+              const copyOfConversation = {
+                ...conversation
+              };
 
-              //
+              copyOfConversation.messages = conversation.messages.slice(0, index);
+
+              onConversationUpdate(copyOfConversation);
+              if (copyOfConversation.id === selectedConversation?.id) {
+                onRefresh(copyOfConversation);
+              }
+            }}
+            onEdit={(editedMessage, conversation) => {
+              const copyOfConversation = {
+                ...conversation
+              };
+              copyOfConversation.messages = [
+                ...conversation.messages
+              ];
+
+              copyOfConversation.messages[index] = editedMessage;
+
+              onConversationUpdate(copyOfConversation);
+              if (copyOfConversation.id === selectedConversation?.id) {
+                onRefresh(copyOfConversation);
+              }
             }}
           />
         ))}
@@ -230,7 +264,7 @@ const Chat: React.FC<IChatProps> = ({
         />
       </div>
     );
-  }, [isSending, selectedConversation?.messages]);
+  }, [isSending, onConversationUpdate, onRefresh, selectedConversation?.id, selectedConversation?.messages]);
 
   const renderChatInput = useCallback(() => {
     return (
@@ -286,12 +320,10 @@ const Chat: React.FC<IChatProps> = ({
   }, [renderApiKeyRequiredContent, renderChatInput]);
 
   useEffect(() => {
-    throttledScrollDown();
-    selectedConversation &&
-      setCurrentMessage(
-        selectedConversation.messages[selectedConversation.messages.length - 2],
-      );
-  }, [selectedConversation, throttledScrollDown]);
+    if (currentMessage) {
+      throttledScrollDown();
+    }
+  }, [currentMessage, throttledScrollDown]);
 
   return (
     <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">

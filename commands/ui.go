@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -81,6 +83,11 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 
 			systemPromptTemplate := systemPromptBuff.String()
 
+			sendError := func(ctx *fasthttp.RequestCtx, err error) {
+				ctx.SetStatusCode(500)
+				ctx.Write([]byte(err.Error()))
+			}
+
 			router := router.New()
 			router.HandleOPTIONS = true
 
@@ -92,11 +99,16 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 			}
 
 			// CORS
-			router.OPTIONS("/api/chat", func(ctx *fasthttp.RequestCtx) {
-				cors(ctx)
+			{
+				corsHandler := func(ctx *fasthttp.RequestCtx) {
+					cors(ctx)
 
-				ctx.SetStatusCode(204)
-			})
+					ctx.SetStatusCode(204)
+				}
+
+				router.OPTIONS("/api/chat", corsHandler)
+				router.OPTIONS("/api/settings", corsHandler)
+			}
 
 			// chat
 			router.POST("/api/chat", func(ctx *fasthttp.RequestCtx) {
@@ -104,17 +116,12 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 
 				now := time.Now()
 
-				sendError := func(err error) {
-					ctx.SetStatusCode(500)
-					ctx.Write([]byte(err.Error()))
-				}
-
 				body := ctx.PostBody()
 
 				var chatRequest ChatRequest
 				err := json.Unmarshal(body, &chatRequest)
 				if err != nil {
-					sendError(err)
+					sendError(ctx, err)
 					return
 				}
 
@@ -160,7 +167,7 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 					chatRequest.Conversation...,
 				)
 				if err != nil {
-					sendError(err)
+					sendError(ctx, err)
 					return
 				}
 
@@ -169,11 +176,68 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 
 				data, err := json.Marshal(chatResponse)
 				if err != nil {
-					sendError(err)
+					sendError(ctx, err)
 					return
 				}
 
 				ctx.Write(data)
+			})
+
+			// get settings
+			router.GET("/api/settings", func(ctx *fasthttp.RequestCtx) {
+				cors(ctx)
+
+				filePath, err := egoUtils.GetUISettingsFilePath()
+				if err != nil {
+					sendError(ctx, err)
+					return
+				}
+
+				_, err = os.Stat(filePath)
+				if err != nil {
+					if os.IsNotExist(err) {
+						ctx.SetStatusCode(404)
+					} else {
+						sendError(ctx, err)
+					}
+				} else {
+					data, err := os.ReadFile(filePath)
+					if err != nil {
+						sendError(ctx, err)
+					} else {
+						ctx.Response.Header.Set("Content-Length", fmt.Sprint(len(data)))
+
+						ctx.Write(data)
+					}
+				}
+			})
+
+			// update settings
+			router.PUT("/api/settings", func(ctx *fasthttp.RequestCtx) {
+				cors(ctx)
+
+				body := ctx.PostBody()
+
+				settingsFilePath, err := egoUtils.GetUISettingsFilePath()
+				if err != nil {
+					sendError(ctx, err)
+					return
+				}
+
+				_, err = egoUtils.EnsureDir(
+					path.Dir(settingsFilePath),
+				)
+				if err != nil {
+					sendError(ctx, err)
+					return
+				}
+
+				err = os.WriteFile(settingsFilePath, body, 0700)
+				if err != nil {
+					sendError(ctx, err)
+				} else {
+					ctx.SetStatusCode(204)
+				}
 			})
 
 			log.Println(fmt.Sprintf("Chat backend will listen on %v:%v ...", apiListenerAddr, apiPort))

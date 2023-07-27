@@ -33,13 +33,6 @@ const PromptModal: React.FC<IPromptModalProps> = ({ prompt, onClose, onUpdate })
   const modalRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  const handleEnter = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      onUpdate({ ...prompt, title, description, content: content.trim() });
-      onClose();
-    }
-  }, [content, description, onClose, onUpdate, prompt, title]);
-
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -71,7 +64,6 @@ const PromptModal: React.FC<IPromptModalProps> = ({ prompt, onClose, onUpdate })
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      onKeyDown={handleEnter}
     >
       <div className="fixed inset-0 z-10 overflow-hidden">
         <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">

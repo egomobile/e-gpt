@@ -180,13 +180,13 @@ const Chatbar: React.FC<IChatbarProps> = ({
       return item.folderId !== folder.id;
     });
 
-    currentFolder?.conversations.forEach((c) => {
+    folder.conversations.forEach((c) => {
       handleDeleteConversation(c, false);
     });
 
     setCurrentFolder(null);
     handleItemsUpdate([...newItemList]);
-  }, [currentFolder?.conversations, handleDeleteConversation, handleItemsUpdate, items]);
+  }, [handleDeleteConversation, handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatConversationFolder, newTitle: string) => {
     newTitle = newTitle.trim();

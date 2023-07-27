@@ -31,15 +31,21 @@ import CodeBlock from '../../../CodeBlock';
 import EgoLogo from '../../../../assets/img/ego.png';
 import MemoizedReactMarkdown from '../../../MemoizedReactMarkdown';
 import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
-import type { IChatMessage } from '../../../../types';
+import type { IChatConversation, IChatMessage } from '../../../../types';
 
 export interface IChatMessageProps {
   message: IChatMessage;
   messageIndex: number;
-  onEdit?: (editedMessage: IChatMessage) => void
+  onDelete?: (messageIndex: number, conversation: IChatConversation) => void;
+  onEdit?: (editedMessage: IChatMessage, conversation: IChatConversation) => void;
 }
 
-const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, messageIndex, onEdit }) => {
+const ChatMessage: React.FC<IChatMessageProps> = memo(({
+  message,
+  messageIndex,
+  onDelete,
+  onEdit
+}) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageContent, setMessageContent] = useState(message.content);
@@ -53,6 +59,12 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, messageIndex, 
     setIsEditing(!isEditing);
   }, [isEditing]);
 
+  const handleDeleteMessage = useCallback(() => {
+    if (selectedConversation) {
+      onDelete?.(messageIndex, selectedConversation);
+    }
+  }, [messageIndex, onDelete, selectedConversation]);
+
   const handleInputChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessageContent(event.target.value);
     if (textareaRef.current) {
@@ -63,16 +75,16 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, messageIndex, 
 
   const handleEditMessage = useCallback(() => {
     if (message.content !== messageContent) {
-      if (selectedConversation && onEdit) {
-        onEdit({ ...message, content: messageContent });
+      if (selectedConversation) {
+        onEdit?.(
+          { ...message, content: messageContent },
+          selectedConversation
+        );
       }
     }
+
     setIsEditing(false);
   }, [message, messageContent, onEdit, selectedConversation]);
-
-  const handleDeleteMessage = useCallback(() => {
-    //
-  }, []);
 
   const handlePressEnter = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !isTyping && !e.shiftKey) {
