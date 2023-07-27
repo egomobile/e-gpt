@@ -94,7 +94,7 @@ async function main() {
         const data = Buffer.from(
             JSON.stringify(request.body, null, 2)
         );
-        await fs.promises.writeFile(settingsFile, data);
+        await fs.writeFileSync(settingsFile, data);
 
         response.writeHead(204, {
             'Content-Length': '0'
