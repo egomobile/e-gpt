@@ -21,24 +21,27 @@ import type { Nilable, Nullable } from '@egomobile/types';
 // internal imports
 import Chat from './components/Chat';
 import Chatbar from './components/Chatbar';
+import CurrentSettingsContext from './contexts/CurrentSettingsContext';
 import Promptbar from './components/Promptbar';
 import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
-import type { ChatConversationItem, ChatPromptItem, IChatConversation } from './types';
+import type { ChatConversationItem, ChatPromptItem, IChatConversation, ISettings } from './types';
 import { sortProps } from './utils';
 
 // styles
 import './App.css';
-
-interface ISettings {
-  conversationItems: Nilable<ChatConversationItem[]>;
-  promptItems: Nilable<ChatPromptItem[]>;
-}
 
 const App: React.FC = () => {
   const [conversationItems, setConversationItems] = useState<Nullable<ChatConversationItem[]>>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [promptItems, setPromptItems] = useState<Nullable<ChatPromptItem[]>>(null);
   const [selectedConversation, setSelectedConversation] = useState<Nilable<IChatConversation>>(null);
+
+  const currentSettings: ISettings = useMemo(() => {
+    return {
+      conversationItems,
+      promptItems
+    };
+  }, [conversationItems, promptItems]);
 
   const allPrompts = useMemo(() => {
     if (!promptItems) {
@@ -53,6 +56,17 @@ const App: React.FC = () => {
       return [item];
     }).flat();
   }, [promptItems]);
+
+  const areSettingsEqual = useCallback((settings: ISettings) => {
+    const thisSettings = sortProps<ISettings>(currentSettings);
+    const otherSettings = sortProps<ISettings>(settings);
+
+    return JSON.stringify(
+      thisSettings
+    ) === JSON.stringify(
+      otherSettings
+    );
+  }, [currentSettings]);
 
   const reloadSettings = useCallback(async () => {
     let newConversationItems: ChatConversationItem[] = [];
@@ -91,17 +105,13 @@ const App: React.FC = () => {
       return;
     }
 
-    const oldSettings = sortProps<ISettings>({
-      conversationItems,
-      promptItems
-    });
     const newSettings = sortProps<ISettings>({
       conversationItems: newConversationList,
       promptItems: newPromptList
     });
 
     try {
-      if (JSON.stringify(oldSettings) === JSON.stringify(newSettings)) {
+      if (areSettingsEqual(newSettings)) {
         return;
       }
 
@@ -115,7 +125,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('[ERROR]', 'App.updateSettings', error);
     }
-  }, [conversationItems, isInitialized, promptItems]);
+  }, [areSettingsEqual, isInitialized]);
 
   const handleConversationDelete = useCallback((conversationId: string) => {
     if (selectedConversation?.id === conversationId) {
@@ -170,6 +180,15 @@ const App: React.FC = () => {
     updateSettings(conversationItems, newList);
   }, [conversationItems, updateSettings]);
 
+  const handleSettingsUpdate = useCallback((newData: ISettings) => {
+    if (areSettingsEqual(newData)) {
+      return;
+    }
+
+    setConversationItems(newData.conversationItems ?? []);
+    setPromptItems(newData.promptItems ?? []);
+  }, [areSettingsEqual]);
+
   useEffect(() => {
     reloadSettings()
       .then((settings) => {
@@ -184,33 +203,36 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
-      <div
-        className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
-      >
-        <div className="flex h-full w-full pt-[48px] sm:pt-0">
-          <Chatbar
-            items={conversationItems ?? []}
-            onConversationClick={setSelectedConversation}
-            onConversationDelete={handleConversationDelete}
-            onConversationItemsUpdate={handleConversationItemsUpdate}
-          />
+    <CurrentSettingsContext.Provider value={currentSettings}>
+      <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
+        <div
+          className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
+        >
+          <div className="flex h-full w-full pt-[48px] sm:pt-0">
+            <Chatbar
+              items={conversationItems ?? []}
+              onConversationClick={setSelectedConversation}
+              onConversationDelete={handleConversationDelete}
+              onConversationItemsUpdate={handleConversationItemsUpdate}
+              onSettingsUpdate={handleSettingsUpdate}
+            />
 
-          <div className="flex flex-1">
-            <Chat
-              onConversationUpdate={handleConversationUpdate}
-              onRefresh={handleRefresh}
-              prompts={allPrompts ?? []}
+            <div className="flex flex-1">
+              <Chat
+                onConversationUpdate={handleConversationUpdate}
+                onRefresh={handleRefresh}
+                prompts={allPrompts ?? []}
+              />
+            </div>
+
+            <Promptbar
+              items={promptItems ?? []}
+              onPromptItemsUpdate={handlePromptItemsUpdate}
             />
           </div>
-
-          <Promptbar
-            items={promptItems ?? []}
-            onPromptItemsUpdate={handlePromptItemsUpdate}
-          />
         </div>
-      </div>
-    </SelectedChatConversationContext.Provider>
+      </SelectedChatConversationContext.Provider>
+    </CurrentSettingsContext.Provider>
   );
 };
 

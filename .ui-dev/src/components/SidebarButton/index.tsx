@@ -19,16 +19,23 @@
 import React from 'react';
 
 interface ISidebarButtonProps {
-  text: string;
+  disabled?: boolean;
   icon: JSX.Element;
   onClick: () => void;
+  text: React.ReactNode;
 }
 
-const SidebarButton: React.FC<ISidebarButtonProps> = ({ text, icon, onClick }) => {
+const SidebarButton: React.FC<ISidebarButtonProps> = ({
+  disabled,
+  icon,
+  onClick,
+  text,
+}) => {
   return (
     <button
       className="flex w-full cursor-pointer select-none items-center gap-3 rounded-md py-3 px-3 text-[14px] leading-3 text-white transition-colors duration-200 hover:bg-gray-500/10"
       onClick={onClick}
+      disabled={disabled}
     >
       <div>{icon}</div>
       <span>{text}</span>

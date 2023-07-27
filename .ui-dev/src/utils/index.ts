@@ -22,8 +22,25 @@ import type { Nilable } from "@egomobile/types";
 // internal imports
 import type { IChatPrompt } from '../types';
 
+export type LoadBlobFormat = 'arraybuffer' | 'dataurl' | 'text';
+
+export type LoadBlobResult = ArrayBuffer | string;
+
 export interface IToSearchStringOptions {
   noWhitespaces?: Nilable<boolean>;
+}
+
+export async function downloadBlob(blob: Blob, name?: Nilable<string>) {
+  const dataUrl = await loadBlob(blob, 'dataurl');
+
+  const a = document.createElement('a');
+  a.setAttribute('download', name || (blob as File).name);
+  a.setAttribute('href', dataUrl);
+  a.click();
+
+  setTimeout(() => {
+    a.remove();
+  }, 2000);
 }
 
 export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): IChatPrompt[] {
@@ -75,6 +92,38 @@ export function isMobile(): boolean {
   }
 
   return false;
+}
+
+export function loadBlob(blob: Blob): Promise<ArrayBuffer>;
+export function loadBlob(
+  blob: Blob,
+  format: 'arraybuffer',
+): Promise<ArrayBuffer>;
+export function loadBlob(blob: Blob, format: 'dataurl'): Promise<string>;
+export function loadBlob(blob: Blob, format: 'text'): Promise<string>;
+export function loadBlob(
+  blob: Blob,
+  format: LoadBlobFormat = 'arraybuffer',
+): Promise<LoadBlobResult> {
+  return new Promise<LoadBlobResult>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = (ex) => {
+      reject(ex);
+    };
+    reader.onload = async (e) => {
+      resolve(e.target?.result as LoadBlobResult);
+    };
+
+    if (format === 'arraybuffer') {
+      reader.readAsArrayBuffer(blob);
+    } else if (format === 'dataurl') {
+      reader.readAsDataURL(blob);
+    } else if (format === 'text') {
+      reader.readAsText(blob);
+    } else {
+      reject(new Error(`Format ${format} not supported`));
+    }
+  });
 }
 
 export function parseVariables(content: any) {

@@ -22,8 +22,9 @@ import { v4 } from 'uuid';
 // internal imports
 import ChatFolders from '../ChatFolders';
 import Conversations from '../Conversations';
+import Settings from './components/Settings';
 import Sidebar from '../Sidebar';
-import { ChatConversationItem, IChatConversation, IChatConversationFolder } from '../../types';
+import { ChatConversationItem, IChatConversation, IChatConversationFolder, ISettings } from '../../types';
 import { toSearchString } from '../../utils';
 
 interface IChatbarProps {
@@ -31,13 +32,15 @@ interface IChatbarProps {
   onConversationClick: (conversation: IChatConversation) => void;
   onConversationDelete: (conversationId: string) => void;
   onConversationItemsUpdate: (items: ChatConversationItem[]) => void;
+  onSettingsUpdate: (newData: ISettings) => void;
 }
 
 const Chatbar: React.FC<IChatbarProps> = ({
   items,
   onConversationClick,
   onConversationDelete,
-  onConversationItemsUpdate
+  onConversationItemsUpdate,
+  onSettingsUpdate
 }) => {
   const [currentFolder, setCurrentFolder] = useState<Nullable<IChatConversationFolder>>(null);
   const [isOpen, setIsOpen] = useState(true);
@@ -249,7 +252,7 @@ const Chatbar: React.FC<IChatbarProps> = ({
         toggleOpen={handleToggleChatbar}
         handleCreateItem={handleCreateItem}
         handleCreateFolder={handleCreateFolder}
-        footerComponent={null}
+        footerComponent={<Settings onSettingsUpdate={onSettingsUpdate} />}
       />
     </>
   );

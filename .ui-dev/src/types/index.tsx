@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// system imports
+import type { Nilable } from "@egomobile/types";
+
 export type ChatConversationItem =
   IChatConversationFolder |
   IChatConversation;
@@ -65,4 +68,9 @@ export interface IFolder {
   id: string;
   title: string;
   type: FolderType;
+}
+
+export interface ISettings {
+  conversationItems: Nilable<ChatConversationItem[]>;
+  promptItems: Nilable<ChatPromptItem[]>;
 }
