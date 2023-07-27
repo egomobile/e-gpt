@@ -19,6 +19,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 // internal imports
 import { IChatPrompt } from '../../../../types';
 
+interface IVariable {
+  key: string;
+  value: string;
+}
+
 interface IVariableModalProps {
   prompt: IChatPrompt;
   variables: string[];
@@ -32,11 +37,12 @@ const VariableModal: React.FC<IVariableModalProps> = ({
   onSubmit,
   onClose,
 }) => {
-  const [updatedVariables, setUpdatedVariables] = useState<
-    { key: string; value: string }[]
-  >(
+  const [updatedVariables, setUpdatedVariables] = useState<IVariable[]>(
     variables
-      .map((variable) => ({ key: variable, value: '' }))
+      .map((variable) => ({
+        key: variable,
+        value: '',
+      }))
       .filter(
         (item, index, array) =>
           array.findIndex((t) => t.key === item.key) === index,
@@ -112,23 +118,25 @@ const VariableModal: React.FC<IVariableModalProps> = ({
           {prompt.description}
         </div>
 
-        {updatedVariables.map((variable, index) => (
-          <div className="mb-4" key={index}>
-            <div className="mb-2 text-sm font-bold text-neutral-200">
-              {variable.key}
-            </div>
+        {updatedVariables.map((variable, index) => {
+          return (
+            <div className="mb-4" key={index}>
+              <div className="mb-2 text-sm font-bold text-neutral-200">
+                {variable.key}
+              </div>
 
-            <textarea
-              ref={index === 0 ? nameInputRef : undefined}
-              className="mt-1 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
-              style={{ resize: 'none' }}
-              placeholder={`Enter a value for ${variable.key}...`}
-              value={variable.value}
-              onChange={(e) => handleChange(index, e.target.value)}
-              rows={3}
-            />
-          </div>
-        ))}
+              <textarea
+                ref={index === 0 ? nameInputRef : undefined}
+                className="mt-1 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
+                style={{ resize: 'none' }}
+                placeholder={`Enter a value for ${variable.key}...`}
+                value={variable.value}
+                onChange={(e) => handleChange(index, e.target.value)}
+                rows={3}
+              />
+            </div>
+          );
+        })}
 
         <button
           className="mt-6 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"

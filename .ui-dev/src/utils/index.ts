@@ -127,7 +127,7 @@ export function loadBlob(
 }
 
 export function parseVariables(content: any) {
-  const regex = /{{(.*?)}}/g;
+  const regex = /{{([^}]*)}}/g;
   const foundVariables = [];
 
   let match;
