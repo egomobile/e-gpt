@@ -22,7 +22,9 @@
     "axios": "1.4.0",
     "clsx": "2.0.0",
     "cors": "2.8.5",
+    "del-cli": "5.0.0",
     "lodash": "4.17.21",
+    "move-file-cli": "3.0.0",
     "postcss": "8.4.27",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -41,7 +43,7 @@
   },
   "scripts": {
     "start": "tsx ./server.ts & PORT=8080 react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && del ../ui/build --force && move-file ./build ../ui/build && echo '' >> ../ui/build/.gitkeep",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

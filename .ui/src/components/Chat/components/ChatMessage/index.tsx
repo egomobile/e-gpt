@@ -39,7 +39,7 @@ export interface IChatMessageProps {
   onEdit?: (editedMessage: IChatMessage) => void
 }
 
-export const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, messageIndex, onEdit }) => {
+const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, messageIndex, onEdit }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageContent, setMessageContent] = useState(message.content);
@@ -268,3 +268,5 @@ export const ChatMessage: React.FC<IChatMessageProps> = memo(({ message, message
     </div>
   );
 });
+
+export default ChatMessage;

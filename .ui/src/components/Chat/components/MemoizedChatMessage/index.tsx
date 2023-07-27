@@ -17,7 +17,7 @@
 import React, { memo } from "react";
 
 // internal imports
-import { ChatMessage, IChatMessageProps } from "../ChatMessage";
+import ChatMessage, { IChatMessageProps } from "../ChatMessage";
 
 const MemoizedChatMessage: React.FC<IChatMessageProps> = memo(
   ChatMessage,

@@ -3,3 +3,5 @@
 sandbox*
 /TODOs.md
 /.ui-legacy
+/ui/build/**/*
+!/ui/build/.gitkeep

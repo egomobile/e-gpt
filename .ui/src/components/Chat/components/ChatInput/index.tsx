@@ -29,7 +29,11 @@ import type { IChatMessage, IChatPrompt } from '../../../../types';
 import { isMobile, parseVariables, toSearchString } from '../../../../utils';
 
 interface IChatInputProps {
-  onSend: (message: IChatMessage) => void;
+  isSending: boolean;
+  onSend: (
+    message: IChatMessage,
+    done: (error: any) => any
+  ) => void;
   onRegenerate: () => void;
   onScrollDownClick: () => void;
   prompts: IChatPrompt[];
@@ -38,6 +42,7 @@ interface IChatInputProps {
 }
 
 const ChatInput = ({
+  isSending,
   onSend,
   onRegenerate,
   onScrollDownClick,
@@ -63,8 +68,16 @@ const ChatInput = ({
   }, [selectedConversation?.model.maxLength]);
 
   const isInputDiabled = useMemo(() => {
-    return !selectedConversation;
-  }, [selectedConversation]);
+    return !selectedConversation || isSending;
+  }, [isSending, selectedConversation]);
+
+  const canSend = useMemo(() => {
+    return !(
+      isInputDiabled ||
+      isSending ||
+      !content?.trim().length
+    );
+  }, [content, isInputDiabled, isSending]);
 
   const filteredPrompts = useMemo(() => {
     return prompts.filter((prompt) =>
@@ -104,8 +117,17 @@ const ChatInput = ({
       return;
     }
 
-    onSend({ role: 'user', content });
-    setContent('');
+    onSend({
+      role: 'user',
+      content
+    }, (err) => {
+      if (err) {
+        return;
+      }
+
+      setContent('');
+      textareaRef.current?.focus();
+    });
 
     if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
       textareaRef.current.blur();
@@ -192,6 +214,15 @@ const ChatInput = ({
   }, [content, textareaRef, variables]);
 
   const renderInputField = useCallback(() => {
+    let placeholder: string;
+    if (isSending) {
+      placeholder = '';
+    } else {
+      placeholder = !selectedConversation ?
+        'Please select a conversation on the left side first' :
+        'Type a message or type "/" to select a prompt ...';
+    }
+
     return (
       <textarea
         ref={textareaRef}
@@ -206,11 +237,7 @@ const ChatInput = ({
             : 'hidden'
             }`,
         }}
-        placeholder={
-          isInputDiabled ?
-            'Please select a conversation on the left side first' :
-            'Type a message or type "/" to select a prompt ...'
-        }
+        placeholder={placeholder}
         value={content}
         rows={1}
         onCompositionStart={() => setIsTyping(true)}
@@ -219,7 +246,7 @@ const ChatInput = ({
         onKeyDown={handleKeyDown}
       />
     );
-  }, [content, handleChange, handleKeyDown, isInputDiabled, textareaRef]);
+  }, [content, handleChange, handleKeyDown, isInputDiabled, isSending, selectedConversation, textareaRef]);
 
   const renderSendButton = useCallback(() => {
     if (isInputDiabled) {
@@ -230,12 +257,12 @@ const ChatInput = ({
       <button
         className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
         onClick={handleSend}
-        disabled={isInputDiabled}
+        disabled={!canSend}
       >
         <IconSend size={18} />
       </button>
     );
-  }, [handleSend, isInputDiabled]);
+  }, [canSend, handleSend, isInputDiabled]);
 
   const renderContent = useCallback(() => {
     return (

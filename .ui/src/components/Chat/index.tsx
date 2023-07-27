@@ -14,8 +14,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system import
+import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Nullable } from '@egomobile/types';
+import type { Nilable, Nullable } from '@egomobile/types';
 
 // internal imports
 import ChatInput from './components/ChatInput';
@@ -25,14 +26,17 @@ import SystemPrompt from './components/SystemPrompt';
 import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
 import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
+import { defaultSystemPrompt } from '../../constants';
 
 interface IChatProps {
   onConversationUpdate: (conversation: IChatConversation) => void;
+  onRefresh: (conversationToSelect: Nilable<IChatConversation>) => void;
   prompts: IChatPrompt[];
 }
 
 const Chat: React.FC<IChatProps> = ({
   onConversationUpdate,
+  onRefresh,
   prompts
 }) => {
   const [showScrollDownButton, setShowScrollDownButton] =
@@ -40,7 +44,7 @@ const Chat: React.FC<IChatProps> = ({
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [currentMessage, setCurrentMessage] = useState<Nullable<IChatMessage>>();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
   const selectedConversation = useSelectedChatConversation();
 
@@ -89,18 +93,80 @@ const Chat: React.FC<IChatProps> = ({
     });
   }, [onConversationUpdate]);
 
-  const handleSend = useCallback((message: IChatMessage) => {
-    if (isLoading) {
+  const handleSend = useCallback(async (message: IChatMessage, done: (error: any) => void) => {
+    if (isSending || !selectedConversation) {
       return;
     }
 
     setCurrentMessage(message);
-    setIsLoading(true);
+    setIsSending(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 5000);
-  }, [isLoading]);
+    try {
+      const conversationMessages = [...selectedConversation.messages];
+      const appendMessage = (msg: IChatMessage) => {
+        conversationMessages.push(msg);
+
+        onConversationUpdate({
+          ...selectedConversation,
+
+          messages: [...conversationMessages]
+        });
+      };
+
+      appendMessage(message);
+
+      const systemPrompt = selectedConversation.systemPrompt.trim() ||
+        defaultSystemPrompt;
+
+      const postData = {
+        conversation: [
+          systemPrompt,
+          ...conversationMessages.map((cm) => {
+            return cm.content;
+          })
+        ]
+      };
+
+      const {
+        data, status
+      } = await axios.post('chat', postData);
+
+      if (status !== 200) {
+        throw new Error(`Unexpected response: ${status}`);
+      }
+
+      appendMessage({
+        role: 'assistant',
+        content: data.answer
+      });
+
+      done(null);
+
+      onRefresh({
+        ...selectedConversation,
+
+        messages: conversationMessages
+      });
+    } catch (error) {
+      console.log('[ERROR]', 'Chat.handleSend(1)', error);
+
+      done(error);
+    } finally {
+      setIsSending(false);
+    }
+  }, [isSending, onConversationUpdate, onRefresh, selectedConversation]);
+
+  const handleRegenerate = useCallback(() => {
+    if (!currentMessage) {
+      return;
+    }
+
+    handleSend(currentMessage, (error) => {
+      if (error) {
+        console.log('[ERROR]', 'Chat.handleRegenerate()', error);
+      }
+    });
+  }, [currentMessage, handleSend]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -136,6 +202,36 @@ const Chat: React.FC<IChatProps> = ({
     );
   }, []);
 
+  const renderMessages = useCallback(() => {
+    if (!selectedConversation?.messages) {
+      return null;
+    }
+
+    return (
+      <div className='pt-8'>
+        {selectedConversation?.messages.map((message, index) => (
+          <MemoizedChatMessage
+            key={index}
+            message={message}
+            messageIndex={index}
+            onEdit={(editedMessage) => {
+              setCurrentMessage(editedMessage);
+
+              //
+            }}
+          />
+        ))}
+
+        {isSending && <ChatLoader />}
+
+        <div
+          className="h-[162px] bg-white dark:bg-[#343541]"
+          ref={messagesEndRef}
+        />
+      </div>
+    );
+  }, [isSending, selectedConversation?.messages]);
+
   const renderChatInput = useCallback(() => {
     return (
       <>
@@ -144,71 +240,40 @@ const Chat: React.FC<IChatProps> = ({
           ref={chatContainerRef}
           onScroll={handleScroll}
         >
-          {!selectedConversation?.messages.length ? (
-            <>
-              <div className="mx-auto flex flex-col space-y-5 md:space-y-10 px-3 pt-5 md:pt-12 sm:max-w-[600px]">
-                <div className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                  e.GPT by e.GO
-                </div>
+          <div className="mx-auto flex flex-col space-y-5 md:space-y-10 px-3 pt-5 md:pt-12 sm:max-w-[600px]">
+            <div className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100">
+              e.GPT by e.GO
+            </div>
 
-                {!selectedConversation && (
-                  <div className="text-center text-lg text-black dark:text-white">
-                    <div className="mb-2 font-bold">
-                      No conversation selected
-                    </div>
-                  </div>
-                )}
-
-                {selectedConversation && (
-                  <SystemPrompt
-                    conversation={selectedConversation}
-                    disabled={!!selectedConversation?.messages.length}
-                    prompts={prompts}
-                    onPromptChange={(prompt) => {
-                      handleUpdateConversationPromptChange(selectedConversation, prompt);
-                    }}
-                  />
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              {selectedConversation?.messages.map((message, index) => (
-                <MemoizedChatMessage
-                  key={index}
-                  message={message}
-                  messageIndex={index}
-                  onEdit={(editedMessage) => {
-                    setCurrentMessage(editedMessage);
-
-                    //
+            {selectedConversation && (
+              <>
+                <SystemPrompt
+                  conversation={selectedConversation}
+                  disabled={isSending || !!selectedConversation?.messages.length}
+                  prompts={prompts}
+                  onPromptChange={(prompt) => {
+                    handleUpdateConversationPromptChange(selectedConversation, prompt);
                   }}
                 />
-              ))}
+              </>
+            )}
+          </div>
 
-              {isLoading && <ChatLoader />}
-
-              <div
-                className="h-[162px] bg-white dark:bg-[#343541]"
-                ref={messagesEndRef}
-              />
-            </>
-          )}
+          {renderMessages()}
         </div>
 
         <ChatInput
+          isSending={isSending}
           prompts={prompts}
           textareaRef={textareaRef}
           onSend={handleSend}
           onScrollDownClick={handleScrollDown}
-          onRegenerate={() => {
-            //
-          }}
+          onRegenerate={handleRegenerate}
           showScrollDownButton={showScrollDownButton}
         />
       </>
     );
-  }, [handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isLoading, prompts, selectedConversation, showScrollDownButton]);
+  }, [handleRegenerate, handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isSending, prompts, renderMessages, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
     const apiKey = 'TEST';  // TODO: replace

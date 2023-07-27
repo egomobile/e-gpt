@@ -37,7 +37,7 @@ const App: React.FC = () => {
   const [conversationItems, setConversationItems] = useState<Nullable<ChatConversationItem[]>>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [promptItems, setPromptItems] = useState<Nullable<ChatPromptItem[]>>(null);
-  const [selectedConversation, setSelectedConversation] = useState<Nullable<IChatConversation>>(null);
+  const [selectedConversation, setSelectedConversation] = useState<Nilable<IChatConversation>>(null);
 
   const allPrompts = useMemo(() => {
     if (!promptItems) {
@@ -121,14 +121,44 @@ const App: React.FC = () => {
   }, [promptItems, updateSettings]);
 
   const handleConversationUpdate = useCallback((conversation: IChatConversation) => {
-    //
-  }, []);
+    if (!conversationItems) {
+      return;
+    }
+
+    const newItems = [...conversationItems];
+
+    const iterateAndUpdate = (list: ChatConversationItem[]) => {
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+
+        if ('conversations' in item) {
+          iterateAndUpdate(item.conversations);
+        } else {
+          if (item.id === conversation.id) {
+            list[i] = conversation;
+          }
+        }
+      }
+    };
+
+    iterateAndUpdate(newItems);
+
+    setConversationItems(newItems);
+  }, [conversationItems]);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
     setPromptItems(newList);
 
     updateSettings(conversationItems, newList);
   }, [conversationItems, updateSettings]);
+
+  const handleRefresh = useCallback((newSelectedConversation: Nilable<IChatConversation>) => {
+    if (newSelectedConversation) {
+      setSelectedConversation(newSelectedConversation);
+    } else {
+      setSelectedConversation(newSelectedConversation === null ? undefined : null)
+    }
+  }, []);
 
   useEffect(() => {
     reloadSettings()
@@ -144,7 +174,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <SelectedChatConversationContext.Provider value={selectedConversation}>
+    <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
       <div
         className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
       >
@@ -159,6 +189,7 @@ const App: React.FC = () => {
           <div className="flex flex-1">
             <Chat
               onConversationUpdate={handleConversationUpdate}
+              onRefresh={handleRefresh}
               prompts={allPrompts ?? []}
             />
           </div>

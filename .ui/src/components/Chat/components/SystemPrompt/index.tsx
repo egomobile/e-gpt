@@ -14,7 +14,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // internal imports
@@ -50,14 +49,6 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   const maxLength = useMemo(() => {
     return conversation.model.maxLength ?? null;
   }, [conversation.model.maxLength]);
-
-  const prompt = useMemo(() => {
-    return _(conversation.messages)
-      .filter((msg) => {
-        return msg.role === 'user';
-      })
-      .last()?.content ?? null;
-  }, [conversation.messages]);
 
   const filteredPrompts = useMemo(() => {
     return filterChatPrompts(prompts, promptInputValue);
@@ -168,12 +159,10 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   }, [value]);
 
   useEffect(() => {
-    if (prompt) {
-      setValue(prompt);
-    } else {
-      setValue(defaultSystemPrompt);
-    }
-  }, [conversation, prompt]);
+    setValue(conversation.systemPrompt?.trim() || defaultSystemPrompt);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
