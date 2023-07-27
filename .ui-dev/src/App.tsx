@@ -25,7 +25,6 @@ import CurrentSettingsContext from './contexts/CurrentSettingsContext';
 import Promptbar from './components/Promptbar';
 import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
 import type { ChatConversationItem, ChatPromptItem, IChatConversation, ISettings } from './types';
-import { sortProps } from './utils';
 
 // styles
 import './App.css';
@@ -56,17 +55,6 @@ const App: React.FC = () => {
       return [item];
     }).flat();
   }, [promptItems]);
-
-  const areSettingsEqual = useCallback((settings: ISettings) => {
-    const thisSettings = sortProps<ISettings>(currentSettings);
-    const otherSettings = sortProps<ISettings>(settings);
-
-    return JSON.stringify(
-      thisSettings
-    ) === JSON.stringify(
-      otherSettings
-    );
-  }, [currentSettings]);
 
   const reloadSettings = useCallback(async () => {
     let newConversationItems: ChatConversationItem[] = [];
@@ -105,16 +93,12 @@ const App: React.FC = () => {
       return;
     }
 
-    const newSettings = sortProps<ISettings>({
+    const newSettings = {
       conversationItems: newConversationList,
       promptItems: newPromptList
-    });
+    };
 
     try {
-      if (areSettingsEqual(newSettings)) {
-        return;
-      }
-
       const {
         status
       } = await axios.put<ISettings>('settings', newSettings);
@@ -125,7 +109,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('[ERROR]', 'App.updateSettings', error);
     }
-  }, [areSettingsEqual, isInitialized]);
+  }, [isInitialized]);
 
   const handleConversationDelete = useCallback((conversationId: string) => {
     if (selectedConversation?.id === conversationId) {
@@ -187,13 +171,9 @@ const App: React.FC = () => {
   }, [conversationItems, updateSettings]);
 
   const handleSettingsUpdate = useCallback((newData: ISettings) => {
-    if (areSettingsEqual(newData)) {
-      return;
-    }
-
     setConversationItems(newData.conversationItems ?? []);
     setPromptItems(newData.promptItems ?? []);
-  }, [areSettingsEqual]);
+  }, []);
 
   useEffect(() => {
     reloadSettings()
