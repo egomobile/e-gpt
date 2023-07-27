@@ -22,20 +22,31 @@ import Prompt from "../Prompt";
 import type { IChatPrompt, IChatPromptFolder } from "../../types";
 import { toSearchString } from "../../utils";
 
+interface IGetFolderProps {
+  currentFolder: IChatPromptFolder;
+  onDeletePrompt: (prompt: IChatPrompt) => void;
+  onPromptClick: (conversation: IChatPrompt) => void;
+  onUpdatePrompt: (folder: IChatPromptFolder, newData: IChatPrompt) => void;
+}
+
 interface IPromptFoldersProps {
   folders: IChatPromptFolder[];
   onDeleteFolder: (folder: IChatPromptFolder) => void;
   onDeletePrompt: (prompt: IChatPrompt) => void;
+  onFolderClick: (folder: IChatPromptFolder) => void;
+  onFolderOpenUpate: (folder: IChatPromptFolder, isOpen: boolean) => void;
+  onPromptClick: (conversation: IChatPrompt) => void;
   onUpdateFolderTitle: (folder: IChatPromptFolder, title: string) => void;
   onUpdatePrompt: (folder: IChatPromptFolder, newData: IChatPrompt) => void;
   searchTerm: string;
 }
 
-const getFolder = (
-  currentFolder: IChatPromptFolder,
-  onDeletePrompt: (prompt: IChatPrompt) => void,
-  onUpdatePrompt: (folder: IChatPromptFolder, newData: IChatPrompt) => void
-) => {
+const getFolder = ({
+  currentFolder,
+  onDeletePrompt,
+  onPromptClick,
+  onUpdatePrompt
+}: IGetFolderProps) => {
   const {
     prompts
   } = currentFolder;
@@ -53,6 +64,7 @@ const getFolder = (
             <div key={index} className="ml-5 gap-2 border-l pl-2">
               <Prompt
                 prompt={prompt}
+                onClick={() => onPromptClick(prompt)}
                 onDelete={() => onDeletePrompt(prompt)}
                 onUpdate={(newData) => onUpdatePrompt(currentFolder, newData)}
               />
@@ -65,7 +77,17 @@ const getFolder = (
   );
 };
 
-const PromptFolders: React.FC<IPromptFoldersProps> = ({ folders, onDeleteFolder, onDeletePrompt, onUpdateFolderTitle, onUpdatePrompt, searchTerm }) => {
+const PromptFolders: React.FC<IPromptFoldersProps> = ({
+  folders,
+  onDeleteFolder,
+  onDeletePrompt,
+  onFolderClick,
+  onFolderOpenUpate,
+  onPromptClick,
+  onUpdateFolderTitle,
+  onUpdatePrompt,
+  searchTerm
+}) => {
   const handleDeleteFolder = useCallback((folder: IChatPromptFolder) => {
     onDeleteFolder(folder);
   }, [onDeleteFolder]);
@@ -87,8 +109,15 @@ const PromptFolders: React.FC<IPromptFoldersProps> = ({ folders, onDeleteFolder,
           <Folder
             key={folderIndex}
             currentFolder={folder}
-            folderComponent={getFolder(folder, onDeletePrompt, onUpdatePrompt) as any}
+            folderComponent={getFolder({
+              currentFolder: folder,
+              onPromptClick,
+              onDeletePrompt,
+              onUpdatePrompt
+            }) as any}
+            onClick={() => onFolderClick(folder)}
             onDelete={() => handleDeleteFolder(folder)}
+            onOpenUpdate={(isOpen) => onFolderOpenUpate(folder, isOpen)}
             onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}
             searchTerm={searchTerm}
           />

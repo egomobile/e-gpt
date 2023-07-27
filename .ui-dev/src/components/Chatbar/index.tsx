@@ -16,6 +16,7 @@
 // system imports
 import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Nullable } from '@egomobile/types';
 import { v4 } from 'uuid';
 
 // internal imports
@@ -38,6 +39,7 @@ const Chatbar: React.FC<IChatbarProps> = ({
   onConversationDelete,
   onConversationItemsUpdate
 }) => {
+  const [currentFolder, setCurrentFolder] = useState<Nullable<IChatConversationFolder>>(null);
   const [isOpen, setIsOpen] = useState(true);
   const [nextNewConversationIndex, setNextNewConversationIndex] = useState(0);
   const [nextNewFolderIndex, setNextNewFolderIndex] = useState(0);
@@ -83,16 +85,12 @@ const Chatbar: React.FC<IChatbarProps> = ({
     onConversationItemsUpdate(newList);
   }, [onConversationItemsUpdate]);
 
-  const handleDrop = useCallback((e: any) => {
-    console.log('Chatbar.handleDrop');
-  }, []);
-
   const handleCreateFolder = useCallback(() => {
     const newNextFolderIndex = nextNewFolderIndex + 1;
 
     const newFolder: IChatConversationFolder = {
       conversations: [],
-      id: `${Date.now()}-${v4()}`,
+      id: `ccf:${Date.now()}-${v4()}`,
       title: `New Folder #${newNextFolderIndex}`,
       type: 'chat',
     };
@@ -109,8 +107,8 @@ const Chatbar: React.FC<IChatbarProps> = ({
     const newNextNewConversationIndex = nextNewConversationIndex + 1;
 
     const newConversation: IChatConversation = {
-      folderId: '',
-      id: `${Date.now()}-${v4()}`,
+      folderId: currentFolder?.id || '',
+      id: `cc:${Date.now()}-${v4()}`,
       title: `New Conversation #${newNextNewConversationIndex}`,
       messages: [],
       model: {
@@ -121,15 +119,23 @@ const Chatbar: React.FC<IChatbarProps> = ({
       systemPrompt: ''
     };
 
-    handleItemsUpdate([...items, newConversation]);
+    const list = [...items];
+
+    if (currentFolder) {
+      currentFolder.conversations.push(newConversation);
+    } else {
+      list.push(newConversation);
+    }
+
+    handleItemsUpdate(list);
     setNextNewConversationIndex(newNextNewConversationIndex);
-  }, [handleItemsUpdate, items, nextNewConversationIndex]);
+  }, [currentFolder, handleItemsUpdate, items, nextNewConversationIndex]);
 
   const handleSearchTerm = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
   }, []);
 
-  const handleDeleteConversation = useCallback((conversation: IChatConversation) => {
+  const handleDeleteConversation = useCallback((conversation: IChatConversation, triggerUpdateEvents: boolean) => {
     const newItemList = items.filter((item) => {
       if (!('conversations' in item)) {
         return item.id !== conversation.id;
@@ -138,10 +144,29 @@ const Chatbar: React.FC<IChatbarProps> = ({
       return true;
     });
 
-    handleItemsUpdate(newItemList);
+    if (triggerUpdateEvents) {
+      handleItemsUpdate(newItemList);
 
-    onConversationDelete(conversation.id);
+      onConversationDelete(conversation.id);
+    }
   }, [handleItemsUpdate, items, onConversationDelete]);
+
+  const handleUpdateConversation = useCallback((newData: IChatConversation) => {
+    const folder = folders.find((f) => {
+      return f.id === newData.folderId;
+    });
+
+    const newList = [...items];
+
+    const list = folder ? folder.conversations : newList;
+    [...list].forEach((item, itemIndex) => {
+      if (item.id === newData.id) {
+        list[itemIndex] = newData;
+      }
+    });
+
+    handleItemsUpdate(newList);
+  }, [folders, handleItemsUpdate, items]);
 
   const handleDeleteFolder = useCallback((folder: IChatConversationFolder) => {
     const newItemList = items.filter((item) => {
@@ -152,8 +177,13 @@ const Chatbar: React.FC<IChatbarProps> = ({
       return item.folderId !== folder.id;
     });
 
+    currentFolder?.conversations.forEach((c) => {
+      handleDeleteConversation(c, false);
+    });
+
+    setCurrentFolder(null);
     handleItemsUpdate([...newItemList]);
-  }, [handleItemsUpdate, items]);
+  }, [currentFolder?.conversations, handleDeleteConversation, handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatConversationFolder, newTitle: string) => {
     newTitle = newTitle.trim();
@@ -172,18 +202,6 @@ const Chatbar: React.FC<IChatbarProps> = ({
     handleItemsUpdate([...newItemList]);
   }, [handleItemsUpdate, items]);
 
-  const handleUpdateConversation = useCallback((newData: IChatConversation) => {
-    const newList = [...items];
-
-    [...newList].forEach((item, itemIndex) => {
-      if (item.id === newData.id) {
-        newList[itemIndex] = newData;
-      }
-    });
-
-    handleItemsUpdate(newList);
-  }, [handleItemsUpdate, items]);
-
   useEffect(() => {
     onConversationItemsUpdate(items);
   }, [items, onConversationItemsUpdate]);
@@ -198,7 +216,7 @@ const Chatbar: React.FC<IChatbarProps> = ({
           <Conversations
             conversations={filteredConversations}
             onClick={onConversationClick}
-            onDelete={handleDeleteConversation}
+            onDelete={(c) => handleDeleteConversation(c, true)}
             onUpdate={handleUpdateConversation}
           />
         )}
@@ -206,9 +224,21 @@ const Chatbar: React.FC<IChatbarProps> = ({
           <ChatFolders
             folders={folders}
             searchTerm={searchTerm}
-            onConversationClick={onConversationClick}
-            onDeleteConversation={handleDeleteConversation}
+            onConversationClick={(c) => {
+              setCurrentFolder(null);
+
+              onConversationClick(c);
+            }}
+            onDeleteConversation={(c) => handleDeleteConversation(c, true)}
             onDeleteFolder={handleDeleteFolder} onUpdateFolderTitle={handleUpdateFolderTitle}
+            onFolderClick={() => { }}
+            onFolderOpenUpate={(folder, isOpen) => {
+              if (isOpen) {
+                setCurrentFolder(folder);
+              } else {
+                setCurrentFolder(null);
+              }
+            }}
             onUpdateConversation={(folder, newData) => {
               handleUpdateConversation(newData);
             }}
@@ -219,7 +249,6 @@ const Chatbar: React.FC<IChatbarProps> = ({
         toggleOpen={handleToggleChatbar}
         handleCreateItem={handleCreateItem}
         handleCreateFolder={handleCreateFolder}
-        handleDrop={handleDrop}
         footerComponent={null}
       />
     </>

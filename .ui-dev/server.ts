@@ -92,7 +92,7 @@ async function main() {
     // save settings
     app.put('/api/settings', [json()], async (request, response) => {
         const data = Buffer.from(
-            JSON.stringify(request.body)
+            JSON.stringify(request.body, null, 2)
         );
         await fs.promises.writeFile(settingsFile, data);
 

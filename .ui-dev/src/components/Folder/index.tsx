@@ -31,7 +31,9 @@ import type { IFolder } from '../../types';
 interface IFolderProps {
   currentFolder: IFolder;
   folderComponent: (React.ReactElement | undefined)[];
+  onClick: () => void;
   onDelete: () => void;
+  onOpenUpdate: (isOpen: boolean) => void;
   onUpdateTitle: (newTitle: string) => void;
   searchTerm: string;
 }
@@ -39,7 +41,9 @@ interface IFolderProps {
 const Folder: React.FC<IFolderProps> = ({
   currentFolder,
   folderComponent,
+  onClick,
   onDelete,
+  onOpenUpdate,
   onUpdateTitle,
   searchTerm,
 }) => {
@@ -82,6 +86,12 @@ const Folder: React.FC<IFolderProps> = ({
     e.target.style.background = 'none';
   }, []);
 
+  const handleButtonClick = useCallback(() => {
+    setIsOpen(!isOpen);
+
+    onClick();
+  }, [isOpen, onClick]);
+
   useEffect(() => {
     if (isRenaming) {
       setIsDeleting(false);
@@ -97,6 +107,10 @@ const Folder: React.FC<IFolderProps> = ({
       setIsOpen(false);
     }
   }, [searchTerm]);
+
+  useEffect(() => {
+    onOpenUpdate(isOpen);
+  }, [isOpen, onOpenUpdate]);
 
   return (
     <>
@@ -120,7 +134,7 @@ const Folder: React.FC<IFolderProps> = ({
         ) : (
           <button
             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-[#343541]/90`}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleButtonClick}
             onDragOver={allowDrop}
             onDragEnter={highlightDrop}
             onDragLeave={removeHighlight}

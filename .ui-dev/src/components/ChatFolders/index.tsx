@@ -27,6 +27,8 @@ interface IChatFoldersProps {
   onConversationClick: (conversation: IChatConversation) => void;
   onDeleteConversation: (conversation: IChatConversation) => void;
   onDeleteFolder: (folder: IChatConversationFolder) => void;
+  onFolderClick: (folder: IChatConversationFolder) => void;
+  onFolderOpenUpate: (folder: IChatConversationFolder, isOpen: boolean) => void;
   onUpdateConversation: (folder: IChatConversationFolder, newData: IChatConversation) => void
   onUpdateFolderTitle: (folder: IChatConversationFolder, title: string) => void;
   searchTerm: string;
@@ -80,6 +82,8 @@ const ChatFolders: React.FC<IChatFoldersProps> = ({
   onConversationClick,
   onDeleteConversation,
   onDeleteFolder,
+  onFolderClick,
+  onFolderOpenUpate,
   onUpdateConversation,
   onUpdateFolderTitle,
   searchTerm
@@ -110,7 +114,9 @@ const ChatFolders: React.FC<IChatFoldersProps> = ({
               onDeleteConversation,
               onUpdateConversation
             }) as any}
+            onClick={() => onFolderClick(folder)}
             onDelete={() => handleDeleteFolder(folder)}
+            onOpenUpdate={(isOpen) => onFolderOpenUpate(folder, isOpen)}
             onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}
             searchTerm={searchTerm}
           />

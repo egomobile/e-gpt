@@ -21,12 +21,18 @@ import Prompt from '../Prompt';
 import { IChatPrompt } from '../../types';
 
 interface IPromptsProps {
+  onClick: (prompt: IChatPrompt) => void;
   onDelete: (prompt: IChatPrompt) => void;
   onUpdate: (newData: IChatPrompt) => void;
   prompts: IChatPrompt[];
 }
 
-const Prompts: React.FC<IPromptsProps> = ({ onDelete, onUpdate, prompts }) => {
+const Prompts: React.FC<IPromptsProps> = ({
+  onClick,
+  onDelete,
+  onUpdate,
+  prompts
+}) => {
   return (
     <div className="flex w-full flex-col gap-1">
       {prompts
@@ -36,6 +42,7 @@ const Prompts: React.FC<IPromptsProps> = ({ onDelete, onUpdate, prompts }) => {
           <Prompt
             key={index}
             prompt={prompt}
+            onClick={() => onClick(prompt)}
             onDelete={() => onDelete(prompt)}
             onUpdate={onUpdate}
           />

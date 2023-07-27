@@ -148,7 +148,7 @@ const Chat: React.FC<IChatProps> = ({
         messages: conversationMessages
       });
     } catch (error) {
-      console.log('[ERROR]', 'Chat.handleSend(1)', error);
+      console.error('[ERROR]', 'Chat.handleSend(1)', error);
 
       done(error);
     } finally {
@@ -163,7 +163,7 @@ const Chat: React.FC<IChatProps> = ({
 
     handleSend(currentMessage, (error) => {
       if (error) {
-        console.log('[ERROR]', 'Chat.handleRegenerate()', error);
+        console.error('[ERROR]', 'Chat.handleRegenerate()', error);
       }
     });
   }, [currentMessage, handleSend]);

@@ -24,6 +24,7 @@ import Chatbar from './components/Chatbar';
 import Promptbar from './components/Promptbar';
 import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
 import type { ChatConversationItem, ChatPromptItem, IChatConversation } from './types';
+import { sortProps } from './utils';
 
 // styles
 import './App.css';
@@ -90,15 +91,23 @@ const App: React.FC = () => {
       return;
     }
 
+    const oldSettings = sortProps<ISettings>({
+      conversationItems,
+      promptItems
+    });
+    const newSettings = sortProps<ISettings>({
+      conversationItems: newConversationList,
+      promptItems: newPromptList
+    });
+
     try {
-      const settings: ISettings = {
-        conversationItems: newConversationList,
-        promptItems: newPromptList
-      };
+      if (JSON.stringify(oldSettings) === JSON.stringify(newSettings)) {
+        return;
+      }
 
       const {
         status
-      } = await axios.put<ISettings>('settings', settings);
+      } = await axios.put<ISettings>('settings', newSettings);
 
       if (status !== 204) {
         throw new Error(`Unexpected response: ${status}`);
@@ -106,7 +115,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('[ERROR]', 'App.updateSettings', error);
     }
-  }, [isInitialized]);
+  }, [conversationItems, isInitialized, promptItems]);
 
   const handleConversationDelete = useCallback((conversationId: string) => {
     if (selectedConversation?.id === conversationId) {
@@ -119,6 +128,14 @@ const App: React.FC = () => {
 
     updateSettings(newList, promptItems);
   }, [promptItems, updateSettings]);
+
+  const handleRefresh = useCallback((newSelectedConversation: Nilable<IChatConversation>) => {
+    if (newSelectedConversation) {
+      setSelectedConversation(newSelectedConversation);
+    } else {
+      setSelectedConversation(newSelectedConversation === null ? undefined : null)
+    }
+  }, []);
 
   const handleConversationUpdate = useCallback((conversation: IChatConversation) => {
     if (!conversationItems) {
@@ -144,21 +161,14 @@ const App: React.FC = () => {
     iterateAndUpdate(newItems);
 
     setConversationItems(newItems);
-  }, [conversationItems]);
+    updateSettings(newItems, promptItems);
+  }, [conversationItems, promptItems, updateSettings]);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
     setPromptItems(newList);
 
     updateSettings(conversationItems, newList);
   }, [conversationItems, updateSettings]);
-
-  const handleRefresh = useCallback((newSelectedConversation: Nilable<IChatConversation>) => {
-    if (newSelectedConversation) {
-      setSelectedConversation(newSelectedConversation);
-    } else {
-      setSelectedConversation(newSelectedConversation === null ? undefined : null)
-    }
-  }, []);
 
   useEffect(() => {
     reloadSettings()

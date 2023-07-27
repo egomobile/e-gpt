@@ -50,14 +50,14 @@ export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): ICha
   });
 }
 
-export const generateRandomString = (length: number, lowercase = false) => {
+export function generateRandomString(length: number, lowercase = false) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789'; // excluding similar looking characters like Z, 2, I, 1, O, 0
   let result = '';
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return lowercase ? result.toLowerCase() : result;
-};
+}
 
 export function isMobile(): boolean {
   try {
@@ -88,7 +88,30 @@ export function parseVariables(content: any) {
   }
 
   return foundVariables;
-};
+}
+
+export function sortProps<T = any>(val: T): T {
+  if (!val) {
+    return val as unknown as T;
+  }
+
+  if (typeof val !== 'object') {
+    return val as unknown as T;
+  }
+
+  if (Array.isArray(val)) {
+    return val.map(sortProps) as unknown as T;
+  }
+
+  const result: Partial<T> = {};
+
+  const sortedProps = Object.keys(val).sort() as (keyof T)[];
+  for (const prop of sortedProps) {
+    result[prop] = val[prop];
+  }
+
+  return result as unknown as T;
+}
 
 export function throttle<T extends (...args: any[]) => any>(
   func: T,

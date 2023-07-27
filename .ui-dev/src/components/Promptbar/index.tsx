@@ -15,13 +15,14 @@
 
 // system imports
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Nullable } from '@egomobile/types';
 import { v4 } from 'uuid';
 
 // internal imports
 import Prompts from '../Prompts';
 import PromptFolders from '../PromptFolders';
 import Sidebar from '../Sidebar';
-import { ChatPromptItem, IChatPrompt, IChatPromptFolder } from '../../types';
+import type { ChatPromptItem, IChatPrompt, IChatPromptFolder } from '../../types';
 import { filterChatPrompts } from '../../utils';
 
 interface IPromptbarProps {
@@ -33,6 +34,7 @@ const Promptbar: React.FC<IPromptbarProps> = ({
   items,
   onPromptItemsUpdate
 }) => {
+  const [currentFolder, setCurrentFolder] = useState<Nullable<IChatPromptFolder>>(null);
   const [isOpen, setIsOpen] = useState(true);
   const [nextNewFolderIndex, setNextNewFolderIndex] = useState(0);
   const [nextNewPromptIndex, setNextNewPromptIndex] = useState(0);
@@ -58,16 +60,12 @@ const Promptbar: React.FC<IPromptbarProps> = ({
     onPromptItemsUpdate(newList);
   }, [onPromptItemsUpdate]);
 
-  const handleDrop = useCallback((e: any) => {
-    console.log('Chatbar.handleDrop');
-  }, []);
-
   const handleCreateFolder = useCallback(() => {
     const newNextFolderIndex = nextNewFolderIndex + 1;
 
     const newFolder: IChatPromptFolder = {
       prompts: [],
-      id: `${Date.now()}-${v4()}`,
+      id: `cpf:${Date.now()}-${v4()}`,
       title: `New Folder #${newNextFolderIndex}`,
       type: 'prompt',
     };
@@ -84,31 +82,58 @@ const Promptbar: React.FC<IPromptbarProps> = ({
     const newNextNewPromptIndex = nextNewPromptIndex + 1;
 
     const newPrompt: IChatPrompt = {
-      folderId: '',
-      id: `${Date.now()}-${v4()}`,
+      folderId: currentFolder?.id || '',
+      id: `cp:${Date.now()}-${v4()}`,
       title: `New Prompt #${newNextNewPromptIndex}`,
       content: '',
       description: ''
     };
 
-    handleItemsUpdate([...items, newPrompt]);
+    const list = [...items];
+
+    if (currentFolder) {
+      currentFolder.prompts.push(newPrompt);
+    } else {
+      list.push(newPrompt);
+    }
+
+    handleItemsUpdate(list);
     setNextNewPromptIndex(newNextNewPromptIndex);
-  }, [handleItemsUpdate, items, nextNewPromptIndex]);
+  }, [currentFolder, handleItemsUpdate, items, nextNewPromptIndex]);
 
   const handleSearchTerm = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
   }, []);
 
   const handleUpdatePrompt = useCallback((newData: IChatPrompt) => {
+    const folder = folders.find((f) => {
+      return f.id === newData.folderId;
+    });
+
     const newList = [...items];
 
-    [...newList].forEach((item, itemIndex) => {
+    const list = folder ? folder.prompts : newList;
+    [...list].forEach((item, itemIndex) => {
       if (item.id === newData.id) {
-        newList[itemIndex] = newData;
+        list[itemIndex] = newData;
       }
     });
 
     handleItemsUpdate(newList);
+  }, [folders, handleItemsUpdate, items]);
+
+  const handleDeletePrompt = useCallback((prompt: IChatPrompt, triggerUpdateEvents: boolean) => {
+    const newItemList = items.filter((item) => {
+      if (!('prompts' in item)) {
+        return item.id !== prompt.id;
+      }
+
+      return true;
+    });
+
+    if (triggerUpdateEvents) {
+      handleItemsUpdate([...newItemList]);
+    }
   }, [handleItemsUpdate, items]);
 
   const handleDeleteFolder = useCallback((folder: IChatPromptFolder) => {
@@ -120,20 +145,13 @@ const Promptbar: React.FC<IPromptbarProps> = ({
       return item.folderId !== folder.id;
     });
 
-    handleItemsUpdate([...newItemList]);
-  }, [handleItemsUpdate, items]);
-
-  const handleDeletePrompt = useCallback((prompt: IChatPrompt) => {
-    const newItemList = items.filter((item) => {
-      if (!('prompts' in item)) {
-        return item.id !== prompt.id;
-      }
-
-      return true;
+    currentFolder?.prompts.forEach((prompt) => {
+      handleDeletePrompt(prompt, false);
     });
 
-    handleItemsUpdate([...newItemList]);
-  }, [handleItemsUpdate, items]);
+    setCurrentFolder(null);
+    handleItemsUpdate(newItemList);
+  }, [currentFolder?.prompts, handleDeletePrompt, handleItemsUpdate, items]);
 
   const handleUpdateFolderTitle = useCallback((folder: IChatPromptFolder, newTitle: string) => {
     newTitle = newTitle.trim();
@@ -156,6 +174,10 @@ const Promptbar: React.FC<IPromptbarProps> = ({
     onPromptItemsUpdate(items);
   }, [items, onPromptItemsUpdate]);
 
+  useEffect(() => {
+    console.log('currentFolder', currentFolder);
+  }, [currentFolder]);
+
   return (
     <>
       <Sidebar
@@ -165,7 +187,10 @@ const Promptbar: React.FC<IPromptbarProps> = ({
         itemComponent={
           <Prompts
             prompts={filteredPrompts}
-            onDelete={handleDeletePrompt}
+            onClick={() => {
+              setCurrentFolder(null);
+            }}
+            onDelete={(p) => handleDeletePrompt(p, true)}
             onUpdate={handleUpdatePrompt}
           />
         }
@@ -173,7 +198,18 @@ const Promptbar: React.FC<IPromptbarProps> = ({
           <PromptFolders
             folders={folders}
             onDeleteFolder={handleDeleteFolder}
-            onDeletePrompt={handleDeletePrompt}
+            onDeletePrompt={(p) => handleDeletePrompt(p, true)}
+            onFolderClick={() => { }}
+            onFolderOpenUpate={(folder, isOpen) => {
+              if (isOpen) {
+                setCurrentFolder(folder);
+              } else {
+                setCurrentFolder(null);
+              }
+            }}
+            onPromptClick={(c) => {
+              setCurrentFolder(null);
+            }}
             onUpdateFolderTitle={handleUpdateFolderTitle}
             onUpdatePrompt={(folder, newData) => {
               handleUpdatePrompt(newData);
@@ -186,7 +222,6 @@ const Promptbar: React.FC<IPromptbarProps> = ({
         toggleOpen={handleToggleChatbar}
         handleCreateItem={handleCreateItem}
         handleCreateFolder={handleCreateFolder}
-        handleDrop={handleDrop}
         footerComponent={null}
       />
     </>

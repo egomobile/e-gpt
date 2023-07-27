@@ -33,11 +33,17 @@ import type { IChatPrompt } from '../../types';
 
 interface IPromptProps {
   prompt: IChatPrompt;
+  onClick: () => void;
   onDelete: () => void;
   onUpdate: (newData: IChatPrompt) => void;
 }
 
-const Prompt: React.FC<IPromptProps> = ({ onDelete, onUpdate, prompt }) => {
+const Prompt: React.FC<IPromptProps> = ({
+  onClick,
+  onDelete,
+  onUpdate,
+  prompt
+}) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
@@ -94,6 +100,8 @@ const Prompt: React.FC<IPromptProps> = ({ onDelete, onUpdate, prompt }) => {
         className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-[#343541]/90"
         draggable="true"
         onClick={(e) => {
+          onClick();
+
           e.stopPropagation();
           setShowModal(true);
         }}

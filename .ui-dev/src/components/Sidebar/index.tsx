@@ -35,7 +35,6 @@ interface ISidebarProps {
   toggleOpen: () => void;
   handleCreateItem: () => void;
   handleCreateFolder: () => void;
-  handleDrop: (e: any) => void;
 }
 
 const Sidebar: React.FC<ISidebarProps> = ({
@@ -51,7 +50,6 @@ const Sidebar: React.FC<ISidebarProps> = ({
   toggleOpen,
   handleCreateItem,
   handleCreateFolder,
-  handleDrop,
 }) => {
   const allowDrop = useCallback((e: any) => {
     e.preventDefault();
@@ -116,7 +114,6 @@ const Sidebar: React.FC<ISidebarProps> = ({
           {items?.length > 0 ? (
             <div
               className="pt-2"
-              onDrop={handleDrop}
               onDragOver={allowDrop}
               onDragEnter={highlightDrop}
               onDragLeave={removeHighlight}
