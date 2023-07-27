@@ -27,11 +27,13 @@ import { filterChatPrompts } from '../../utils';
 
 interface IPromptbarProps {
   items: ChatPromptItem[];
+  onPromptDelete: (promptId: string) => void;
   onPromptItemsUpdate: (items: ChatPromptItem[]) => void;
 }
 
 const Promptbar: React.FC<IPromptbarProps> = ({
   items,
+  onPromptDelete,
   onPromptItemsUpdate
 }) => {
   const [currentFolder, setCurrentFolder] = useState<Nullable<IChatPromptFolder>>(null);
@@ -133,8 +135,10 @@ const Promptbar: React.FC<IPromptbarProps> = ({
 
     if (triggerUpdateEvents) {
       handleItemsUpdate([...newItemList]);
+
+      onPromptDelete(prompt.id);
     }
-  }, [handleItemsUpdate, items]);
+  }, [handleItemsUpdate, items, onPromptDelete]);
 
   const handleDeleteFolder = useCallback((folder: IChatPromptFolder) => {
     const newItemList = items.filter((item) => {

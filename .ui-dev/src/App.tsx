@@ -112,10 +112,26 @@ const App: React.FC = () => {
   }, [isInitialized]);
 
   const handleConversationDelete = useCallback((conversationId: string) => {
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation(null);
+    if (!conversationItems) {
+      return;
     }
-  }, [selectedConversation?.id]);
+
+    let newList = [...conversationItems];
+
+    newList = newList.filter((item) => {
+      return item.id !== conversationId;
+    });
+    newList.forEach((item) => {
+      if ('conversations' in item) {
+        item.conversations = item.conversations.filter((item) => {
+          return item.id !== conversationId;
+        });
+      }
+    });
+
+    setConversationItems(newList);
+    updateSettings(newList, promptItems);
+  }, [conversationItems, promptItems, updateSettings]);
 
   const handleConversationItemsUpdate = useCallback((newList: ChatConversationItem[]) => {
     setConversationItems(newList);
@@ -163,6 +179,28 @@ const App: React.FC = () => {
       });
     }
   }, [conversationItems, promptItems, selectedConversation?.id, updateSettings]);
+
+  const handlePromptDelete = useCallback((promptId: string) => {
+    if (!promptItems) {
+      return;
+    }
+
+    let newList = [...promptItems];
+
+    newList = newList.filter((item) => {
+      return item.id !== promptId;
+    });
+    newList.forEach((item) => {
+      if ('prompts' in item) {
+        item.prompts = item.prompts.filter((item) => {
+          return item.id !== promptId;
+        });
+      }
+    });
+
+    setPromptItems(newList);
+    updateSettings(conversationItems, newList);
+  }, [conversationItems, promptItems, updateSettings]);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
     setPromptItems(newList);
@@ -213,6 +251,7 @@ const App: React.FC = () => {
 
             <Promptbar
               items={promptItems ?? []}
+              onPromptDelete={handlePromptDelete}
               onPromptItemsUpdate={handlePromptItemsUpdate}
             />
           </div>
