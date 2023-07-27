@@ -1,3 +1,3 @@
 - Next.e.GO Mobile SE:
-  - [favicon.ico](./.ui/public/favicon.ico)
-  - [ego.png](./.ui/src/assets/img/ego.png)
+  - [favicon.ico](./.ui-dev/public/favicon.ico)
+  - [ego.png](./.ui-dev/src/assets/img/ego.png)

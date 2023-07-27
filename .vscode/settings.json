@@ -3,7 +3,7 @@
   "editor.tabSize": 2,
   "eslint.quiet": false,
   "eslint.workingDirectories": [
-    "./.ui"
+    "./.ui-dev"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
