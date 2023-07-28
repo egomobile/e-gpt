@@ -202,7 +202,7 @@ const Chatbar: React.FC<IChatbarProps> = ({
       }
     });
 
-    handleItemsUpdate([...newItemList]);
+    handleItemsUpdate(newItemList);
   }, [handleItemsUpdate, items]);
 
   useEffect(() => {

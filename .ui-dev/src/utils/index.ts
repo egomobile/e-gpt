@@ -170,7 +170,7 @@ export function sortProps<T = any>(val: T): T {
 
   const sortedProps = Object.keys(val).sort() as (keyof T)[];
   for (const prop of sortedProps) {
-    result[prop] = val[prop];
+    result[prop] = sortProps(val[prop]);
   }
 
   return result as unknown as T;

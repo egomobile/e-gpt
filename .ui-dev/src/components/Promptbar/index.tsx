@@ -171,7 +171,7 @@ const Promptbar: React.FC<IPromptbarProps> = ({
       }
     });
 
-    handleItemsUpdate([...newItemList]);
+    handleItemsUpdate(newItemList);
   }, [handleItemsUpdate, items]);
 
   useEffect(() => {
