@@ -48,7 +48,9 @@ export interface IChatConversationFolder extends IFolder {
 
 export interface IChatMessage {
   content: string;
+  isError?: boolean;
   role: ChatRole;
+  time: string;
 }
 
 export interface IChatPromptFolder extends IFolder {

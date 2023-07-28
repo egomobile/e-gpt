@@ -66,15 +66,25 @@ async function main() {
             .last();
 
         try {
-            response.write(JSON.stringify({
-                answer: 'Your prompt: ' + lastUserMessage
-            }));
+            if (Math.floor(Math.random() * Number.MAX_SAFE_INTEGER) % 5 === 0) {
+                // simulate an error
 
-            await sleep(5000);
+                await sleep(5000);
 
-            response.end();
+                throw new Error(`Timeout`);
+            } else {
+                await sleep(2000);
+
+                response.write(JSON.stringify({
+                    answer: 'Your prompt: ' + lastUserMessage,
+                    time: new Date().toISOString()
+                }));
+            }
         } catch (error) {
             console.error('[ERROR]', '/api/chat', error);
+
+            response.writeHead(500);
+            response.write(String(error));
         }
     });
 

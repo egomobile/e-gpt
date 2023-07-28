@@ -120,7 +120,8 @@ const ChatInput = ({
 
     onSend({
       role: 'user',
-      content
+      content,
+      time: new Date().toISOString(),
     }, (err) => {
       if (err) {
         return;

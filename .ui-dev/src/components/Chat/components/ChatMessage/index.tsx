@@ -14,7 +14,8 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IconCheck,
   IconCopy,
@@ -38,13 +39,15 @@ export interface IChatMessageProps {
   messageIndex: number;
   onDelete?: (messageIndex: number, conversation: IChatConversation) => void;
   onEdit?: (editedMessage: IChatMessage, conversation: IChatConversation) => void;
+  onRetry?: (content: string) => void;
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = memo(({
   message,
   messageIndex,
   onDelete,
-  onEdit
+  onEdit,
+  onRetry
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -54,6 +57,10 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const selectedConversation = useSelectedChatConversation();
+
+  const errorClass = useMemo(() => {
+    return message.isError && 'dark:text-red-500 font-bold';
+  }, [message.isError]);
 
   const toggleEditing = useCallback(() => {
     setIsEditing(!isEditing);
@@ -105,6 +112,49 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
     });
   }, [message.content]);
 
+  const renderIcon = useCallback(() => {
+    if (message.role === 'assistant') {
+      return (
+        <img
+          src={EgoLogo} width={24} alt={"e.GO Logo"}
+          className={clsx('relative m-auto', errorClass)}
+        />
+      );
+    }
+
+    if (message.role === 'user') {
+      return (
+        <IconUser size={30} className={clsx('relative m-auto', errorClass)} />
+      );
+    }
+
+    return null;
+  }, [errorClass, message.role]);
+
+  const renderAssistantIcons = useCallback(() => {
+    if (message.isError) {
+      return null;
+    }
+
+    if (messagedCopied) {
+      return (
+        <IconCheck
+          size={20}
+          className="text-green-500 dark:text-green-400"
+        />
+      );
+    }
+
+    return (
+      <button
+        className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+        onClick={copyOnClick}
+      >
+        <IconCopy size={20} />
+      </button>
+    );
+  }, [copyOnClick, message.isError, messagedCopied]);
+
   useEffect(() => {
     setMessageContent(message.content);
   }, [message.content]);
@@ -126,17 +176,10 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
     >
       <div className="relative m-auto flex p-4 text-base md:max-w-2xl md:gap-6 md:py-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl">
         <div className="min-w-[40px] text-right font-bold">
-          {message.role === 'assistant' ? (
-            <img
-              src={EgoLogo} width={24} alt={"e.GO Logo"}
-              className='relative m-auto'
-            />
-          ) : (
-            <IconUser size={30} className='relative m-auto' />
-          )}
+          {renderIcon()}
         </div>
 
-        <div className="prose mt-[-2px] w-full dark:prose-invert">
+        <div className={clsx('prose mt-[-2px] w-full dark:prose-invert', errorClass)}>
           {message.role === 'user' ? (
             <div className="flex w-full">
               {isEditing ? (
@@ -259,19 +302,7 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
               </MemoizedReactMarkdown>
 
               <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">
-                {messagedCopied ? (
-                  <IconCheck
-                    size={20}
-                    className="text-green-500 dark:text-green-400"
-                  />
-                ) : (
-                  <button
-                    className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={copyOnClick}
-                  >
-                    <IconCopy size={20} />
-                  </button>
-                )}
+                {renderAssistantIcons()}
               </div>
             </div>
           )}

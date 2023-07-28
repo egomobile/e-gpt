@@ -40,6 +40,7 @@ type ChatRequest struct {
 
 type ChatResponse struct {
 	Answer string `json:"answer"`
+	Time   string `json:"time"`
 }
 
 func Init_ui_Command(rootCmd *cobra.Command) {
@@ -166,6 +167,8 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 					finalSystemPrompt.String(),
 					chatRequest.Conversation...,
 				)
+				responseTime := time.Now().UTC()
+
 				if err != nil {
 					sendError(ctx, err)
 					return
@@ -173,6 +176,7 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 
 				var chatResponse ChatResponse
 				chatResponse.Answer = answer
+				chatResponse.Time = responseTime.Format("2006-01-02T15:04:05.999Z")
 
 				data, err := json.Marshal(chatResponse)
 				if err != nil {

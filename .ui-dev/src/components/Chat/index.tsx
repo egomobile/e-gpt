@@ -35,6 +35,11 @@ interface IChatProps {
   prompts: IChatPrompt[];
 }
 
+interface ILastError {
+  message: string;
+  time: string;
+}
+
 const Chat: React.FC<IChatProps> = ({
   onConversationUpdate,
   onRefresh,
@@ -45,6 +50,7 @@ const Chat: React.FC<IChatProps> = ({
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [isSending, setIsSending] = useState(false);
+  const [lastError, setLastError] = useState<Nilable<ILastError>>(null);
 
   const selectedConversation = useSelectedChatConversation();
 
@@ -112,6 +118,7 @@ const Chat: React.FC<IChatProps> = ({
     }
 
     setIsSending(true);
+    setLastError(null);
 
     try {
       const conversationMessages = [...selectedConversation.messages];
@@ -149,7 +156,8 @@ const Chat: React.FC<IChatProps> = ({
 
       appendMessage({
         role: 'assistant',
-        content: data.answer
+        content: data.answer,
+        time: data.time
       });
 
       done(null);
@@ -159,8 +167,13 @@ const Chat: React.FC<IChatProps> = ({
 
         messages: conversationMessages
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ERROR]', 'Chat.handleSend(1)', error);
+
+      setLastError({
+        message: `[${error?.name}] ${error?.message}`,
+        time: new Date().toISOString()
+      });
 
       done(error);
     } finally {
@@ -168,17 +181,19 @@ const Chat: React.FC<IChatProps> = ({
     }
   }, [isSending, onConversationUpdate, onRefresh, selectedConversation]);
 
+  const handleSendError = useCallback((error: any) => {
+    if (error) {
+      console.error('[ERROR]', 'Chat.handleRegenerate()', error);
+    }
+  }, []);
+
   const handleRegenerate = useCallback(() => {
     if (!currentUserMessage) {
       return;
     }
 
-    handleSend(currentUserMessage, (error) => {
-      if (error) {
-        console.error('[ERROR]', 'Chat.handleRegenerate()', error);
-      }
-    });
-  }, [currentUserMessage, handleSend]);
+    handleSend(currentUserMessage, handleSendError);
+  }, [currentUserMessage, handleSend, handleSendError]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
     return (
@@ -213,6 +228,37 @@ const Chat: React.FC<IChatProps> = ({
       </div>
     );
   }, []);
+
+  const renderLoader = useCallback(() => {
+    if (!isSending) {
+      return null;
+    }
+
+    return <ChatLoader />;
+  }, [isSending]);
+
+  const renderLastError = useCallback(() => {
+    if (isSending) {
+      return null;
+    }
+
+    if (!lastError) {
+      return null;
+    }
+
+    return (
+      <MemoizedChatMessage
+        onRetry={() => handleRegenerate()}
+        message={{
+          content: lastError.message,
+          isError: true,
+          role: 'assistant',
+          time: lastError.time
+        }}
+        messageIndex={Number.MIN_SAFE_INTEGER}
+      />
+    );
+  }, [handleRegenerate, isSending, lastError]);
 
   const renderMessages = useCallback(() => {
     if (!selectedConversation?.messages) {
@@ -256,7 +302,8 @@ const Chat: React.FC<IChatProps> = ({
           />
         ))}
 
-        {isSending && <ChatLoader />}
+        {renderLoader()}
+        {renderLastError()}
 
         <div
           className="h-[162px] bg-white dark:bg-[#343541]"
@@ -264,7 +311,7 @@ const Chat: React.FC<IChatProps> = ({
         />
       </div>
     );
-  }, [isSending, onConversationUpdate, onRefresh, selectedConversation?.id, selectedConversation?.messages]);
+  }, [onConversationUpdate, onRefresh, renderLastError, renderLoader, selectedConversation?.id, selectedConversation?.messages]);
 
   const renderChatInput = useCallback(() => {
     return (
