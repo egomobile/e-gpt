@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	egoUtils "github.com/egomobile/e-gpt/utils"
@@ -203,10 +204,33 @@ func askOpenAI(openaiApiKey string, systemPrompt string, conversation ...string)
 	return chatResponseBody.Choices[0].Message.Content, nil
 }
 
-func AskChatGPT(systemPrompt string, conversation ...string) (string, error) {
+func getMaxConversationSize() int {
+	str := strings.TrimSpace(os.Getenv("CHAT_MAX_CONVERSATION_SIZE"))
+	val, err := strconv.Atoi(str)
+	if err == nil {
+		if val >= 2 {
+			return val
+		}
+
+		return 2 // a single conversation
+	}
+
+	return 40 // default / fallback
+}
+
+func AskChatGPT(systemPrompt string, fullConversation ...string) (string, error) {
+	maxConversationSize := getMaxConversationSize()
+
+	finalConversation := make([]string, 0)
+	finalConversation = append(finalConversation, fullConversation...)
+	if len(finalConversation) > maxConversationSize {
+		// maximum reached: take only the maximum
+		finalConversation = finalConversation[len(finalConversation)-maxConversationSize:]
+	}
+
 	openaiApiKey := strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
 	if openaiApiKey != "" {
-		return askOpenAI(openaiApiKey, systemPrompt, conversation...)
+		return askOpenAI(openaiApiKey, systemPrompt, finalConversation...)
 	}
 
 	clientId := strings.TrimSpace(os.Getenv("CHAT_API_CLIENT_ID"))
@@ -218,7 +242,12 @@ func AskChatGPT(systemPrompt string, conversation ...string) (string, error) {
 
 		apiKey := strings.TrimSpace(os.Getenv("CHAT_API_KEY"))
 		if apiKey != "" {
-			return askApiProxy(clientId, apiUrl, "x-api-key", apiKey, systemPrompt, conversation...)
+			apiKeyHeader := strings.TrimSpace(os.Getenv("CHAT_API_KEY_HEADER"))
+			if apiKeyHeader == "" {
+				apiKeyHeader = "x-api-key"
+			}
+
+			return askApiProxy(clientId, apiUrl, apiKeyHeader, apiKey, systemPrompt, finalConversation...)
 		}
 
 		accessTokenResponse, err := egoUtils.GetAccessToken()
@@ -226,7 +255,7 @@ func AskChatGPT(systemPrompt string, conversation ...string) (string, error) {
 			return "", err
 		}
 
-		return askApiProxy("", apiUrl, "Authorization", fmt.Sprintf("Bearer %v", accessTokenResponse.AccessToken), systemPrompt, conversation...)
+		return askApiProxy("", apiUrl, "Authorization", fmt.Sprintf("Bearer %v", accessTokenResponse.AccessToken), systemPrompt, finalConversation...)
 	}
 
 	return "", errors.New("could not specify an API gateway")

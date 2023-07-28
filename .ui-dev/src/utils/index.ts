@@ -17,20 +17,62 @@
 import _ from 'lodash';
 import UAParser from 'ua-parser-js';
 import { toStringSafe } from "@egomobile/nodelike-utils";
-import type { Nilable } from "@egomobile/types";
+import type { Nilable, Optional } from "@egomobile/types";
 
 // internal imports
-import type { IChatPrompt, IVariable } from '../types';
+import { IChatPrompt, IVariable, VariableInputType } from '../types';
 
-export type LoadBlobFormat = 'arraybuffer' | 'dataurl' | 'text';
+/**
+ * Options for `parseFinalContentWithVariables()` function.
+ */
+export interface IParseFinalContentWithVariablesOptions {
+  /**
+   * The unparsed content.
+   */
+  content: Nilable<string>;
+  /**
+   * The list of variable values.
+   */
+  values: string[];
+  /**
+   * The variable definitions.
+   */
+  variables: IVariable[];
+}
 
-export type LoadBlobResult = ArrayBuffer | string;
-
+/**
+ * Options for `toSearchString()` function.
+ */
 export interface IToSearchStringOptions {
+  /**
+   * Remove all whitespaces or not.
+   * 
+   * @default `false`
+   */
   noWhitespaces?: Nilable<boolean>;
 }
 
-export async function downloadBlob(blob: Blob, name?: Nilable<string>) {
+/**
+ * A possible list of formats for `loadBlob()` function.
+ */
+export type LoadBlobFormat = 'arraybuffer' | 'dataurl' | 'text';
+
+/**
+ * A possible list of result types for `loadBlob()` function.
+ */
+export type LoadBlobResult = ArrayBuffer | string;
+
+const randomChars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789'; // excluding similar looking characters like Z, 2, I, 1, O, 0
+
+/**
+ * Downloads a Blob as a file with an optional name.
+ *
+ * @param {Blob} blob The Blob object to download
+ * @param {Nilable<string>} [name] Optional name for the downloaded file. If not provided, the name of the Blob will be used if it is a File object.
+ *
+ * @returns {Promise<void>} Promise that resolves when the file has been downloaded.
+ */
+export async function downloadBlob(blob: Blob, name?: Nilable<string>): Promise<void> {
   const dataUrl = await loadBlob(blob, 'dataurl');
 
   const a = document.createElement('a');
@@ -43,6 +85,14 @@ export async function downloadBlob(blob: Blob, name?: Nilable<string>) {
   }, 2000);
 }
 
+/**
+ * Filters an array of chat prompts based on a search term.
+ *
+ * @param {IChatPrompt[]} prompts The array of chat prompts to filter.
+ * @param {any} searchTerm The search term to filter with.
+ *
+ * @returns {IChatPrompt[]} The filtered array of chat prompts.
+ */
 export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): IChatPrompt[] {
   const parts = _(toSearchString(searchTerm).split(' '))
     .map((p) => {
@@ -67,19 +117,38 @@ export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): ICha
   });
 }
 
-export function generateRandomString(length: number, lowercase = false) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789'; // excluding similar looking characters like Z, 2, I, 1, O, 0
+/**
+ * Generates a random string of a given length.
+ *
+ * @param {number} length The length of the random string to generate.
+ * @param {boolean} [lowercase=false] - Whether or not to return the random string in lowercase.
+ *
+ * @returns {string} The generated random string.
+ */
+export function generateRandomString(length: number, lowercase = false): string {
   let result = '';
+
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
   }
+
   return lowercase ? result.toLowerCase() : result;
 }
 
-export function getVariableRegex() {
-  return /{{([^:}]*)(:?)([^}]*)}}/g;
+/**
+ * Returns a regular expression to match variables in a string template.
+ *
+ * @returns {RegExp} A regular expression to match variables in a string template.
+ */
+export function getVariableRegex(): RegExp {
+  return /{{([^|}]*)(\|?)([^}]*)}}/g;
 }
 
+/**
+ * Checks if the current device is a mobile device.
+ *
+ * @returns {boolean} `return` if the current device is a mobile device, otherwise returns false.
+ */
 export function isMobile(): boolean {
   try {
     if (typeof window !== 'undefined') {
@@ -98,6 +167,14 @@ export function isMobile(): boolean {
   return false;
 }
 
+/**
+ * Loads a Blob and returns the result in the specified format.
+ *
+ * @param {Blob} blob The Blob to load.
+ * @param {LoadBlobFormat} [format='arraybuffer'] The format in which to return the result.
+ *
+ * @returns {Promise<LoadBlobResult>} A Promise that resolves with the result in the specified format.
+ */
 export function loadBlob(blob: Blob): Promise<ArrayBuffer>;
 export function loadBlob(
   blob: Blob,
@@ -130,29 +207,91 @@ export function loadBlob(
   });
 }
 
-export function parseVariables(content: any) {
+/**
+ * Parses final content, which may include variables.
+ * 
+ * @param {IParseFinalContentWithVariablesOptions} options The options.
+ *
+ * @returns {Optional<string>} The parsed content.
+ */
+export async function parseFinalContentWithVariables(options: IParseFinalContentWithVariablesOptions): Promise<Optional<string>> {
+  const {
+    content,
+    values,
+    variables
+  } = options;
+
+  return content?.replace(getVariableRegex(), (match, variable) => {
+    const index = variables.findIndex((v) => {
+      let variableName = variable as string;
+
+      const sepIdx = variableName.indexOf(':');
+      if (sepIdx > -1) {
+        variableName = variableName.substring(0, sepIdx);
+      }
+
+      return v.name.trim() === variableName.trim();
+    });
+
+    return values[index];
+  });
+}
+
+/**
+ * Handles an input as string and pre-parses variables.
+ *
+ * @param {any} content The input data.
+ *
+ * @returns {IVariable[]} The list of variables.
+ */
+export function parseVariables(content: any): IVariable[] {
   const regex = getVariableRegex();
   const foundVariables: IVariable[] = [];
 
-  let match;
+  const str = toStringSafe(content);
 
-  while ((match = regex.exec(toStringSafe(content))) !== null) {
-    const name = match[1]?.trim() || '';
+  let match;
+  while ((match = regex.exec(str)) !== null) {
+    const nameAndType = match[1]?.trim() || '';
+    if (!nameAndType) {
+      continue;
+    }
+
+    let name = nameAndType;
+    const description = match[3]?.trim() || '';
+    let type = '';
+
+    const nameTypeSepIdx = nameAndType.indexOf(':');
+    if (nameTypeSepIdx > -1) {
+      name = nameAndType.substring(0, nameTypeSepIdx).trim();
+      type = nameAndType.substring(nameTypeSepIdx + 1).toLowerCase().trim();
+    }
+
     if (!name) {
       continue;
     }
 
-    const description = match[3]?.trim() || '';
+    if (!Object.values(VariableInputType).includes(type as any)) {
+      type = VariableInputType.Text;
+    }
 
     foundVariables.push({
       name,
-      description
+      description,
+      type: type as VariableInputType
     });
   }
 
   return foundVariables;
 }
 
+/**
+ * Creates a deep copy of a value with sorted properties.
+ *
+ * @param {T} val The input value.
+ *
+ * @returns {T} The copy.
+ */
 export function sortProps<T = any>(val: T): T {
   if (!val) {
     return val as unknown as T;
@@ -176,6 +315,14 @@ export function sortProps<T = any>(val: T): T {
   return result as unknown as T;
 }
 
+/**
+ * Throttles a given function so that it can only be called once within a given time limit.
+ *
+ * @param {T} func The function to be throttled.
+ * @param {number} limit The time limit in milliseconds.
+ *
+ * @returns {T} The throttled function.
+ */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number,
@@ -202,6 +349,15 @@ export function throttle<T extends (...args: any[]) => any>(
   }) as T;
 }
 
+/**
+ * Creates a string from any kinf of value, that can be used for search and filter operations.
+ * The final strings will usually contain lowercase chars only.
+ * 
+ * @param {any} val The input value to convert.
+ * @param {Nilable<IToSearchStringOptions>} [options| Additional and custom options.
+ * 
+ * @returns {string} The final string.
+ */
 export function toSearchString(val: any, options?: Nilable<IToSearchStringOptions>): string {
   const shouldRemoveWhitespaces = !!options?.noWhitespaces;
 

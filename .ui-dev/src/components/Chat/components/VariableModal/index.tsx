@@ -17,11 +17,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // internal imports
-import type { IChatPrompt, IVariable } from '../../../../types';
+import { IChatPrompt, IVariable, VariableInputType } from '../../../../types';
 
 interface IVariableInt {
   description: string;
   key: string;
+  type: VariableInputType;
   value: string;
 }
 
@@ -43,6 +44,7 @@ const VariableModal: React.FC<IVariableModalProps> = ({
       .map((variable) => ({
         description: variable.description,
         key: variable.name,
+        type: variable.type,
         value: '',
       }))
       .filter(
@@ -58,6 +60,7 @@ const VariableModal: React.FC<IVariableModalProps> = ({
     setUpdatedVariables((prev) => {
       const updated = [...prev];
       updated[index].value = value;
+
       return updated;
     });
   }, []);
@@ -120,24 +123,56 @@ const VariableModal: React.FC<IVariableModalProps> = ({
           {prompt.description}
         </div>
 
-        {updatedVariables.map((variable, index) => {
+        {updatedVariables.map((variable, variableIndex) => {
           const placeholder = variable.description.trim();
 
-          return (
-            <div className="mb-4" key={index}>
-              <div className="mb-2 text-sm font-bold text-neutral-200">
-                {variable.key}
-              </div>
+          let inputComponent: React.ReactNode;
+          if (variable.type === VariableInputType.List) {
+            // items are separated by comma(s)
+            const items = variable.description
+              .split(',')
+              .filter((item) => {
+                return item.trim().length > 0;  // no empty
+              });
 
+            inputComponent = (
+              <select
+                className="mt-1 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
+                onChange={(e) => handleChange(variableIndex, e.target.value)}
+                value={variable.value}
+              >
+                <option value="">Please select a value ...</option>
+                {items.map((item, itemIndex) => {
+                  return (
+                    <option
+                      key={`variable-list-item-${variable.key}-${itemIndex}`}
+                      value={item}
+                    >{item}</option>
+                  );
+                })}
+              </select>
+            );
+          } else {
+            inputComponent = (
               <textarea
-                ref={index === 0 ? nameInputRef : undefined}
+                ref={variableIndex === 0 ? nameInputRef : undefined}
                 className="mt-1 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
                 style={{ resize: 'none' }}
                 placeholder={placeholder}
                 value={variable.value}
-                onChange={(e) => handleChange(index, e.target.value)}
+                onChange={(e) => handleChange(variableIndex, e.target.value)}
                 rows={3}
               />
+            );
+          }
+
+          return (
+            <div className="mb-4" key={variableIndex}>
+              <div className="mb-2 text-sm font-bold text-neutral-200">
+                {variable.key}
+              </div>
+
+              {inputComponent}
             </div>
           );
         })}

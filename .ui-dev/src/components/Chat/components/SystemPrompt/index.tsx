@@ -21,7 +21,7 @@ import type { IChatConversation, IChatPrompt, IVariable } from '../../../../type
 import PromptList from '../PromptList';
 import VariableModal from '../VariableModal';
 import { defaultSystemPrompt } from '../../../../constants';
-import { filterChatPrompts, getVariableRegex, parseVariables } from '../../../../utils';
+import { filterChatPrompts, parseFinalContentWithVariables, parseVariables } from '../../../../utils';
 
 interface ISystemPromptProps {
   conversation: IChatConversation;
@@ -38,6 +38,7 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
 }) => {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [promptInputValue, setPromptInputValue] = useState('');
   const [showPromptList, setShowPromptList] = useState(false);
   const [value, setValue] = useState<string>('');
@@ -109,18 +110,26 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   }, [activePromptIndex, filteredPrompts, handlePromptSelect]);
 
   const handleSubmit = useCallback((updatedVariables: string[]) => {
-    const newContent = value?.replace(getVariableRegex(), (match, variable) => {
-      const index = variables.findIndex((v) => {
-        return v.name === variable;
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    parseFinalContentWithVariables({
+      content: value,
+      values: updatedVariables,
+      variables,
+    }).then((newContent) => {
+      setValue(newContent || '');
+      onPromptChange(newContent || '');
+    }).catch(console.error)
+      .finally(() => {
+        setIsSubmitting(false);
+
+        textareaRef.current?.focus();
       });
-      return updatedVariables[index];
-    });
-
-    setValue(newContent);
-    onPromptChange(newContent);
-
-    textareaRef.current?.focus();
-  }, [onPromptChange, value, variables]);
+  }, [isSubmitting, onPromptChange, value, variables]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (showPromptList) {

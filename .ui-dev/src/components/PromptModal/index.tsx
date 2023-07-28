@@ -14,7 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // internal imports
 import type { IChatPrompt } from '../../types';
@@ -106,7 +106,7 @@ const PromptModal: React.FC<IPromptModalProps> = ({ prompt, onClose, onUpdate })
             <textarea
               className="mt-2 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
               style={{ resize: 'none' }}
-              placeholder={'Prompt content. Use {{}} to denote a variable with optional description, which is separated by colon. Ex: {{name}} is a {{adjective}} {{noun:A description for noun}}'}
+              placeholder={'Prompt content. Use {{}} to denote a variable with optional description, which is separated by pipe. Ex: {{name}} is a {{adjective}} {{noun|A description for noun}}'}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={10}

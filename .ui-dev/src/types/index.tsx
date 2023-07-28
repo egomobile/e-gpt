@@ -78,4 +78,10 @@ export interface ISettings {
 export interface IVariable {
   description: string;
   name: string;
+  type: VariableInputType;
+}
+
+export enum VariableInputType {
+  List = 'list',
+  Text = 'text'
 }

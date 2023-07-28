@@ -24,6 +24,11 @@ jobs:
           - goarch: arm64
             goos: windows
     steps:
+    - name: "Setup Node.js"
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        registry-url: https://registry.npmjs.org/
     - uses: actions/checkout@v3
     - name: "Update build.go"
       run: |
@@ -34,6 +39,8 @@ jobs:
         echo "const AppVersion = \"$(echo ${GITHUB_REF#refs/tags/} | cut -c 2-)\"" >> ./build.go &&
         echo "const BuildArch = runtime.GOARCH" >> ./build.go &&
         echo "const BuildOS = runtime.GOOS" >> ./build.go
+    - name: "Build UI"
+      run: "cd ./.ui-dev && npm install && npm run build"
     - uses: wangyoucao577/go-release-action@v1
       with:
         retry: 10

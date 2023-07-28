@@ -26,7 +26,7 @@ import PromptList from '../PromptList';
 import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
 import VariableModal from '../VariableModal';
 import type { IChatMessage, IChatPrompt, IVariable } from '../../../../types';
-import { getVariableRegex, isMobile, parseVariables, toSearchString } from '../../../../utils';
+import { isMobile, parseFinalContentWithVariables, parseVariables, toSearchString } from '../../../../utils';
 
 interface IChatInputProps {
   isSending: boolean;
@@ -53,6 +53,7 @@ const ChatInput = ({
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [content, setContent] = useState<string>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [promptInputValue, setPromptInputValue] = useState('');
   const [showPluginSelect, setShowPluginSelect] = useState(false);
@@ -201,17 +202,25 @@ const ChatInput = ({
   }, [handleInitModal, handleSend, isTyping, prompts.length, showPluginSelect, showPromptList]);
 
   const handleSubmit = useCallback((updatedVariables: string[]) => {
-    const newContent = content?.replace(getVariableRegex(), (match, variable) => {
-      const index = variables.findIndex((v) => {
-        return v.name === variable;
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    parseFinalContentWithVariables({
+      content,
+      values: updatedVariables,
+      variables,
+    }).then((newContent) => {
+      setContent(newContent);
+    }).catch(console.error)
+      .finally(() => {
+        setIsSubmitting(false);
+
+        textareaRef.current?.focus();
       });
-      return updatedVariables[index];
-    });
-
-    setContent(newContent);
-
-    textareaRef.current?.focus();
-  }, [content, textareaRef, variables]);
+  }, [content, isSubmitting, textareaRef, variables]);
 
   const renderInputField = useCallback(() => {
     let placeholder: string;
