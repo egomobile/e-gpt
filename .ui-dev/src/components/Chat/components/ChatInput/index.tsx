@@ -19,7 +19,14 @@ import {
   IconArrowDown,
   IconRepeat,
   IconSend,
+
+  TablerIconsProps,
+  IconDots,
+  IconDotsDiagonal,
+  IconDotsDiagonal2,
+  IconDotsVertical,
 } from '@tabler/icons-react';
+import type { Nullable, Optional } from '@egomobile/types';
 
 // internal imports
 import PromptList from '../PromptList';
@@ -27,6 +34,8 @@ import useSelectedChatConversation from '../../../../hooks/useSelectedChatConver
 import VariableModal from '../VariableModal';
 import type { IChatMessage, IChatPrompt, IVariable } from '../../../../types';
 import { isMobile, parseFinalContentWithVariables, parseVariables, toSearchString } from '../../../../utils';
+
+type IconComponent = React.FC<TablerIconsProps>;
 
 interface IChatInputProps {
   isSending: boolean;
@@ -41,6 +50,13 @@ interface IChatInputProps {
   showScrollDownButton: boolean;
 }
 
+const dotIconComponents: IconComponent[] = [
+  IconDots,
+  IconDotsDiagonal2,
+  IconDotsVertical,
+  IconDotsDiagonal,
+];
+
 const ChatInput = ({
   isSending,
   onSend,
@@ -51,11 +67,12 @@ const ChatInput = ({
   showScrollDownButton,
 }: IChatInputProps) => {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
-  const [content, setContent] = useState<string>();
+  const [content, setContent] = useState<Optional<string>>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [promptInputValue, setPromptInputValue] = useState('');
+  const [sendIconIndex, setSendIconIndex] = useState<Nullable<number>>(null);
   const [showPluginSelect, setShowPluginSelect] = useState(false);
   const [showPromptList, setShowPromptList] = useState(false);
   const [variables, setVariables] = useState<IVariable[]>([]);
@@ -69,8 +86,8 @@ const ChatInput = ({
   }, [selectedConversation?.model.maxLength]);
 
   const isInputDiabled = useMemo(() => {
-    return !selectedConversation || isSending;
-  }, [isSending, selectedConversation]);
+    return !selectedConversation;
+  }, [selectedConversation]);
 
   const canSend = useMemo(() => {
     return !(
@@ -118,17 +135,17 @@ const ChatInput = ({
       return;
     }
 
+    setContent('');
+    textareaRef.current?.focus();
+
     onSend({
       role: 'user',
       content,
       time: new Date().toISOString(),
     }, (err) => {
       if (err) {
-        return;
+        console.error('[ERROR]', 'ChatInput.handleSend()', err);
       }
-
-      setContent('');
-      textareaRef.current?.focus();
     });
 
     if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
@@ -263,16 +280,21 @@ const ChatInput = ({
       return null;
     }
 
+    let IconClass: IconComponent = IconSend;
+    if (typeof sendIconIndex === 'number') {
+      IconClass = dotIconComponents[sendIconIndex];
+    }
+
     return (
       <button
         className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
         onClick={handleSend}
         disabled={!canSend}
       >
-        <IconSend size={18} />
+        <IconClass size={18} />
       </button>
     );
-  }, [canSend, handleSend, isInputDiabled]);
+  }, [canSend, handleSend, isInputDiabled, sendIconIndex]);
 
   const renderContent = useCallback(() => {
     return (
@@ -340,6 +362,28 @@ const ChatInput = ({
       textareaRef.current.style.overflow = `${textareaRef?.current?.scrollHeight > 400 ? 'auto' : 'hidden'}`;
     }
   }, [content, textareaRef]);
+
+  useEffect(() => {
+    if (isSending) {
+      let currentIndex = 0;
+      setSendIconIndex(0);
+
+      const i = setInterval(() => {
+        ++currentIndex;
+        if (currentIndex >= dotIconComponents.length) {
+          currentIndex = 0;
+        }
+
+        setSendIconIndex(currentIndex);
+      }, 100);
+
+      return () => {
+        clearInterval(i);
+      };
+    } else {
+      setSendIconIndex(null)
+    }
+  }, [isSending]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {

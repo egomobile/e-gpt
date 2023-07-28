@@ -39,7 +39,6 @@ export interface IChatMessageProps {
   messageIndex: number;
   onDelete?: (messageIndex: number, conversation: IChatConversation) => void;
   onEdit?: (editedMessage: IChatMessage, conversation: IChatConversation) => void;
-  onRetry?: (content: string) => void;
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = memo(({
@@ -47,7 +46,6 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
   messageIndex,
   onDelete,
   onEdit,
-  onRetry
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -133,7 +131,16 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
 
   const renderAssistantIcons = useCallback(() => {
     if (message.isError) {
-      return null;
+      return (
+        <button
+          className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          onClick={() => {
+            onDelete?.(messageIndex, selectedConversation!);
+          }}
+        >
+          <IconTrash size={20} />
+        </button>
+      );
     }
 
     if (messagedCopied) {
@@ -153,7 +160,7 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
         <IconCopy size={20} />
       </button>
     );
-  }, [copyOnClick, message.isError, messagedCopied]);
+  }, [copyOnClick, message.isError, messageIndex, messagedCopied, onDelete, selectedConversation]);
 
   useEffect(() => {
     setMessageContent(message.content);

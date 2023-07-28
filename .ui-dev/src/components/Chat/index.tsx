@@ -248,7 +248,9 @@ const Chat: React.FC<IChatProps> = ({
 
     return (
       <MemoizedChatMessage
-        onRetry={() => handleRegenerate()}
+        onDelete={() => {
+          setLastError(null);
+        }}
         message={{
           content: lastError.message,
           isError: true,
@@ -258,7 +260,7 @@ const Chat: React.FC<IChatProps> = ({
         messageIndex={Number.MIN_SAFE_INTEGER}
       />
     );
-  }, [handleRegenerate, isSending, lastError]);
+  }, [isSending, lastError]);
 
   const renderMessages = useCallback(() => {
     if (!selectedConversation?.messages) {
