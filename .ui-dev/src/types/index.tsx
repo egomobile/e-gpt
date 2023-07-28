@@ -74,3 +74,8 @@ export interface ISettings {
   conversationItems: Nilable<ChatConversationItem[]>;
   promptItems: Nilable<ChatPromptItem[]>;
 }
+
+export interface IVariable {
+  description: string;
+  name: string;
+}

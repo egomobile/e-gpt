@@ -17,16 +17,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // internal imports
-import { IChatPrompt } from '../../../../types';
+import type { IChatPrompt, IVariable } from '../../../../types';
 
-interface IVariable {
+interface IVariableInt {
+  description: string;
   key: string;
   value: string;
 }
 
 interface IVariableModalProps {
   prompt: IChatPrompt;
-  variables: string[];
+  variables: IVariable[];
   onSubmit: (updatedVariables: string[]) => void;
   onClose: () => void;
 }
@@ -37,10 +38,11 @@ const VariableModal: React.FC<IVariableModalProps> = ({
   onSubmit,
   onClose,
 }) => {
-  const [updatedVariables, setUpdatedVariables] = useState<IVariable[]>(
+  const [updatedVariables, setUpdatedVariables] = useState<IVariableInt[]>(
     variables
       .map((variable) => ({
-        key: variable,
+        description: variable.description,
+        key: variable.name,
         value: '',
       }))
       .filter(
@@ -119,6 +121,8 @@ const VariableModal: React.FC<IVariableModalProps> = ({
         </div>
 
         {updatedVariables.map((variable, index) => {
+          const placeholder = variable.description.trim();
+
           return (
             <div className="mb-4" key={index}>
               <div className="mb-2 text-sm font-bold text-neutral-200">
@@ -129,7 +133,7 @@ const VariableModal: React.FC<IVariableModalProps> = ({
                 ref={index === 0 ? nameInputRef : undefined}
                 className="mt-1 w-full rounded-lg border border-neutral-500 px-4 py-2 text-neutral-900 shadow focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-[#40414F] dark:text-neutral-100"
                 style={{ resize: 'none' }}
-                placeholder={`Enter a value for ${variable.key}...`}
+                placeholder={placeholder}
                 value={variable.value}
                 onChange={(e) => handleChange(index, e.target.value)}
                 rows={3}

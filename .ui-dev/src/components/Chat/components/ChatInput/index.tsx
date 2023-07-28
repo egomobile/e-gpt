@@ -25,8 +25,8 @@ import {
 import PromptList from '../PromptList';
 import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
 import VariableModal from '../VariableModal';
-import type { IChatMessage, IChatPrompt } from '../../../../types';
-import { isMobile, parseVariables, toSearchString } from '../../../../utils';
+import type { IChatMessage, IChatPrompt, IVariable } from '../../../../types';
+import { getVariableRegex, isMobile, parseVariables, toSearchString } from '../../../../utils';
 
 interface IChatInputProps {
   isSending: boolean;
@@ -57,7 +57,7 @@ const ChatInput = ({
   const [promptInputValue, setPromptInputValue] = useState('');
   const [showPluginSelect, setShowPluginSelect] = useState(false);
   const [showPromptList, setShowPromptList] = useState(false);
-  const [variables, setVariables] = useState<string[]>([]);
+  const [variables, setVariables] = useState<IVariable[]>([]);
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
@@ -201,16 +201,16 @@ const ChatInput = ({
   }, [handleInitModal, handleSend, isTyping, prompts.length, showPluginSelect, showPromptList]);
 
   const handleSubmit = useCallback((updatedVariables: string[]) => {
-    const newContent = content?.replace(/{{(.*?)}}/g, (match, variable) => {
-      const index = variables.indexOf(variable);
+    const newContent = content?.replace(getVariableRegex(), (match, variable) => {
+      const index = variables.findIndex((v) => {
+        return v.name === variable;
+      });
       return updatedVariables[index];
     });
 
     setContent(newContent);
 
-    if (textareaRef && textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    textareaRef.current?.focus();
   }, [content, textareaRef, variables]);
 
   const renderInputField = useCallback(() => {

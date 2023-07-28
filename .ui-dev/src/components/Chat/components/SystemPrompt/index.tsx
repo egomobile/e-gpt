@@ -17,11 +17,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // internal imports
-import type { IChatConversation, IChatPrompt } from '../../../../types';
+import type { IChatConversation, IChatPrompt, IVariable } from '../../../../types';
 import PromptList from '../PromptList';
 import VariableModal from '../VariableModal';
 import { defaultSystemPrompt } from '../../../../constants';
-import { filterChatPrompts, parseVariables } from '../../../../utils';
+import { filterChatPrompts, getVariableRegex, parseVariables } from '../../../../utils';
 
 interface ISystemPromptProps {
   conversation: IChatConversation;
@@ -41,7 +41,7 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   const [promptInputValue, setPromptInputValue] = useState('');
   const [showPromptList, setShowPromptList] = useState(false);
   const [value, setValue] = useState<string>('');
-  const [variables, setVariables] = useState<string[]>([]);
+  const [variables, setVariables] = useState<IVariable[]>([]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const promptListRef = useRef<HTMLUListElement | null>(null);
@@ -109,17 +109,17 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   }, [activePromptIndex, filteredPrompts, handlePromptSelect]);
 
   const handleSubmit = useCallback((updatedVariables: string[]) => {
-    const newContent = value?.replace(/{{(.*?)}}/g, (match, variable) => {
-      const index = variables.indexOf(variable);
+    const newContent = value?.replace(getVariableRegex(), (match, variable) => {
+      const index = variables.findIndex((v) => {
+        return v.name === variable;
+      });
       return updatedVariables[index];
     });
 
     setValue(newContent);
     onPromptChange(newContent);
 
-    if (textareaRef && textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    textareaRef.current?.focus();
   }, [onPromptChange, value, variables]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {

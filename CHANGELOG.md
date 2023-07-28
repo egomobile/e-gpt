@@ -1,5 +1,9 @@
 # Change Log (e.GPT)
 
+## 0.7.0
+
+- reimplement UI, which is inspired by [Chatbot UI](https://github.com/mckaywrigley/chatbot-ui) project
+
 ## 0.6.0
 
 - **BREAKING CHANGE**: changed input order to:

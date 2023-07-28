@@ -20,7 +20,7 @@ import { toStringSafe } from "@egomobile/nodelike-utils";
 import type { Nilable } from "@egomobile/types";
 
 // internal imports
-import type { IChatPrompt } from '../types';
+import type { IChatPrompt, IVariable } from '../types';
 
 export type LoadBlobFormat = 'arraybuffer' | 'dataurl' | 'text';
 
@@ -76,6 +76,10 @@ export function generateRandomString(length: number, lowercase = false) {
   return lowercase ? result.toLowerCase() : result;
 }
 
+export function getVariableRegex() {
+  return /{{([^:}]*)(:?)([^}]*)}}/g;
+}
+
 export function isMobile(): boolean {
   try {
     if (typeof window !== 'undefined') {
@@ -127,13 +131,23 @@ export function loadBlob(
 }
 
 export function parseVariables(content: any) {
-  const regex = /{{([^}]*)}}/g;
-  const foundVariables = [];
+  const regex = getVariableRegex();
+  const foundVariables: IVariable[] = [];
 
   let match;
 
   while ((match = regex.exec(toStringSafe(content))) !== null) {
-    foundVariables.push(match[1]);
+    const name = match[1]?.trim() || '';
+    if (!name) {
+      continue;
+    }
+
+    const description = match[3]?.trim() || '';
+
+    foundVariables.push({
+      name,
+      description
+    });
   }
 
   return foundVariables;
