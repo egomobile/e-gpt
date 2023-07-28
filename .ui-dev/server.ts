@@ -17,11 +17,14 @@ import _ from 'lodash';
 import cors from 'cors';
 import fs from 'node:fs';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { createServer, json } from '@egomobile/http-server';
 
 interface IChatBody {
     conversation: string[];
 }
+
+const sleep = promisify(setTimeout);
 
 async function ensureTempDir() {
     const tempDir = path.join(process.cwd(), '.temp');
@@ -66,6 +69,8 @@ async function main() {
             response.write(JSON.stringify({
                 answer: 'Your prompt: ' + lastUserMessage
             }));
+
+            await sleep(5000);
 
             response.end();
         } catch (error) {

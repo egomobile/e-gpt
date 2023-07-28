@@ -92,7 +92,7 @@ const Settings: React.FC<ISettingsProps> = ({
       type: 'application/json'
     });
 
-    const fileName = `egpt_${now.format('YYYYMMDD-HHmmss')}.json`;
+    const fileName = `egpt_export_${now.format('YYYYMMDD-HHmmss')}.json`;
 
     await downloadBlob(jsonBlob, fileName);
   }, [settings]);
