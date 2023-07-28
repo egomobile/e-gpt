@@ -287,8 +287,7 @@ Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und 
 
 > Serves a local web UI.
 
-<video src="./assets/egpt-demo1.mp4" controls autoplay width="480">
-</video>
+![Demo 1](./assets/egpt-demo1.gif)
 
 ```bash
 egpt ui

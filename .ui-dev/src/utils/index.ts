@@ -125,7 +125,7 @@ export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): ICha
  *
  * @returns {string} The generated random string.
  */
-export function generateRandomString(length: number, lowercase = false): string {
+export function generateRandomString(length: number, lowercase: boolean = false): string {
   let result = '';
 
   for (let i = 0; i < length; i++) {
