@@ -20,7 +20,7 @@ import { toStringSafe } from "@egomobile/nodelike-utils";
 import type { Nilable, Optional } from "@egomobile/types";
 
 // internal imports
-import { IChatPrompt, IVariable, VariableInputType } from '../types';
+import { IChatConversation, IChatPrompt, IFolder, IVariable, VariableInputType } from '../types';
 
 /**
  * Options for `parseFinalContentWithVariables()` function.
@@ -133,6 +133,48 @@ export function generateRandomString(length: number, lowercase: boolean = false)
   }
 
   return lowercase ? result.toLowerCase() : result;
+}
+
+/**
+ * Returns the sort value for two `IChatConversation` items.
+ *
+ * @param {IChatConversation} x The "left" item.
+ * @param {IChatConversation} y The "right" item.
+ *
+ * @returns {number} The sort value.
+ */
+export function getSortValueForConversations(x: IChatConversation, y: IChatConversation): number {
+  return toSearchString(x.title).localeCompare(
+    toSearchString(y.title)
+  );
+}
+
+/**
+ * Returns the sort value for two `IFolder` items.
+ *
+ * @param {IFolder} x The "left" item.
+ * @param {IFolder} y The "right" item.
+ *
+ * @returns {number} The sort value.
+ */
+export function getSortValueForFolders(x: IFolder, y: IFolder): number {
+  return toSearchString(x.title).localeCompare(
+    toSearchString(y.title)
+  );
+}
+
+/**
+ * Returns the sort value for two `IChatPrompt` items.
+ *
+ * @param {IChatPrompt} x The "left" item.
+ * @param {IChatPrompt} y The "right" item.
+ *
+ * @returns {number} The sort value.
+ */
+export function getSortValueForPrompts(x: IChatPrompt, y: IChatPrompt): number {
+  return toSearchString(x.title).localeCompare(
+    toSearchString(y.title)
+  );
 }
 
 /**

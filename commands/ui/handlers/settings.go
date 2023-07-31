@@ -26,16 +26,19 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
+// CreateGetSettingsHandler returns a fasthttp request handler that retrieves the UI settings file.
 func CreateGetSettingsHandler() egoTypes.FHRequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		egoUtils.SetupCorsHeaders(ctx)
 
+		// Get the file path of the UI settings file.
 		filePath, err := egoUtils.GetUISettingsFilePath()
 		if err != nil {
 			egoUtils.SendHttpError(ctx, err)
 			return
 		}
 
+		// Check if the file exists.
 		_, err = os.Stat(filePath)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -44,6 +47,7 @@ func CreateGetSettingsHandler() egoTypes.FHRequestHandler {
 				egoUtils.SendHttpError(ctx, err)
 			}
 		} else {
+			// Read the file and send it in the response body.
 			data, err := os.ReadFile(filePath)
 			if err != nil {
 				egoUtils.SendHttpError(ctx, err)
@@ -57,18 +61,22 @@ func CreateGetSettingsHandler() egoTypes.FHRequestHandler {
 	}
 }
 
+// CreateUpdateSettingsHandler returns a fasthttp request handler that updates the UI settings file.
 func CreateUpdateSettingsHandler() egoTypes.FHRequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		egoUtils.SetupCorsHeaders(ctx)
 
+		// Get the request body.
 		body := ctx.PostBody()
 
+		// Get the file path of the UI settings file.
 		settingsFilePath, err := egoUtils.GetUISettingsFilePath()
 		if err != nil {
 			egoUtils.SendHttpError(ctx, err)
 			return
 		}
 
+		// Ensure that the directory of the file exists.
 		_, err = egoUtils.EnsureDir(
 			path.Dir(settingsFilePath),
 		)
@@ -77,6 +85,7 @@ func CreateUpdateSettingsHandler() egoTypes.FHRequestHandler {
 			return
 		}
 
+		// Write the request body to the file.
 		err = os.WriteFile(settingsFilePath, body, 0700)
 		if err != nil {
 			egoUtils.SendHttpError(ctx, err)

@@ -29,24 +29,29 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
+// ChatRequest represents a chat request data structure
 type ChatRequest struct {
-	Conversation []string `json:"conversation"`
-	Temperature  *float64 `json:"temperature"`
+	Conversation []string `json:"conversation"` // Conversation represents the conversation history of the chat request
+	Temperature  *float64 `json:"temperature"`  // Temperature represents the temperature to use for generating the response
 }
 
+// ChatResponse represents a chat response data structure
 type ChatResponse struct {
-	Answer string `json:"answer"`
-	Time   string `json:"time"`
+	Answer string `json:"answer"` // Answer represents the answer to the chat request
+	Time   string `json:"time"`   // Time represents the time at which the chat response is generated
 }
 
+// CreateChatHandlerOptions represents options for creating a chat handler
 type CreateChatHandlerOptions struct {
-	CustomSystemPrompt string
-	DefaultTemperature float64
-	NoAdditionalInfo   bool
-	NoSystemInfo       bool
-	NoTime             bool
+	CustomSystemPrompt string  // CustomSystemPrompt represents the custom system prompt to use for generating the response
+	DefaultTemperature float64 // DefaultTemperature represents the default temperature to use for generating the response
+	NoAdditionalInfo   bool    // NoAdditionalInfo specifies whether to include additional information in the response
+	NoSystemInfo       bool    // NoSystemInfo specifies whether to include system information in the response
+	NoTime             bool    // NoTime specifies whether to include time in the response
 }
 
+// CreateChatHandler returns a fasthttp request handler that does a chat conversation
+// using the given options.
 func CreateChatHandler(options CreateChatHandlerOptions) egoTypes.FHRequestHandler {
 	var systemPromptTemplate string
 	{

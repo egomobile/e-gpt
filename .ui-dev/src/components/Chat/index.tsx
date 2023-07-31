@@ -41,6 +41,8 @@ interface ILastError {
   time: string;
 }
 
+type SendType = 'append' | 'regenerate';
+
 const Chat: React.FC<IChatProps> = ({
   onConversationUpdate,
   onRefresh,
@@ -121,7 +123,7 @@ const Chat: React.FC<IChatProps> = ({
     });
   }, [onConversationUpdate]);
 
-  const handleSend = useCallback(async (message: IChatMessage, done: (error: any) => void) => {
+  const handleSend = useCallback(async (type: SendType, message: IChatMessage, done: (error: any) => void) => {
     if (isSending || !selectedConversation) {
       return;
     }
@@ -131,6 +133,20 @@ const Chat: React.FC<IChatProps> = ({
 
     try {
       const conversationMessages = [...selectedConversation.messages];
+      if (type === 'regenerate') {
+        // remove last user message with all following
+        // answers
+
+        let lastMessage: Nilable<IChatMessage>;
+        do {
+          lastMessage = _(conversationMessages).last();
+
+          if (lastMessage?.role === 'user') {
+            conversationMessages.pop();
+          }
+        } while (lastMessage?.role === 'user');
+      }
+
       const appendMessage = (msg: IChatMessage) => {
         conversationMessages.push(msg);
 
@@ -205,7 +221,7 @@ const Chat: React.FC<IChatProps> = ({
       return;
     }
 
-    handleSend(currentUserMessage, handleSendError);
+    handleSend('regenerate', currentUserMessage, handleSendError);
   }, [currentUserMessage, handleSend, handleSendError]);
 
   const renderApiKeyRequiredContent = useCallback(() => {
@@ -392,7 +408,9 @@ const Chat: React.FC<IChatProps> = ({
           isSending={isSending}
           prompts={prompts}
           textareaRef={textareaRef}
-          onSend={handleSend}
+          onSend={(msg, done) => {
+            handleSend('append', msg, done);
+          }}
           onScrollDownClick={handleScrollDown}
           onRegenerate={handleRegenerate}
           showScrollDownButton={showScrollDownButton}
