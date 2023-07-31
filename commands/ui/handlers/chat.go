@@ -29,6 +29,16 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
+type ChatRequest struct {
+	Conversation []string `json:"conversation"`
+	Temperature  *float32 `json:"temperature"`
+}
+
+type ChatResponse struct {
+	Answer string `json:"answer"`
+	Time   string `json:"time"`
+}
+
 type CreateChatHandlerOptions struct {
 	CustomSystemPrompt string
 	DefaultTemperature float32

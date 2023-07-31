@@ -24,10 +24,11 @@ import ChatInput from './components/ChatInput';
 import ChatLoader from './components/ChatLoader';
 import MemoizedChatMessage from './components/MemoizedChatMessage';
 import SystemPrompt from './components/SystemPrompt';
+import TemperatureSlider from './components/TemperatureSlider';
 import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
 import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
-import { defaultSystemPrompt } from '../../constants';
+import { defaultSystemPrompt, defaultTemperature } from '../../constants';
 
 interface IChatProps {
   onConversationUpdate: (conversation: IChatConversation) => void;
@@ -112,6 +113,14 @@ const Chat: React.FC<IChatProps> = ({
     });
   }, [onConversationUpdate]);
 
+  const handleUpdateConversationTemperatureChange = useCallback((conversation: IChatConversation, newTemperature: number) => {
+    onConversationUpdate({
+      ...conversation,
+
+      temperature: newTemperature,
+    });
+  }, [onConversationUpdate]);
+
   const handleSend = useCallback(async (message: IChatMessage, done: (error: any) => void) => {
     if (isSending || !selectedConversation) {
       return;
@@ -136,14 +145,18 @@ const Chat: React.FC<IChatProps> = ({
 
       const systemPrompt = selectedConversation.systemPrompt.trim() ||
         defaultSystemPrompt;
+      const temperature = typeof selectedConversation.temperature === 'number' ?
+        Number(selectedConversation.temperature.toFixed(2)) :
+        defaultTemperature;
 
       const postData = {
         conversation: [
           systemPrompt,
           ...conversationMessages.map((cm) => {
             return cm.content;
-          })
-        ]
+          }),
+        ],
+        temperature
       };
 
       const {
@@ -315,6 +328,34 @@ const Chat: React.FC<IChatProps> = ({
     );
   }, [onConversationUpdate, onRefresh, renderLastError, renderLoader, selectedConversation?.id, selectedConversation?.messages]);
 
+  const renderTemperature = useCallback(() => {
+    if (!selectedConversation) {
+      return null;
+    }
+
+    const label: React.ReactNode = 'Temperature';
+
+    if (!!selectedConversation.messages?.length) {
+      return (
+        <div className="flex flex-col">
+          <label className="mb-2 text-left text-neutral-700 dark:text-neutral-400">
+            {label}: <span className="font-bold">{selectedConversation.temperature.toFixed(1)}</span>
+          </label>
+        </div>
+      );
+    }
+
+    return (
+      <TemperatureSlider
+        label={label}
+        disabled={isSending}
+        onTemperatureChange={(temperature) => {
+          handleUpdateConversationTemperatureChange(selectedConversation, temperature);
+        }}
+      />
+    );
+  }, [handleUpdateConversationTemperatureChange, isSending, selectedConversation]);
+
   const renderChatInput = useCallback(() => {
     return (
       <>
@@ -338,6 +379,8 @@ const Chat: React.FC<IChatProps> = ({
                     handleUpdateConversationPromptChange(selectedConversation, prompt);
                   }}
                 />
+
+                {renderTemperature()}
               </>
             )}
           </div>
@@ -356,7 +399,7 @@ const Chat: React.FC<IChatProps> = ({
         />
       </>
     );
-  }, [handleRegenerate, handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isSending, prompts, renderMessages, selectedConversation, showScrollDownButton]);
+  }, [handleRegenerate, handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isSending, prompts, renderMessages, renderTemperature, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
     const apiKey = 'TEST';  // TODO: replace

@@ -14,6 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
+import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import {
   IconArrowDown,
@@ -290,10 +291,7 @@ const ChatInput = ({
     if (typeof sendIconIndex !== 'number') {
       return (
         <button
-          className={iconContainerClassName}
-          style={{
-            cursor: 'pointer'
-          }}
+          className={clsx(iconContainerClassName, 'cursor-pointer')}
           onClick={handleSend}
           disabled={!canSend}
         >

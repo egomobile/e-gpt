@@ -17,6 +17,8 @@ import { Optional } from "@egomobile/types";
 
 export const defaultSystemPrompt = "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.";
 
+export const defaultTemperature = 0.7;
+
 export const programmingLanguages: Record<string, Optional<string>> = {
   javascript: '.js',
   python: '.py',

@@ -26,6 +26,7 @@ import Settings from './components/Settings';
 import Sidebar from '../Sidebar';
 import { ChatConversationItem, IChatConversation, IChatConversationFolder, ISettings } from '../../types';
 import { toSearchString } from '../../utils';
+import { defaultTemperature } from '../../constants';
 
 interface IChatbarProps {
   items: ChatConversationItem[];
@@ -119,7 +120,8 @@ const Chatbar: React.FC<IChatbarProps> = ({
         name: 'GPT-3.5',
         tokenLimit: 4000
       },
-      systemPrompt: ''
+      systemPrompt: '',
+      temperature: defaultTemperature
     };
 
     const list = [...items];
