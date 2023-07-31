@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 
 	egoCommands "github.com/egomobile/e-gpt/commands"
+	egoUICommand "github.com/egomobile/e-gpt/commands/ui"
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
@@ -49,7 +50,7 @@ func initCommands() {
 	egoCommands.Init_sql_Command(rootCmd)
 	egoCommands.Init_summarize_Command(rootCmd)
 	egoCommands.Init_translate_Command(rootCmd)
-	egoCommands.Init_ui_Command(rootCmd)
+	egoUICommand.Init_ui_Command(rootCmd)
 }
 
 func main() {

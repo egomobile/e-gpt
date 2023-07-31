@@ -36,6 +36,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 	var openEditor bool
 	var shouldOutputAsPlainText bool
 	var system string
+	var temperature float32
 
 	askCmd := &cobra.Command{
 		Use:     "ask",
@@ -103,6 +104,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				question,
 			)
 			if err != nil {
@@ -134,6 +136,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "plain-text", "", false, "Output as plain text")
 	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "pt", "", false, "Output as plain text")
 	askCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	askCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(askCmd)
 }

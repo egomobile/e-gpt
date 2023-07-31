@@ -18,6 +18,7 @@ import (
 
 func Init_shell_Command(rootCmd *cobra.Command) {
 	var openEditor bool
+	var temperature float32
 	var withExitCode bool
 
 	shellCmd := &cobra.Command{
@@ -79,6 +80,7 @@ If multiple steps required try to combine them together.
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				question,
 			)
 			if err != nil {
@@ -128,6 +130,7 @@ If multiple steps required try to combine them together.
 	shellCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	shellCmd.Flags().BoolVarP(&withExitCode, "exit-code", "", false, "Also return exit code from execution")
 	shellCmd.Flags().BoolVarP(&withExitCode, "ec", "", false, "Also return exit code from execution")
+	shellCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(shellCmd)
 }

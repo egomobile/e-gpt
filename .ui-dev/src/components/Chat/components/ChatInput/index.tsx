@@ -285,29 +285,51 @@ const ChatInput = ({
       IconClass = dotIconComponents[sendIconIndex];
     }
 
+    const iconContainerClassName = "absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 dark:bg-opacity-50 dark:text-neutral-100";
+
+    if (typeof sendIconIndex !== 'number') {
+      return (
+        <button
+          className={iconContainerClassName}
+          style={{
+            cursor: 'pointer'
+          }}
+          onClick={handleSend}
+          disabled={!canSend}
+        >
+          <IconClass size={18} />
+        </button>
+      );
+    }
+
     return (
-      <button
-        className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
-        onClick={handleSend}
-        disabled={!canSend}
+      <div
+        className={iconContainerClassName}
       >
         <IconClass size={18} />
-      </button>
+      </div>
     );
   }, [canSend, handleSend, isInputDiabled, sendIconIndex]);
+
+  const renderRegenerateButton = useCallback(() => {
+    if (isSending || !selectedConversation?.messages?.length) {
+      return null;
+    }
+
+    return (
+      <button
+        className="absolute top-0 left-0 right-0 mx-auto mb-3 flex w-fit items-center gap-3 rounded border border-neutral-200 bg-white py-2 px-4 text-black hover:opacity-50 dark:border-neutral-600 dark:bg-[#343541] dark:text-white md:mb-0 md:mt-2"
+        onClick={onRegenerate}
+      >
+        <IconRepeat size={16} /> {'Regenerate response'}
+      </button>
+    );
+  }, [isSending, onRegenerate, selectedConversation?.messages?.length]);
 
   const renderContent = useCallback(() => {
     return (
       <div className="stretch mx-2 mt-4 flex flex-row gap-3 last:mb-2 md:mx-4 md:mt-[52px] md:last:mb-6 lg:mx-auto lg:max-w-3xl">
-        {selectedConversation &&
-          selectedConversation.messages.length > 0 && (
-            <button
-              className="absolute top-0 left-0 right-0 mx-auto mb-3 flex w-fit items-center gap-3 rounded border border-neutral-200 bg-white py-2 px-4 text-black hover:opacity-50 dark:border-neutral-600 dark:bg-[#343541] dark:text-white md:mb-0 md:mt-2"
-              onClick={onRegenerate}
-            >
-              <IconRepeat size={16} /> {'Regenerate response'}
-            </button>
-          )}
+        {renderRegenerateButton()}
 
         <div className="relative mx-2 flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
           {renderInputField()}
@@ -347,7 +369,7 @@ const ChatInput = ({
         </div>
       </div>
     );
-  }, [activePromptIndex, filteredPrompts, handleInitModal, handleSubmit, isModalVisible, onRegenerate, onScrollDownClick, renderInputField, renderSendButton, selectedConversation, showPromptList, showScrollDownButton, variables]);
+  }, [activePromptIndex, filteredPrompts, handleInitModal, handleSubmit, isModalVisible, onScrollDownClick, renderInputField, renderRegenerateButton, renderSendButton, showPromptList, showScrollDownButton, variables]);
 
   useEffect(() => {
     if (promptListRef.current) {
@@ -381,7 +403,7 @@ const ChatInput = ({
         clearInterval(i);
       };
     } else {
-      setSendIconIndex(null)
+      setSendIconIndex(null);
     }
   }, [isSending]);
 

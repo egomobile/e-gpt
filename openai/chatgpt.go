@@ -218,7 +218,7 @@ func getMaxConversationSize() int {
 	return 40 // default / fallback
 }
 
-func AskChatGPT(systemPrompt string, fullConversation ...string) (string, error) {
+func AskChatGPT(systemPrompt string, temperature float32, fullConversation ...string) (string, error) {
 	maxConversationSize := getMaxConversationSize()
 
 	finalConversation := make([]string, 0)

@@ -32,6 +32,7 @@ import (
 func Init_translate_Command(rootCmd *cobra.Command) {
 	var language string
 	var openEditor bool
+	var temperature float32
 
 	translateCmd := &cobra.Command{
 		Use:     "translate",
@@ -61,6 +62,7 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				text,
 			)
 			if err != nil {
@@ -80,6 +82,7 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 
 	translateCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
 	translateCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	translateCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(translateCmd)
 }

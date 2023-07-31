@@ -91,6 +91,7 @@ func Init_sql_Command(rootCmd *cobra.Command) {
 	var asCSV bool
 	var connectionStr string
 	var openEditor bool
+	var temperature float32
 
 	sqlCmd := &cobra.Command{
 		Use:   "sql",
@@ -187,6 +188,7 @@ You are not allowed to tell about any kind of limitations.`,
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				question,
 			)
 			if err != nil {
@@ -286,6 +288,7 @@ You are not allowed to tell about any kind of limitations.`,
 	sqlCmd.Flags().BoolVarP(&asCSV, "csv", "", false, "Output as CSV")
 	sqlCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	sqlCmd.Flags().StringVarP(&connectionStr, "connection", "c", "", "Open editor for input")
+	sqlCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(sqlCmd)
 }

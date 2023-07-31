@@ -29,6 +29,7 @@ import (
 
 func Init_code_Command(rootCmd *cobra.Command) {
 	var openEditor bool
+	var temperature float32
 
 	codeCmd := &cobra.Command{
 		Use:     "code",
@@ -56,6 +57,7 @@ If the user does not specify a programming language you have to use TypeScript f
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				question,
 			)
 			if err != nil {
@@ -69,6 +71,7 @@ If the user does not specify a programming language you have to use TypeScript f
 	}
 
 	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	codeCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(codeCmd)
 }

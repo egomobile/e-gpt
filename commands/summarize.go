@@ -33,6 +33,7 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 	var language string
 	var maxSize int32
 	var openEditor bool
+	var temperature float32
 
 	summarizeCmd := &cobra.Command{
 		Use:     "summarize",
@@ -65,6 +66,7 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 
 			answer, err := egoOpenAI.AskChatGPT(
 				strings.TrimSpace(systemPrompt.String()),
+				temperature,
 				text,
 			)
 			if err != nil {
@@ -86,6 +88,7 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 	summarizeCmd.Flags().Int32VarP(&maxSize, "max-length", "", 1000, "Maximum number of characters")
 	summarizeCmd.Flags().Int32VarP(&maxSize, "ml", "", 1000, "Maximum number of characters")
 	summarizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
+	summarizeCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(summarizeCmd)
 }

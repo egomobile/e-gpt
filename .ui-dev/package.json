@@ -44,8 +44,8 @@
   },
   "scripts": {
     "build": "react-scripts build && npm run build:move && npm run gitkeep:create",
-    "build:move": "del ../ui/build --force && move-file ./build ../ui/build",
-    "gitkeep:create": "node -e \"const fs = require('node:fs'); const path = require('node:path'); const gitkeep = path.join(process.cwd(), '../ui/build/.gitkeep'); fs.writeFileSync(gitkeep, '', 'utf8');\"",
+    "build:move": "del ../commands/ui/build --force && move-file ./build ../commands/ui/build",
+    "gitkeep:create": "node -e \"const fs = require('node:fs'); const path = require('node:path'); const gitkeep = path.join(process.cwd(), '../commands/ui/build/.gitkeep'); fs.writeFileSync(gitkeep, '', 'utf8');\"",
     "start": "npm run server:start & PORT=8080 react-scripts start",
     "server:start": "tsx ./server.ts",
     "test": "react-scripts test"

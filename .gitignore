@@ -2,5 +2,7 @@
 .DS_Store
 sandbox*
 /TODOs.md
-/ui/build/**/*
-!/ui/build/.gitkeep
+/commands/ui/build/**/*
+!/commands/ui/build/.gitkeep
+/e-gpt
+/e-gpt.exe
