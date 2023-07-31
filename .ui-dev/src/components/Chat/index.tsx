@@ -25,6 +25,7 @@ import ChatLoader from './components/ChatLoader';
 import ChatMessage from './components/ChatMessage';
 import SystemPrompt from './components/SystemPrompt';
 import TemperatureSlider from './components/TemperatureSlider';
+import useCurrentApiKeySettings from '../../hooks/useCurrentApiKeySettings';
 import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
 import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
@@ -55,6 +56,7 @@ const Chat: React.FC<IChatProps> = ({
   const [isSending, setIsSending] = useState(false);
   const [lastError, setLastError] = useState<Nilable<ILastError>>(null);
 
+  const apiKeySettings = useCurrentApiKeySettings();
   const selectedConversation = useSelectedChatConversation();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -251,7 +253,7 @@ const Chat: React.FC<IChatProps> = ({
             </div>
           </div>
           <div className="mb-2 font-bold">
-            Important: e.GPT UI is 100% unaffiliated with OpenAI.
+            Important: Please update your API settings first!
           </div>
         </div>
       </div>
@@ -422,14 +424,12 @@ const Chat: React.FC<IChatProps> = ({
   }, [handleRegenerate, handleScroll, handleScrollDown, handleSend, handleUpdateConversationPromptChange, isSending, prompts, renderMessages, renderTemperature, selectedConversation, showScrollDownButton]);
 
   const renderContent = useCallback(() => {
-    const apiKey = 'TEST';  // TODO: replace
-
-    if (!apiKey) {
+    if (!apiKeySettings?.accessType) {
       return renderApiKeyRequiredContent();
     }
 
     return renderChatInput();
-  }, [renderApiKeyRequiredContent, renderChatInput]);
+  }, [apiKeySettings?.accessType, renderApiKeyRequiredContent, renderChatInput]);
 
   useEffect(() => {
     if (currentMessage) {

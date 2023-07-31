@@ -18,8 +18,8 @@ import React from "react";
 import type { Nullable } from "@egomobile/types";
 
 // internal imports
-import type { IChatConversation } from "../../types";
+import type { IApiKeySettings } from "../../types";
 
-const SelectedChatConversationContext = React.createContext<Nullable<IChatConversation>>(null);
+const CurrentApiKeySettingsContext = React.createContext<Nullable<IApiKeySettings>>(null);
 
-export default SelectedChatConversationContext;
+export default CurrentApiKeySettingsContext;

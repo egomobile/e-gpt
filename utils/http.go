@@ -20,7 +20,20 @@ import (
 
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
+
+	egoTypes "github.com/egomobile/e-gpt/types"
 )
+
+// AppendRoute adds a route with CORS headers.
+func AppendCorsRoute(r *router.Router, method string, route string, handler egoTypes.FHRequestHandler) {
+	r.OPTIONS(route, SetupCorsHeaders)
+
+	r.Handle(method, route, func(ctx *fasthttp.RequestCtx) {
+		SetupCorsHeaders(ctx)
+
+		handler(ctx)
+	})
+}
 
 // SendHttpError sends an HTTP 500 error with the given error message.
 func SendHttpError(ctx *fasthttp.RequestCtx, err error) {
@@ -31,14 +44,6 @@ func SendHttpError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Response.Header.Set("Content-Type", "text/plain; charset=UTF-8")
 
 	ctx.Write(data)
-}
-
-// SetupCors adds the necessary headers to enable CORS on the given router.
-func SetupCors(router *router.Router) {
-	router.HandleOPTIONS = true
-
-	router.OPTIONS("/api/chat", SetupCorsHeaders)
-	router.OPTIONS("/api/settings", SetupCorsHeaders)
 }
 
 // SetupCorsHeaders sets the necessary headers to enable CORS on an HTTP response.

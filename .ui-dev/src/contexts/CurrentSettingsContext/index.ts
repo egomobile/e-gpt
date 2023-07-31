@@ -18,7 +18,7 @@ import React from "react";
 import type { Nullable } from "@egomobile/types";
 
 // internal imports
-import { ISettings } from "../../types";
+import type { ISettings } from "../../types";
 
 const CurrentSettingsContext = React.createContext<Nullable<ISettings>>(null);
 

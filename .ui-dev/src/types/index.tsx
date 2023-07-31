@@ -41,6 +41,16 @@ export type ChatRole = 'assistant' | 'user';
 export type FolderType = 'chat' | 'prompt';
 
 /**
+ * API key settings from backend.
+ */
+export interface IApiKeySettings {
+  /** The access type to the chat API. */
+  accessType: '' | 'openai_key' | 'proxy_api_key' | 'proxy_oauth2';
+  /** The error message, if occurred. */
+  error: string;
+}
+
+/**
  * Represents a chat conversation.
  */
 export interface IChatConversation {

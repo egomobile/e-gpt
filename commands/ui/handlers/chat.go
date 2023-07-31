@@ -73,8 +73,6 @@ func CreateChatHandler(options CreateChatHandlerOptions) egoTypes.FHRequestHandl
 	}
 
 	return func(ctx *fasthttp.RequestCtx) {
-		egoUtils.SetupCorsHeaders(ctx)
-
 		now := time.Now()
 
 		body := ctx.PostBody()

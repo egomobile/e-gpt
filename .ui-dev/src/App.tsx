@@ -21,15 +21,17 @@ import type { Nilable, Nullable } from '@egomobile/types';
 // internal imports
 import Chat from './components/Chat';
 import Chatbar from './components/Chatbar';
+import CurrentApiKeySettingsContext from './contexts/CurrentApiKeySettingsContext';
 import CurrentSettingsContext from './contexts/CurrentSettingsContext';
 import Promptbar from './components/Promptbar';
 import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
-import type { ChatConversationItem, ChatPromptItem, IChatConversation, ISettings } from './types';
+import type { ChatConversationItem, ChatPromptItem, IApiKeySettings, IChatConversation, ISettings } from './types';
 
 // styles
 import './App.css';
 
 const App: React.FC = () => {
+  const [apiKeySettings, setApiKeySettings] = useState<Nullable<IApiKeySettings>>(null);
   const [conversationItems, setConversationItems] = useState<Nullable<ChatConversationItem[]>>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [promptItems, setPromptItems] = useState<Nullable<ChatPromptItem[]>>(null);
@@ -55,6 +57,27 @@ const App: React.FC = () => {
       return [item];
     }).flat();
   }, [promptItems]);
+
+  const reloadApiKeySettings = useCallback(async () => {
+    setApiKeySettings(null);
+
+    try {
+      const {
+        data, status
+      } = await axios.get<IApiKeySettings>('settings/keys/current');
+
+      if (status !== 200) {
+        throw new Error(`Unexpected response: ${status}`);
+      }
+
+      setApiKeySettings(data);
+    } catch (error: any) {
+      setApiKeySettings({
+        accessType: '',
+        error: `${error}`
+      });
+    }
+  }, []);
 
   const reloadSettings = useCallback(async () => {
     let newConversationItems: ChatConversationItem[] = [];
@@ -227,41 +250,45 @@ const App: React.FC = () => {
         setIsInitialized(true);
       });
 
+    reloadApiKeySettings();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <CurrentSettingsContext.Provider value={currentSettings}>
-      <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
-        <div
-          className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
-        >
-          <div className="flex h-full w-full pt-[48px] sm:pt-0">
-            <Chatbar
-              items={conversationItems ?? []}
-              onConversationClick={setSelectedConversation}
-              onConversationDelete={handleConversationDelete}
-              onConversationItemsUpdate={handleConversationItemsUpdate}
-              onSettingsUpdate={handleSettingsUpdate}
-            />
+    <CurrentApiKeySettingsContext.Provider value={apiKeySettings}>
+      <CurrentSettingsContext.Provider value={currentSettings}>
+        <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
+          <div
+            className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
+          >
+            <div className="flex h-full w-full pt-[48px] sm:pt-0">
+              <Chatbar
+                items={conversationItems ?? []}
+                onConversationClick={setSelectedConversation}
+                onConversationDelete={handleConversationDelete}
+                onConversationItemsUpdate={handleConversationItemsUpdate}
+                onSettingsUpdate={handleSettingsUpdate}
+              />
 
-            <div className="flex flex-1">
-              <Chat
-                onConversationUpdate={handleConversationUpdate}
-                onRefresh={handleRefresh}
-                prompts={allPrompts ?? []}
+              <div className="flex flex-1">
+                <Chat
+                  onConversationUpdate={handleConversationUpdate}
+                  onRefresh={handleRefresh}
+                  prompts={allPrompts ?? []}
+                />
+              </div>
+
+              <Promptbar
+                items={promptItems ?? []}
+                onPromptDelete={handlePromptDelete}
+                onPromptItemsUpdate={handlePromptItemsUpdate}
               />
             </div>
-
-            <Promptbar
-              items={promptItems ?? []}
-              onPromptDelete={handlePromptDelete}
-              onPromptItemsUpdate={handlePromptItemsUpdate}
-            />
           </div>
-        </div>
-      </SelectedChatConversationContext.Provider>
-    </CurrentSettingsContext.Provider>
+        </SelectedChatConversationContext.Provider>
+      </CurrentSettingsContext.Provider>
+    </CurrentApiKeySettingsContext.Provider>
   );
 };
 

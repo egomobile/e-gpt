@@ -56,6 +56,7 @@ async function main() {
         response.end();
     });
 
+    // chat message
     app.post('/api/chat', [json()], async (request, response) => {
         const body = request.body as IChatBody;
 
@@ -114,6 +115,22 @@ async function main() {
         response.writeHead(204, {
             'Content-Length': '0'
         });
+    });
+
+    // get API key settings
+    app.get('/api/settings/keys/current', [json()], async (request, response) => {
+        const data = Buffer.from(
+            JSON.stringify({
+                accessType: 'openai_key',
+                error: ''
+            }),
+            'utf8'
+        );
+
+        response.writeHead(200, {
+            'Content-Length': String(data.length)
+        });
+        response.write(data);
     });
 
     await app.listen(8181);

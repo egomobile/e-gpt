@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -26,11 +27,44 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
+type GetApiKeySettingsResponse struct {
+	AccessType string `json:"accessType"` // Access type
+	Error      string `json:"error"`      // Error message, which detecting `AccessType`
+}
+
+// CreateGetApiKeySettingsHandler returns a handler function for getting API key settings.
+func CreateGetApiKeySettingsHandler() egoTypes.FHRequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		var response GetApiKeySettingsResponse
+
+		// Get the API access type
+		accessType, err := egoUtils.GetApiAccessType()
+		if err != nil {
+			response.Error = err.Error()
+		} else {
+			response.AccessType = accessType
+		}
+
+		// Marshal the response into JSON format
+		data, err := json.Marshal(response)
+		if err != nil {
+			egoUtils.SendHttpError(ctx, err)
+			return
+		}
+
+		// Set the response headers
+		ctx.SetStatusCode(200)
+		ctx.Response.Header.Set("Content-Length", fmt.Sprint(len(data)))
+		ctx.Response.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+		// Write the response data to the response body
+		ctx.Write(data)
+	}
+}
+
 // CreateGetSettingsHandler returns a fasthttp request handler that retrieves the UI settings file.
 func CreateGetSettingsHandler() egoTypes.FHRequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		egoUtils.SetupCorsHeaders(ctx)
-
 		// Get the file path of the UI settings file.
 		filePath, err := egoUtils.GetUISettingsFilePath()
 		if err != nil {
@@ -57,15 +91,12 @@ func CreateGetSettingsHandler() egoTypes.FHRequestHandler {
 				ctx.Write(data)
 			}
 		}
-
 	}
 }
 
 // CreateUpdateSettingsHandler returns a fasthttp request handler that updates the UI settings file.
 func CreateUpdateSettingsHandler() egoTypes.FHRequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		egoUtils.SetupCorsHeaders(ctx)
-
 		// Get the request body.
 		body := ctx.PostBody()
 
