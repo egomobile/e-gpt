@@ -22,6 +22,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// SendHttpError sends an HTTP 500 error with the given error message.
 func SendHttpError(ctx *fasthttp.RequestCtx, err error) {
 	var data = []byte(err.Error())
 
@@ -32,6 +33,7 @@ func SendHttpError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Write(data)
 }
 
+// SetupCors adds the necessary headers to enable CORS on the given router.
 func SetupCors(router *router.Router) {
 	router.HandleOPTIONS = true
 
@@ -39,6 +41,7 @@ func SetupCors(router *router.Router) {
 	router.OPTIONS("/api/settings", SetupCorsHeaders)
 }
 
+// SetupCorsHeaders sets the necessary headers to enable CORS on an HTTP response.
 func SetupCorsHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 	ctx.Response.Header.Set("Access-Control-Allow-Headers", "*")

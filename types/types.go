@@ -17,4 +17,5 @@ package types
 
 import "github.com/valyala/fasthttp"
 
+// FHRequestHandler is a type alias for fasthttp RequestHandler function.
 type FHRequestHandler = func(ctx *fasthttp.RequestCtx)

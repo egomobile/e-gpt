@@ -26,6 +26,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// OpenSQLConnection opens a connection to a SQL database and returns the database object, the display name of the database provider, and an error, if any.
 func OpenSQLConnection(connectionStr string) (*sql.DB, string, error) {
 	connectionStr = strings.TrimSpace(connectionStr)
 	if connectionStr == "" {

@@ -109,27 +109,32 @@ func getResponseErrorMessage(message string, response *http.Response) string {
 	return errorMessage
 }
 
+// EnsureDir checks if a directory exists at the given path. If it doesn't exist, it creates a directory with the given path.
+// The function returns the directory path and an error, if any.
 func EnsureDir(dirPath string) (string, error) {
 	_, err := os.Stat(dirPath)
 	if err == nil {
-		return dirPath, nil // exists
+		return dirPath, nil // the directory already exists
 	}
 
 	if !os.IsNotExist(err) {
-		return "", err // other error
+		return "", err // other error occurred
 	}
 
-	// create ...
+	// create the directory at the given path
 	err = os.MkdirAll(dirPath, 0700)
 	if err != nil {
-		// ... failed
+		// failed to create the directory
 		return "", err
 	}
 
-	// ... success
+	// directory was successfully created
 	return dirPath, nil
 }
 
+// ExecuteCommand creates a new exec.Cmd instance and starts a new process with the provided raw command
+// using the shell specified by GetShellName(). The command output is printed to stdout and stderr,
+// and the command is run with os.Stdin. It returns the cmd object and an error if one occurs.
 func ExecuteCommand(rawCommand string) (*exec.Cmd, error) {
 	shellName := GetShellName()
 
@@ -171,6 +176,10 @@ func ExecuteCommand(rawCommand string) (*exec.Cmd, error) {
 	return cmd, nil
 }
 
+// GetAccessToken retrieves an OAuth2TokenResponse struct, which contains an access token and other
+// authentication details, from an API endpoint. If the response status code is 200, it attempts to
+// parse the response body as JSON and returns the tokenResponse struct. Otherwise, it returns an
+// error containing the response error message.
 func GetAccessToken() (OAuth2TokenResponse, error) {
 	var tokenResponse OAuth2TokenResponse
 
@@ -197,6 +206,8 @@ func GetAccessToken() (OAuth2TokenResponse, error) {
 	}
 }
 
+// GetAndCheckInput retrieves user input from the command line using the GetInput function and panics
+// if an error occurs. It trims the whitespace from the input and panics if the input is empty.
 func GetAndCheckInput(args []string, openEditor bool) string {
 	input, err := GetInput(args, openEditor)
 	if err != nil {
@@ -211,6 +222,8 @@ func GetAndCheckInput(args []string, openEditor bool) string {
 	return input
 }
 
+// GetEnvFilePath returns the path to the .env file located in the user's home directory. If an error
+// occurs while getting the user's home directory, it returns an empty string and the error.
 func GetEnvFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -220,9 +233,12 @@ func GetEnvFilePath() (string, error) {
 	return path.Join(homeDir, ".egpt/.env"), nil
 }
 
+// GetInput function retrieves user input from the command-line arguments, standard input, or an editor
 func GetInput(args []string, openEditor bool) (string, error) {
 	// first add arguments from CLI
 	var parts []string
+
+	// addPart function trims the white spaces and appends the non-empty strings to the parts slice
 	addPart := func(val string) {
 		val = strings.TrimSpace(val)
 		if val != "" {
@@ -230,11 +246,12 @@ func GetInput(args []string, openEditor bool) (string, error) {
 		}
 	}
 
+	// add arguments passed in the command-line interface
 	addPart(strings.Join(args, " "))
 
+	// If openEditor is true, attempts to open the user's preferred text editor and waits for the user to input text.
 	if openEditor {
-		// at last: try editor
-
+		// create a temporary file
 		tmpFile, err := os.CreateTemp("", "egpt")
 		if err != nil {
 			return "", err
@@ -247,6 +264,7 @@ func GetInput(args []string, openEditor bool) (string, error) {
 			return "", err
 		}
 
+		// get the command to open the editor
 		editorPath, editorArgs := TryGetBestOpenEditorCommand(tmpFilePath)
 		if editorPath == "" {
 			return "", errors.New("no matching editor found")
@@ -254,6 +272,7 @@ func GetInput(args []string, openEditor bool) (string, error) {
 
 		defer os.Remove(tmpFilePath)
 
+		// run the editor command
 		cmd := exec.Command(editorPath, editorArgs...)
 
 		cmd.Stdin = os.Stdin
@@ -263,6 +282,7 @@ func GetInput(args []string, openEditor bool) (string, error) {
 
 		cmd.Run()
 
+		// read the contents of the temporary file
 		tmpData, err := os.ReadFile(tmpFilePath)
 		if err != nil {
 			return "", err
@@ -271,6 +291,7 @@ func GetInput(args []string, openEditor bool) (string, error) {
 		addPart(string(tmpData))
 	}
 
+	// check if standard input has been piped
 	stdinStat, _ := os.Stdin.Stat()
 	if (stdinStat.Mode() & os.ModeCharDevice) == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -286,6 +307,7 @@ func GetInput(args []string, openEditor bool) (string, error) {
 	return strings.TrimSpace(strings.Join(parts, " ")), nil
 }
 
+// GetOperatingSystemName function returns the name of the operating system running the program
 func GetOperatingSystemName() string {
 	switch os := runtime.GOOS; os {
 	case "darwin":
@@ -315,6 +337,7 @@ func GetOperatingSystemName() string {
 	}
 }
 
+// GetShellName function returns the name of the shell running the program
 func GetShellName() string {
 	osName := runtime.GOOS
 
@@ -349,6 +372,7 @@ func GetShellName() string {
 	return "Unknown"
 }
 
+// GetSystemFilePath function returns the path of the .system file used by the program
 func GetSystemFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -358,6 +382,7 @@ func GetSystemFilePath() (string, error) {
 	return path.Join(homeDir, ".egpt/.system"), nil
 }
 
+// GetSystemPrompt returns the system prompt message, a boolean value indicating whether the prompt message is custom, and an error if there is any.
 func GetSystemPrompt() (string, bool, error) {
 	isCustom := false
 
@@ -391,6 +416,7 @@ func GetSystemPrompt() (string, bool, error) {
 	return strings.TrimSpace(systemPrompt), isCustom, nil
 }
 
+// GetUISettingsFilePath returns the file path for the UI settings file and an error if there is any.
 func GetUISettingsFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -400,6 +426,7 @@ func GetUISettingsFilePath() (string, error) {
 	return path.Join(homeDir, ".egpt/settings.ui.json"), nil
 }
 
+// RemoveMarkdownCode removes the beginning and ending backticks from the given string.
 func RemoveMarkdownCode(str string) string {
 	// remove beginning `
 	for strings.HasPrefix(str, "`") {
@@ -413,31 +440,41 @@ func RemoveMarkdownCode(str string) string {
 	return str
 }
 
+// TryGetBestOpenEditorCommand tries to find and return the best command to open a file for editing with the given file path.
+// It returns the command and its arguments as a slice of strings.
+// If no suitable editor is found, it returns an empty string and an empty slice.
 func TryGetBestOpenEditorCommand(filePath string) (string, []string) {
 	osName := runtime.GOOS
 
+	// Check for custom editor set via environment variable.
 	customEditor := strings.TrimSpace(os.Getenv("EGO_EDITOR"))
 	if customEditor != "" {
 		return TryGetExecutablePath(customEditor), []string{filePath}
 	}
 
+	// Check for editors based on OS.
 	if osName == "windows" {
 		return "notepad.exe", []string{filePath}
 	}
 
+	// Try vi editor.
 	viPath := TryGetExecutablePath("vi")
 	if viPath != "" {
 		return viPath, []string{"-c", "startinsert", filePath}
 	}
 
+	// Try nano editor.
 	nanoPath := TryGetExecutablePath("nano")
 	if nanoPath != "" {
 		return nanoPath, []string{filePath}
 	}
 
+	// If no editor was found, return empty strings.
 	return "", []string{}
 }
 
+// TryGetExecutablePath tries to find and return the path of the given command executable file.
+// It returns the path as a string. If the executable file is not found, it returns an empty string.
 func TryGetExecutablePath(command string) string {
 	exePath, err := exec.LookPath(command)
 
@@ -448,6 +485,8 @@ func TryGetExecutablePath(command string) string {
 	return exePath
 }
 
+// TryOpen opens the given resource using the appropriate command based on the OS.
+// It returns an error if the command failed to execute.
 func TryOpen(resource string) error {
 	var err error
 
