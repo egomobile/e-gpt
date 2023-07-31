@@ -68,15 +68,17 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (value.length > maxLength) {
+    const valueToUpdate = value.trim();
+
+    if (valueToUpdate.length > maxLength) {
       alert(`Prompt limit is ${maxLength} characters. You have entered ${value.length} characters.`);
       return;
     }
 
     updatePromptListVisibility(value);
 
-    if (value.length > 0) {
-      onPromptChange(value);
+    if (valueToUpdate.length > 0) {
+      onPromptChange(valueToUpdate);
     }
   }, [maxLength, onPromptChange, updatePromptListVisibility, value]);
 
