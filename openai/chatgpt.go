@@ -29,45 +29,52 @@ import (
 	egoUtils "github.com/egomobile/e-gpt/utils"
 )
 
+// ChatGPTOpenAIRequestBody represents the request body for OpenAI's chat API.
 type ChatGPTOpenAIRequestBody struct {
-	FrequencyPenalty float64                `json:"frequency_penalty"`
-	MaxTokens        int64                  `json:"max_tokens"`
-	Messages         []ChatGPTOpenAIMessage `json:"messages"`
-	Model            string                 `json:"model"`
-	PresencePenalty  float64                `json:"presence_penalty"`
-	Temperature      float64                `json:"temperature"`
-	TopP             float64                `json:"top_p"`
-	Stop             *interface{}           `json:"stop"`
+	FrequencyPenalty float64                `json:"frequency_penalty"` // Frequency penalty
+	MaxTokens        int64                  `json:"max_tokens"`        // Maximum number of tokens to generate
+	Messages         []ChatGPTOpenAIMessage `json:"messages"`          // Conversation message history
+	Model            string                 `json:"model"`             // ID of the model to use for generating the response
+	PresencePenalty  float64                `json:"presence_penalty"`  // Presence penalty
+	Temperature      float64                `json:"temperature"`       // Sampling temperature to use
+	TopP             float64                `json:"top_p"`             // Top-p sampling cutoff
+	Stop             *interface{}           `json:"stop"`              // Token(s) at which to stop generation
 }
 
+// ChatGPTOpenAIMessage represents a message in a conversation history.
 type ChatGPTOpenAIMessage struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
+	Content string `json:"content"` // Message content
+	Role    string `json:"role"`    // Role of the message sender
 }
 
+// ChatGPTOpenAIResponseBody represents the response body from OpenAI's chat API.
 type ChatGPTOpenAIResponseBody struct {
-	Choices []ChatGPTOpenAIResponseBodyChoice `json:"choices"`
+	Choices []ChatGPTOpenAIResponseBodyChoice `json:"choices"` // List of generated responses
 }
 
+// ChatGPTOpenAIResponseBodyChoice represents a generated response.
 type ChatGPTOpenAIResponseBodyChoice struct {
-	Message ChatGPTOpenAIMessage `json:"message"`
+	Message ChatGPTOpenAIMessage `json:"message"` // Generated response message
 }
 
+// ChatApiRequestBody represents the request body for the chat API.
 type ChatApiRequestBody struct {
-	Conversation []string `json:"conversation"`
-	SystemPrompt string   `json:"systemPrompt"`
+	Conversation []string `json:"conversation"` // Conversation message history
+	SystemPrompt string   `json:"systemPrompt"` // System prompt message
 }
 
-type ChatApiResponseBody struct {
-	Success bool                    `json:"success"`
-	Data    ChatApiResponseBodyData `json:"data"`
-}
-
+// ChatApiResponseBodyData represents the data field in the response body from the chat API.
 type ChatApiResponseBodyData struct {
-	Answer string `json:"answer"`
+	Answer string `json:"answer"` // Generated response message
 }
 
-func askApiProxy(clientId string, apiUrl string, authHeader string, authValue string, systemPrompt string, conversation ...string) (string, error) {
+// ChatApiResponseBody represents the response body from the chat API.
+type ChatApiResponseBody struct {
+	Success bool                    `json:"success"` // Whether the API call was successful or not
+	Data    ChatApiResponseBodyData `json:"data"`    // Response data
+}
+
+func askApiProxy(clientId string, apiUrl string, authHeader string, authValue string, systemPrompt string, temperature float64, conversation ...string) (string, error) {
 	payload := ChatApiRequestBody{
 		Conversation: conversation,
 		SystemPrompt: systemPrompt,
@@ -118,7 +125,7 @@ func askApiProxy(clientId string, apiUrl string, authHeader string, authValue st
 	return chatResponseBody.Data.Answer, nil
 }
 
-func askOpenAI(openaiApiKey string, systemPrompt string, conversation ...string) (string, error) {
+func askOpenAI(openaiApiKey string, systemPrompt string, temperature float64, conversation ...string) (string, error) {
 	if len(conversation) < 1 {
 		return "", errors.New("conversation must have at least one element")
 	}
@@ -147,7 +154,6 @@ func askOpenAI(openaiApiKey string, systemPrompt string, conversation ...string)
 
 	frequencyPenalty := float64(0)
 	presencePenalty := float64(0)
-	temperature := 0.7
 	maxToken := int64(2048)
 	model := "gpt-3.5-turbo"
 	var stop *interface{} = nil
@@ -218,7 +224,15 @@ func getMaxConversationSize() int {
 	return 40 // default / fallback
 }
 
-func AskChatGPT(systemPrompt string, temperature float32, fullConversation ...string) (string, error) {
+// AskChatGPT function returns the response from the API
+// Parameters:
+// - systemPrompt: the system prompt to be sent to the API
+// - temperature: the temperature to be used by the API
+// - fullConversation: the conversation history to be sent to the API
+// Returns:
+// - string: the response from the API
+// - error: an error, if any, encountered during the API call
+func AskChatGPT(systemPrompt string, temperature float64, fullConversation ...string) (string, error) {
 	maxConversationSize := getMaxConversationSize()
 
 	finalConversation := make([]string, 0)
@@ -230,7 +244,7 @@ func AskChatGPT(systemPrompt string, temperature float32, fullConversation ...st
 
 	openaiApiKey := strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
 	if openaiApiKey != "" {
-		return askOpenAI(openaiApiKey, systemPrompt, finalConversation...)
+		return askOpenAI(openaiApiKey, systemPrompt, temperature, finalConversation...)
 	}
 
 	clientId := strings.TrimSpace(os.Getenv("CHAT_API_CLIENT_ID"))
@@ -247,7 +261,7 @@ func AskChatGPT(systemPrompt string, temperature float32, fullConversation ...st
 				apiKeyHeader = "x-api-key"
 			}
 
-			return askApiProxy(clientId, apiUrl, apiKeyHeader, apiKey, systemPrompt, finalConversation...)
+			return askApiProxy(clientId, apiUrl, apiKeyHeader, apiKey, systemPrompt, temperature, finalConversation...)
 		}
 
 		accessTokenResponse, err := egoUtils.GetAccessToken()
@@ -255,7 +269,7 @@ func AskChatGPT(systemPrompt string, temperature float32, fullConversation ...st
 			return "", err
 		}
 
-		return askApiProxy("", apiUrl, "Authorization", fmt.Sprintf("Bearer %v", accessTokenResponse.AccessToken), systemPrompt, finalConversation...)
+		return askApiProxy("", apiUrl, "Authorization", fmt.Sprintf("Bearer %v", accessTokenResponse.AccessToken), systemPrompt, temperature, finalConversation...)
 	}
 
 	return "", errors.New("could not specify an API gateway")

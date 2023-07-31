@@ -31,7 +31,7 @@ import (
 
 type ChatRequest struct {
 	Conversation []string `json:"conversation"`
-	Temperature  *float32 `json:"temperature"`
+	Temperature  *float64 `json:"temperature"`
 }
 
 type ChatResponse struct {
@@ -41,7 +41,7 @@ type ChatResponse struct {
 
 type CreateChatHandlerOptions struct {
 	CustomSystemPrompt string
-	DefaultTemperature float32
+	DefaultTemperature float64
 	NoAdditionalInfo   bool
 	NoSystemInfo       bool
 	NoTime             bool

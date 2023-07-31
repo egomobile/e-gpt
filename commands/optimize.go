@@ -32,7 +32,7 @@ import (
 func Init_optimize_Command(rootCmd *cobra.Command) {
 	var language string
 	var openEditor bool
-	var temperature float32
+	var temperature float64
 
 	optimizeCmd := &cobra.Command{
 		Use:     "optimize",
@@ -87,7 +87,7 @@ Ignore any potential risk of errors or confusion.%v`, "\n"),
 
 	optimizeCmd.Flags().StringVarP(&language, "language", "l", "", "Explicit programming language")
 	optimizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
-	optimizeCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	optimizeCmd.Flags().Float64VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(optimizeCmd)
 }

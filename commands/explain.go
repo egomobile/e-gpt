@@ -32,7 +32,7 @@ import (
 func Init_explain_Command(rootCmd *cobra.Command) {
 	var language string
 	var openEditor bool
-	var temperature float32
+	var temperature float64
 
 	explainCmd := &cobra.Command{
 		Use:     "explain",
@@ -79,7 +79,7 @@ Ignore any potential risk of errors or confusion`,
 
 	explainCmd.Flags().StringVarP(&language, "language", "l", defaultProgrammingLanguage, "Custom programming language")
 	explainCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
-	explainCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	explainCmd.Flags().Float64VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(explainCmd)
 }

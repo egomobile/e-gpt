@@ -39,15 +39,23 @@ func getAssets() (fs.FS, error) {
 	return fs.Sub(assets, "build")
 }
 
+// StartUI starts the user interface and serves the frontend assets.
+// The UI listens on the given address and port.
+// The backend address and port are used to construct the URL for the browser.
+// The shouldOpenBrowser parameter controls if the browser is opened automatically or not.
 func StartUI(addr string, port int32, backendAddr string, backendPort int32, shouldOpenBrowser bool) {
+	// get the frontend assets
 	assets, _ := getAssets()
 
+	// serve the frontend assets
 	fs := http.FileServer(http.FS(assets))
 	http.Handle("/", http.StripPrefix("/", fs))
 
+	// log the listening address and port
 	log.Println(fmt.Sprintf("UI will listen on %v:%v ...", addr, port))
 
 	if shouldOpenBrowser {
+		// open the browser if shouldOpenBrowser is true
 		go func() {
 			browserUrl := fmt.Sprintf(
 				"http://%v:%v?address=%v&port=%v",
@@ -56,10 +64,13 @@ func StartUI(addr string, port int32, backendAddr string, backendPort int32, sho
 				url.QueryEscape(fmt.Sprintf("%v", backendPort)),
 			)
 
+			// print a message before opening the browser
 			fmt.Println("Will open browser at", browserUrl, "in 1 second ...")
 
+			// wait for 1 second before opening the browser
 			time.Sleep(time.Second)
 
+			// try to open the browser URL
 			err := egoUtils.TryOpen(browserUrl)
 			if err != nil {
 				log.Println("[WARN]", "Could not open browser url", browserUrl, ":", err)
@@ -67,6 +78,7 @@ func StartUI(addr string, port int32, backendAddr string, backendPort int32, sho
 		}()
 	}
 
+	// start the http server
 	err := http.ListenAndServe(fmt.Sprintf("%v:%v", addr, port), nil)
 	if err != nil {
 		panic(err)
@@ -76,7 +88,7 @@ func StartUI(addr string, port int32, backendAddr string, backendPort int32, sho
 func Init_ui_Command(rootCmd *cobra.Command) {
 	var apiListenerAddr = "127.0.0.1"
 	var apiPort int32 = 8181
-	var defaultTemperature float32
+	var defaultTemperature float64
 	var noAdditionalInfo bool
 	var noSysInfo bool
 	var noTime bool
@@ -136,7 +148,7 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 	uiCmd.Flags().BoolVarP(&shouldNotOpenBrowser, "dno", "", false, "Do not open browser after start")
 	uiCmd.Flags().StringVarP(&system, "system", "s", "", "Custom system prompt")
 	uiCmd.Flags().Int32VarP(&uiPort, "port", "p", 8080, "Custom UI port")
-	uiCmd.Flags().Float32VarP(&defaultTemperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	uiCmd.Flags().Float64VarP(&defaultTemperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(uiCmd)
 }

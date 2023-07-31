@@ -17,7 +17,7 @@ import (
 
 func Init_describe_Command(rootCmd *cobra.Command) {
 	var openEditor bool
-	var temperature float32
+	var temperature float64
 
 	describeCmd := &cobra.Command{
 		Use:     "describe",
@@ -93,7 +93,7 @@ If you need to store any data, assume it will be stored in the chat.
 	}
 
 	describeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
-	describeCmd.Flags().Float32VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	describeCmd.Flags().Float64VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(describeCmd)
 }
