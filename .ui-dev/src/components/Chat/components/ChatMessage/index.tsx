@@ -16,6 +16,10 @@
 // system imports
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeMathjax from 'rehype-mathjax';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import {
   IconCheck,
   IconCopy,
@@ -23,16 +27,12 @@ import {
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
-import rehypeMathjax from 'rehype-mathjax';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
 
 // internal imports
 import CodeBlock from '../../../CodeBlock';
 import EgoLogo from '../../../../assets/img/ego.png';
-import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
+import useAppContext from '../../../../hooks/useAppContext';
 import type { IChatConversation, IChatMessage } from '../../../../types';
-import ReactMarkdown from 'react-markdown';
 
 export interface IChatMessageProps {
   isSending: boolean;
@@ -56,7 +56,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const selectedConversation = useSelectedChatConversation();
+  const {
+    selectedConversation
+  } = useAppContext();
 
   const errorClass = useMemo(() => {
     return message.isError && 'dark:text-red-500 font-bold';

@@ -14,19 +14,22 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import type { Nullable } from "@egomobile/types";
-
-// internal imports
-import CurrentSettingsContext from "../contexts/CurrentSettingsContext";
-import type { ISettings } from "../types";
 import { useContext, useMemo } from "react";
 
-function useCurrentSettings(): Nullable<ISettings> {
-  const value = useContext(CurrentSettingsContext);
+// internal imports
+import AppContext from "../contexts/AppContext";
+import type { IAppContext } from "../types";
+
+function useAppContext(): IAppContext {
+  const value = useContext(AppContext);
 
   return useMemo(() => {
-    return value || null;
-  }, [value]);
+    return {
+      apiKeySettings: value.apiKeySettings || null,
+      selectedConversation: value.selectedConversation || null,
+      settings: value.settings,
+    };
+  }, [value.apiKeySettings, value.selectedConversation, value.settings]);
 }
 
-export default useCurrentSettings;
+export default useAppContext;

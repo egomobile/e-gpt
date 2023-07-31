@@ -14,7 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import type { Nilable } from "@egomobile/types";
+import type { Nilable, Nullable } from "@egomobile/types";
 
 /**
  * Represents an item in a chat conversation.
@@ -48,6 +48,22 @@ export interface IApiKeySettings {
   accessType: '' | 'openai_key' | 'proxy_api_key' | 'proxy_oauth2';
   /** The error message, if occurred. */
   error: string;
+}
+
+/**
+ * Stores global data for the app.
+ */
+export interface IAppContext {
+  /** API key settings */
+  apiKeySettings: Nullable<IApiKeySettings>;
+  /**
+   * Current, selected chat conversation.
+   */
+  selectedConversation: Nullable<IChatConversation>;
+  /**
+   * Settings from backend.
+   */
+  settings: Nullable<ISettings>;
 }
 
 /**

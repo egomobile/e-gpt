@@ -14,19 +14,15 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
-import type { Nullable } from "@egomobile/types";
+import React from "react";
 
 // internal imports
-import CurrentApiKeySettingsContext from "../contexts/CurrentApiKeySettingsContext";
-import type { IApiKeySettings } from "../types";
-import { useContext, useMemo } from "react";
+import type { IAppContext } from "../../types";
 
-function useCurrentApiKeySettings(): Nullable<IApiKeySettings> {
-  const value = useContext(CurrentApiKeySettingsContext);
+const GlobalAppContext = React.createContext<IAppContext>({
+  apiKeySettings: null,
+  selectedConversation: null,
+  settings: null
+});
 
-  return useMemo(() => {
-    return value || null;
-  }, [value]);
-}
-
-export default useCurrentApiKeySettings;
+export default GlobalAppContext;

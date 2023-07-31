@@ -19,13 +19,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Nilable, Nullable } from '@egomobile/types';
 
 // internal imports
+import AppContext from './contexts/AppContext';
 import Chat from './components/Chat';
 import Chatbar from './components/Chatbar';
-import CurrentApiKeySettingsContext from './contexts/CurrentApiKeySettingsContext';
-import CurrentSettingsContext from './contexts/CurrentSettingsContext';
 import Promptbar from './components/Promptbar';
-import SelectedChatConversationContext from './contexts/SelectedChatConversationContext';
-import type { ChatConversationItem, ChatPromptItem, IApiKeySettings, IChatConversation, ISettings } from './types';
+import type { ChatConversationItem, ChatPromptItem, IApiKeySettings, IAppContext, IChatConversation, ISettings } from './types';
 
 // styles
 import './App.css';
@@ -43,6 +41,14 @@ const App: React.FC = () => {
       promptItems
     };
   }, [conversationItems, promptItems]);
+
+  const appContext: IAppContext = useMemo(() => {
+    return {
+      apiKeySettings: apiKeySettings || null,
+      selectedConversation: selectedConversation || null,
+      settings: currentSettings || null
+    };
+  }, [apiKeySettings, currentSettings, selectedConversation]);
 
   const allPrompts = useMemo(() => {
     if (!promptItems) {
@@ -256,39 +262,35 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <CurrentApiKeySettingsContext.Provider value={apiKeySettings}>
-      <CurrentSettingsContext.Provider value={currentSettings}>
-        <SelectedChatConversationContext.Provider value={selectedConversation ?? null}>
-          <div
-            className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
-          >
-            <div className="flex h-full w-full pt-[48px] sm:pt-0">
-              <Chatbar
-                items={conversationItems ?? []}
-                onConversationClick={setSelectedConversation}
-                onConversationDelete={handleConversationDelete}
-                onConversationItemsUpdate={handleConversationItemsUpdate}
-                onSettingsUpdate={handleSettingsUpdate}
-              />
+    <AppContext.Provider value={appContext}>
+      <div
+        className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}
+      >
+        <div className="flex h-full w-full pt-[48px] sm:pt-0">
+          <Chatbar
+            items={conversationItems ?? []}
+            onConversationClick={setSelectedConversation}
+            onConversationDelete={handleConversationDelete}
+            onConversationItemsUpdate={handleConversationItemsUpdate}
+            onSettingsUpdate={handleSettingsUpdate}
+          />
 
-              <div className="flex flex-1">
-                <Chat
-                  onConversationUpdate={handleConversationUpdate}
-                  onRefresh={handleRefresh}
-                  prompts={allPrompts ?? []}
-                />
-              </div>
-
-              <Promptbar
-                items={promptItems ?? []}
-                onPromptDelete={handlePromptDelete}
-                onPromptItemsUpdate={handlePromptItemsUpdate}
-              />
-            </div>
+          <div className="flex flex-1">
+            <Chat
+              onConversationUpdate={handleConversationUpdate}
+              onRefresh={handleRefresh}
+              prompts={allPrompts ?? []}
+            />
           </div>
-        </SelectedChatConversationContext.Provider>
-      </CurrentSettingsContext.Provider>
-    </CurrentApiKeySettingsContext.Provider>
+
+          <Promptbar
+            items={promptItems ?? []}
+            onPromptDelete={handlePromptDelete}
+            onPromptItemsUpdate={handlePromptItemsUpdate}
+          />
+        </div>
+      </div>
+    </AppContext.Provider>
   );
 };
 

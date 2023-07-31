@@ -31,7 +31,7 @@ import type { Nullable, Optional } from '@egomobile/types';
 
 // internal imports
 import PromptList from '../PromptList';
-import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
+import useAppContext from '../../../../hooks/useAppContext';
 import VariableModal from '../VariableModal';
 import type { IChatMessage, IChatPrompt, IVariable } from '../../../../types';
 import { isMobile, parseFinalContentWithVariables, parseVariables, toSearchString } from '../../../../utils';
@@ -80,7 +80,9 @@ const ChatInput = ({
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
-  const selectedConversation = useSelectedChatConversation();
+  const {
+    selectedConversation
+  } = useAppContext();
 
   const maxLength = useMemo(() => {
     return selectedConversation?.model.maxLength ?? null;

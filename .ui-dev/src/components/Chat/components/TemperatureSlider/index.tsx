@@ -17,7 +17,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 // internal imports
-import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
+import useAppContext from '../../../../hooks/useAppContext';
 import { defaultTemperature } from '../../../../constants';
 
 interface ITemperatureSliderProps {
@@ -30,7 +30,9 @@ const TemperatureSlider: React.FC<ITemperatureSliderProps> = ({
   label,
   onTemperatureChange,
 }) => {
-  const selectedConversation = useSelectedChatConversation();
+  const {
+    selectedConversation
+  } = useAppContext();
 
   const [temperature, setTemperature] = useState<number>(defaultTemperature);
 

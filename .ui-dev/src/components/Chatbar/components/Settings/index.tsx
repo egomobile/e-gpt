@@ -19,9 +19,9 @@ import { IconFileExport, IconFileImport } from '@tabler/icons-react';
 
 // internal imports
 import SidebarButton from '../../../SidebarButton';
-import useCurrentSettings from '../../../../hooks/useCurrentSettings';
+import useAppContext from '../../../../hooks/useAppContext';
 import { downloadBlob, loadBlob } from '../../../../utils';
-import { ISettings } from '../../../../types';
+import type { ISettings } from '../../../../types';
 
 // Day.js
 import dayjs from 'dayjs';
@@ -40,7 +40,9 @@ const Settings: React.FC<ISettingsProps> = ({
 }) => {
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const settings = useCurrentSettings();
+  const {
+    settings
+  } = useAppContext();
 
   const hasEnoughData = useMemo(() => {
     return !!settings?.conversationItems &&

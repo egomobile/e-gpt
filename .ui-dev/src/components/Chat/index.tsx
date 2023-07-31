@@ -25,8 +25,7 @@ import ChatLoader from './components/ChatLoader';
 import ChatMessage from './components/ChatMessage';
 import SystemPrompt from './components/SystemPrompt';
 import TemperatureSlider from './components/TemperatureSlider';
-import useCurrentApiKeySettings from '../../hooks/useCurrentApiKeySettings';
-import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
+import useAppContext from '../../hooks/useAppContext';
 import { throttle } from '../../utils';
 import type { IChatConversation, IChatMessage, IChatPrompt } from '../../types';
 import { defaultSystemPrompt, defaultTemperature } from '../../constants';
@@ -56,8 +55,10 @@ const Chat: React.FC<IChatProps> = ({
   const [isSending, setIsSending] = useState(false);
   const [lastError, setLastError] = useState<Nilable<ILastError>>(null);
 
-  const apiKeySettings = useCurrentApiKeySettings();
-  const selectedConversation = useSelectedChatConversation();
+  const {
+    apiKeySettings,
+    selectedConversation
+  } = useAppContext();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);

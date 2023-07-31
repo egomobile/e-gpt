@@ -29,7 +29,7 @@ import {
 
 // internal imports
 import SidebarActionButton from '../SidebarActionButton';
-import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
+import useAppContext from '../../hooks/useAppContext';
 import type { IChatConversation } from '../../types';
 
 interface IConversationProps {
@@ -44,7 +44,9 @@ const Conversation: React.FC<IConversationProps> = ({ conversation, onClick, onD
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
 
-  const selectedConversation = useSelectedChatConversation();
+  const {
+    selectedConversation
+  } = useAppContext();
 
   const handleRename = useCallback((conversation: IChatConversation) => {
     const newTitle = renameValue.trim();
