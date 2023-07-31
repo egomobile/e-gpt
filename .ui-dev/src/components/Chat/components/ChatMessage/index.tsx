@@ -15,7 +15,7 @@
 
 // system imports
 import clsx from 'clsx';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IconCheck,
   IconCopy,
@@ -30,18 +30,20 @@ import remarkMath from 'remark-math';
 // internal imports
 import CodeBlock from '../../../CodeBlock';
 import EgoLogo from '../../../../assets/img/ego.png';
-import MemoizedReactMarkdown from '../../../MemoizedReactMarkdown';
 import useSelectedChatConversation from '../../../../hooks/useSelectedChatConversation';
 import type { IChatConversation, IChatMessage } from '../../../../types';
+import ReactMarkdown from 'react-markdown';
 
 export interface IChatMessageProps {
+  isSending: boolean;
   message: IChatMessage;
   messageIndex: number;
   onDelete?: (messageIndex: number, conversation: IChatConversation) => void;
   onEdit?: (editedMessage: IChatMessage, conversation: IChatConversation) => void;
 }
 
-const ChatMessage: React.FC<IChatMessageProps> = memo(({
+const ChatMessage: React.FC<IChatMessageProps> = ({
+  isSending,
   message,
   messageIndex,
   onDelete,
@@ -236,24 +238,29 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
 
               {!isEditing && (
                 <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">
-                  <button
-                    className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={toggleEditing}
-                  >
-                    <IconEdit size={20} />
-                  </button>
-                  <button
-                    className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={handleDeleteMessage}
-                  >
-                    <IconTrash size={20} />
-                  </button>
+                  {!isSending && (
+                    <button
+                      className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                      onClick={toggleEditing}
+                    >
+                      <IconEdit size={20} />
+                    </button>
+                  )}
+                  {!isSending && (
+                    <button
+                      className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                      disabled={isSending}
+                      onClick={handleDeleteMessage}
+                    >
+                      <IconTrash size={20} />
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           ) : (
             <div className="flex flex-row">
-              <MemoizedReactMarkdown
+              <ReactMarkdown
                 className="prose dark:prose-invert flex-1"
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeMathjax]}
@@ -306,7 +313,7 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
                 }}
               >
                 {`${message.content}`}
-              </MemoizedReactMarkdown>
+              </ReactMarkdown>
 
               <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">
                 {renderAssistantIcons()}
@@ -317,6 +324,6 @@ const ChatMessage: React.FC<IChatMessageProps> = memo(({
       </div>
     </div>
   );
-});
+};
 
 export default ChatMessage;

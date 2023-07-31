@@ -22,7 +22,7 @@ import type { Nilable } from '@egomobile/types';
 // internal imports
 import ChatInput from './components/ChatInput';
 import ChatLoader from './components/ChatLoader';
-import MemoizedChatMessage from './components/MemoizedChatMessage';
+import ChatMessage from './components/ChatMessage';
 import SystemPrompt from './components/SystemPrompt';
 import TemperatureSlider from './components/TemperatureSlider';
 import useSelectedChatConversation from '../../hooks/useSelectedChatConversation';
@@ -276,7 +276,8 @@ const Chat: React.FC<IChatProps> = ({
     }
 
     return (
-      <MemoizedChatMessage
+      <ChatMessage
+        isSending={isSending}
         onDelete={() => {
           setLastError(null);
         }}
@@ -299,8 +300,9 @@ const Chat: React.FC<IChatProps> = ({
     return (
       <div className='pt-8'>
         {selectedConversation?.messages.map((message, index) => (
-          <MemoizedChatMessage
+          <ChatMessage
             key={index}
+            isSending={isSending}
             message={message}
             messageIndex={index}
             onDelete={(messageIndex, conversation) => {
@@ -342,7 +344,7 @@ const Chat: React.FC<IChatProps> = ({
         />
       </div>
     );
-  }, [onConversationUpdate, onRefresh, renderLastError, renderLoader, selectedConversation?.id, selectedConversation?.messages]);
+  }, [isSending, onConversationUpdate, onRefresh, renderLastError, renderLoader, selectedConversation?.id, selectedConversation?.messages]);
 
   const renderTemperature = useCallback(() => {
     if (!selectedConversation) {
