@@ -68,20 +68,17 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-
     if (value.length > maxLength) {
       alert(`Prompt limit is ${maxLength} characters. You have entered ${value.length} characters.`);
       return;
     }
 
-    setValue(value);
     updatePromptListVisibility(value);
 
     if (value.length > 0) {
       onPromptChange(value);
     }
-  }, [maxLength, onPromptChange, updatePromptListVisibility]);
+  }, [maxLength, onPromptChange, updatePromptListVisibility, value]);
 
   const handlePromptSelect = useCallback((prompt: IChatPrompt) => {
     const parsedVariables = parseVariables(prompt.content);
@@ -212,8 +209,11 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
           `Enter a prompt or type "/" to select a prompt...`
         }
         value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+        }}
         rows={1}
-        onChange={handleChange}
+        onBlur={handleChange}
         onKeyDown={handleKeyDown}
       />
 
