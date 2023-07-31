@@ -117,17 +117,17 @@ const ChatInput = ({
   }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+    const v = e.target.value;
 
-    if (maxLength && value.length > maxLength) {
+    if (maxLength && v.length > maxLength) {
       alert(
-        `Message limit is ${maxLength} characters. You have entered ${value.length} characters.`,
+        `Message limit is ${maxLength} characters. You have entered ${v.length} characters.`,
       );
       return;
     }
 
-    setContent(value);
-    updatePromptListVisibility(value);
+    setContent(v);
+    updatePromptListVisibility(v);
   }, [maxLength, updatePromptListVisibility]);
 
   const handleSend = useCallback(() => {
