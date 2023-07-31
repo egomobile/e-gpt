@@ -27,6 +27,7 @@
   - [translate - Translates a text](#translate-)
   - [ui - Run local UI](#ui-)
 - [Inputs](#inputs-)
+- [Environment variables](#environment-variables-)
 - [Examples](#examples-)
 - [Custom system prompts](#custom-system-prompts-)
 - [Credits](#credits-)
@@ -287,8 +288,6 @@ Der Text kritisiert das Verhalten von Red Hat nach der Übernahme durch IBM und 
 
 > Serves a local web UI.
 
-![Demo 1](./assets/egpt-demo1.gif)
-
 ```bash
 egpt ui
 ```
@@ -308,6 +307,20 @@ You have the following sources for input data:
 You can combine all kind of inputs. All texts will be concatenated in the given order and seperated by space to one string.
 
 Keep in mind: The final prompt will be trimmed (start + end).
+
+## Environment variables [<a href="#toc">↑</a>]
+
+| Name                     | Description                                                                                                                                                      | Default value                            | Example                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------- |
+| `CHAT_API_CLIENT_ID`     | You must setup this, if you want to use a proxy API.                                                                                                             |                                          | `a816037f-cb72-4f67-8855-71be067637fc`                                |
+| `CHAT_API_CLIENT_SECRET` | If you use a proxy API via [OAuth 2](https://oauth.net/2/). This requies `OAUTH2_GET_TOKEN_URL` to be set.                                                       |                                          | `a816037f-cb72-4f67-8855-71be067637fc`                                |
+| `CHAT_API_KEY`           | If you use a proxy API with API key, submitted via `x-api-key` header.                                                                                           |                                          | `ZIREUIcc`                                                            |
+| `CHAT_API_TEMPERATURE`   | What default [sampling temperature](https://platform.openai.com/docs/api-reference/chat/create#chat/create-temperature) to use, between 0 and 2.                 | `0.7`                                    | `0.5`                                                                 |
+| `CHAT_API_URL`           | Sets up the base URL for a proxy API usage.                                                                                                                      |                                          | `https://api.example.com/v1/chat/completions`                         |
+| `DATABASE_URL`           | Required for [sql command](#sql-) execution.                                                                                                                     |                                          | `postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full` |
+| `EGO_EDITOR`             | The custom text editor to use.                                                                                                                                   | Windows: `notepad.exe`, Linux/Unix: `vi` | `nano`                                                                |
+| `OAUTH2_GET_TOKEN_URL`   | Base URL for [get OAuth 2 access token](https://oauth.net/2/access-tokens/).                                                                                     |                                          | `https://api.example.com/auth/v1/oauth2/token`                        |
+| `OPENAI_API_KEY`         | If you want to use [OpenAI API]() driectly, you have to setup [the API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key) here. |                                          |                                                                       |
 
 ## Examples [<a href="#toc">↑</a>]
 

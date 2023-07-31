@@ -288,7 +288,7 @@ You are not allowed to tell about any kind of limitations.`,
 	sqlCmd.Flags().BoolVarP(&asCSV, "csv", "", false, "Output as CSV")
 	sqlCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	sqlCmd.Flags().StringVarP(&connectionStr, "connection", "c", "", "Open editor for input")
-	sqlCmd.Flags().Float64VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	sqlCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(sqlCmd)
 }

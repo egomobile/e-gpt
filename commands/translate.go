@@ -82,7 +82,7 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 
 	translateCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
 	translateCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
-	translateCmd.Flags().Float64VarP(&temperature, "temperature", "t", 1, "Custom temperature between 0 and 2")
+	translateCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
 
 	rootCmd.AddCommand(translateCmd)
 }
