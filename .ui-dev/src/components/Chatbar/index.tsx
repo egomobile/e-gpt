@@ -236,14 +236,14 @@ const Chatbar: React.FC<IChatbarProps> = ({
             }}
             onDeleteConversation={(c) => handleDeleteConversation(c, true)}
             onDeleteFolder={handleDeleteFolder} onUpdateFolderTitle={handleUpdateFolderTitle}
-            onFolderClick={() => { }}
-            onFolderOpenUpate={(folder, isOpen) => {
+            onFolderClick={(folder, isOpen) => {
               if (isOpen) {
                 setCurrentFolder(folder);
               } else {
                 setCurrentFolder(null);
               }
             }}
+            onFolderOpenUpate={(folder, isOpen) => { }}
             onUpdateConversation={(folder, newData) => {
               handleUpdateConversation(newData);
             }}

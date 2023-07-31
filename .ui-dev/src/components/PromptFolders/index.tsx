@@ -33,7 +33,7 @@ interface IPromptFoldersProps {
   folders: IChatPromptFolder[];
   onDeleteFolder: (folder: IChatPromptFolder) => void;
   onDeletePrompt: (prompt: IChatPrompt) => void;
-  onFolderClick: (folder: IChatPromptFolder) => void;
+  onFolderClick: (folder: IChatPromptFolder, isOpen: boolean) => void;
   onFolderOpenUpate: (folder: IChatPromptFolder, isOpen: boolean) => void;
   onPromptClick: (conversation: IChatPrompt) => void;
   onUpdateFolderTitle: (folder: IChatPromptFolder, title: string) => void;
@@ -115,7 +115,7 @@ const PromptFolders: React.FC<IPromptFoldersProps> = ({
               onDeletePrompt,
               onUpdatePrompt
             }) as any}
-            onClick={() => onFolderClick(folder)}
+            onClick={(isOpen) => onFolderClick(folder, isOpen)}
             onDelete={() => handleDeleteFolder(folder)}
             onOpenUpdate={(isOpen) => onFolderOpenUpate(folder, isOpen)}
             onUpdateTitle={(newTitle) => handleUpdateFolderTitle(folder, newTitle)}

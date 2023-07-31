@@ -31,7 +31,7 @@ import type { IFolder } from '../../types';
 interface IFolderProps {
   currentFolder: IFolder;
   folderComponent: (React.ReactElement | undefined)[];
-  onClick: () => void;
+  onClick: (isOpen: boolean) => void;
   onDelete: () => void;
   onOpenUpdate: (isOpen: boolean) => void;
   onUpdateTitle: (newTitle: string) => void;
@@ -77,7 +77,7 @@ const Folder: React.FC<IFolderProps> = ({
   const handleButtonClick = useCallback(() => {
     setIsOpen(!isOpen);
 
-    onClick();
+    onClick(!isOpen);
   }, [isOpen, onClick]);
 
   useEffect(() => {

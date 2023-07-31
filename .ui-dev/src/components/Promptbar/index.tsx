@@ -199,14 +199,14 @@ const Promptbar: React.FC<IPromptbarProps> = ({
             folders={folders}
             onDeleteFolder={handleDeleteFolder}
             onDeletePrompt={(p) => handleDeletePrompt(p, true)}
-            onFolderClick={() => { }}
-            onFolderOpenUpate={(folder, isOpen) => {
+            onFolderClick={(folder, isOpen) => {
               if (isOpen) {
                 setCurrentFolder(folder);
               } else {
                 setCurrentFolder(null);
               }
             }}
+            onFolderOpenUpate={(folder, isOpen) => { }}
             onPromptClick={(c) => {
               setCurrentFolder(null);
             }}
