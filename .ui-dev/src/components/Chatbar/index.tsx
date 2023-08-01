@@ -127,7 +127,15 @@ const Chatbar: React.FC<IChatbarProps> = ({
     const list = [...items];
 
     if (currentFolder) {
-      currentFolder.conversations.push(newConversation);
+      [...list].forEach((item, itemIndex) => {
+        if ('conversations' in item && item.id === currentFolder.id) {
+          list[itemIndex] = {
+            ...item,
+
+            conversations: [...currentFolder.conversations, newConversation]
+          };
+        }
+      });
     } else {
       list.push(newConversation);
     }
@@ -157,11 +165,24 @@ const Chatbar: React.FC<IChatbarProps> = ({
   }, [handleItemsUpdate, items, onConversationDelete]);
 
   const handleUpdateConversation = useCallback((newData: IChatConversation) => {
-    const folder = folders.find((f) => {
+    let folder = folders.find((f) => {
       return f.id === newData.folderId;
     });
 
     const newList = [...items];
+    if (folder) {
+      folder = {
+        ...folder,
+
+        conversations: [...folder.conversations]
+      };
+
+      [...newList].forEach((item, itemIndex) => {
+        if ('conversations' in item && item.id === folder!.id) {
+          newList[itemIndex] = folder!;
+        }
+      });
+    }
 
     const list = folder ? folder.conversations : newList;
     [...list].forEach((item, itemIndex) => {

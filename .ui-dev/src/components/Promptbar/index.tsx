@@ -94,7 +94,15 @@ const Promptbar: React.FC<IPromptbarProps> = ({
     const list = [...items];
 
     if (currentFolder) {
-      currentFolder.prompts.push(newPrompt);
+      [...list].forEach((item, itemIndex) => {
+        if ('prompts' in item && item.id === currentFolder.id) {
+          list[itemIndex] = {
+            ...item,
+
+            prompts: [...currentFolder.prompts, newPrompt]
+          };
+        }
+      });
     } else {
       list.push(newPrompt);
     }
@@ -108,11 +116,24 @@ const Promptbar: React.FC<IPromptbarProps> = ({
   }, []);
 
   const handleUpdatePrompt = useCallback((newData: IChatPrompt) => {
-    const folder = folders.find((f) => {
+    let folder = folders.find((f) => {
       return f.id === newData.folderId;
     });
 
     const newList = [...items];
+    if (folder) {
+      folder = {
+        ...folder,
+
+        prompts: [...folder.prompts]
+      };
+
+      [...newList].forEach((item, itemIndex) => {
+        if ('prompts' in item && item.id === folder!.id) {
+          newList[itemIndex] = folder!;
+        }
+      });
+    }
 
     const list = folder ? folder.prompts : newList;
     [...list].forEach((item, itemIndex) => {
