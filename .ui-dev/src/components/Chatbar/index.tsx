@@ -165,7 +165,7 @@ const Chatbar: React.FC<IChatbarProps> = ({
 
     const list = folder ? folder.conversations : newList;
     [...list].forEach((item, itemIndex) => {
-      if (item.id === newData.id) {
+      if (!('conversations' in item) && item.id === newData.id) {
         list[itemIndex] = newData;
       }
     });
