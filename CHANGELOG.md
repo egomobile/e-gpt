@@ -3,6 +3,7 @@
 ## 0.7.0
 
 - reimplement UI, which is inspired by [Chatbot UI](https://github.com/mckaywrigley/chatbot-ui) project
+- (bug-)fix and other improvements
 
 ## 0.6.0
 
