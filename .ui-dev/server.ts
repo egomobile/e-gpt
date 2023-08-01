@@ -14,11 +14,12 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import _ from 'lodash';
+import axios from 'axios';
 import cors from 'cors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { createServer, json } from '@egomobile/http-server';
+import { createServer, json, query } from '@egomobile/http-server';
 
 interface IChatBody {
     conversation: string[];
@@ -131,6 +132,28 @@ async function main() {
             'Content-Length': String(data.length)
         });
         response.write(data);
+    });
+
+    app.get('/api/download', {
+        autoEnd: false,
+        use: [query()]
+    }, async (request, response) => {
+        let downloadUrl = request.query!.get('u')!.trim();
+        if (!downloadUrl.startsWith('http')) {
+            downloadUrl = `https://${downloadUrl}`;
+        }
+
+        const {
+            data, headers, status
+        } = await axios.get<NodeJS.ReadableStream>(downloadUrl, {
+            responseType: 'stream'
+        });
+
+        response.writeHead(status, {
+            ...(headers as any)
+        });
+
+        data.pipe(response);
     });
 
     await app.listen(8181);

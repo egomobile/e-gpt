@@ -15,9 +15,11 @@
 
 // system imports
 import _ from 'lodash';
+import striptags from 'striptags';
 import UAParser from 'ua-parser-js';
 import { toStringSafe } from "@egomobile/nodelike-utils";
 import type { Nilable, Optional } from "@egomobile/types";
+import { parse as parseHtml } from 'node-html-parser';
 
 // internal imports
 import { IChatConversation, IChatPrompt, IFolder, IVariable, VariableInputType } from '../types';
@@ -423,11 +425,44 @@ export function toSearchString(val: any, options?: Nilable<IToSearchStringOption
     .trim();
 
   if (shouldRemoveWhitespaces) {
-    // this also has to be 100% browser compatible
-    result = result.split(" ")
-      .join("")
+    result = result.replaceAll(" ", "")
       .trim();
   }
 
   return result;
+}
+
+/**
+ * Handles an input value as HTML string an tries to return the non-HTML content part.
+ *
+ * @param {any} val The input value, handled as HTML.
+ * 
+ * @returns {string} The extracted content without HTML tags.
+ */
+export function tryGetHtmlContent(val: any): string {
+  let html = toStringSafe(val);
+
+  try {
+    const root = parseHtml(val);
+
+    const body = root.querySelector('body');
+    if (body) {
+      html = body.innerHTML;
+    }
+  } catch {
+    // ignore
+  }
+
+  let result = striptags(
+    toStringSafe(html)
+  );
+  result = result.replaceAll("\t", "  ")
+    .replaceAll("\n", " ")
+    .replaceAll("\r", "");
+
+  while (result.includes("  ")) {
+    result = result.replaceAll("  ", " ");
+  }
+
+  return result.trim();
 }

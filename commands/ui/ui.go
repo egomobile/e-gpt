@@ -126,6 +126,9 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 			egoUtils.AppendCorsRoute(router, "PUT", "/api/settings", egoUIHandlers.CreateUpdateSettingsHandler(), true)
 			egoUtils.AppendCorsRoute(router, "GET", "/api/settings/keys/current", egoUIHandlers.CreateGetApiKeySettingsHandler(), false)
 
+			// download
+			egoUtils.AppendCorsRoute(router, "GET", "/api/download", egoUIHandlers.CreateDownloadHandler(), false)
+
 			log.Println(fmt.Sprintf("Chat backend will listen on %v:%v ...", apiListenerAddr, apiPort))
 			log.Fatal(fasthttp.ListenAndServe(fmt.Sprintf("%v:%v", apiListenerAddr, apiPort), router.Handler))
 		},
