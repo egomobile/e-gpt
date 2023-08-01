@@ -61,6 +61,7 @@ type ChatGPTOpenAIResponseBodyChoice struct {
 type ChatApiRequestBody struct {
 	Conversation []string `json:"conversation"` // Conversation message history
 	SystemPrompt string   `json:"systemPrompt"` // System prompt message
+	Temperature  float64  `json:"temperature"`  // Sampling temperature to use
 }
 
 // ChatApiResponseBodyData represents the data field in the response body from the chat API.
@@ -78,6 +79,7 @@ func askApiProxy(clientId string, apiUrl string, authHeader string, authValue st
 	payload := ChatApiRequestBody{
 		Conversation: conversation,
 		SystemPrompt: systemPrompt,
+		Temperature:  temperature,
 	}
 
 	payloadJSON, err := json.Marshal(payload)
@@ -134,16 +136,18 @@ func askOpenAI(openaiApiKey string, systemPrompt string, temperature float64, co
 		return "", errors.New("number of conversation elements must be even")
 	}
 
-	messages := append([]ChatGPTOpenAIMessage{})
+	messages := make([]ChatGPTOpenAIMessage, 0)
 
 	messages = append(messages, ChatGPTOpenAIMessage{
 		Content: systemPrompt,
 		Role:    "system",
 	})
 	for i, content := range conversation {
-		role := "user"
+		var role string
 		if i%2 == 1 {
 			role = "assistant"
+		} else {
+			role = "user"
 		}
 
 		messages = append(messages, ChatGPTOpenAIMessage{
@@ -161,6 +165,7 @@ func askOpenAI(openaiApiKey string, systemPrompt string, temperature float64, co
 	payload := ChatGPTOpenAIRequestBody{
 		FrequencyPenalty: frequencyPenalty,
 		MaxTokens:        maxToken,
+		Messages:         messages,
 		Model:            model,
 		PresencePenalty:  presencePenalty,
 		Stop:             stop,
