@@ -198,9 +198,13 @@ const Chatbar: React.FC<IChatbarProps> = ({
 
     const newItemList = [...items];
 
-    newItemList.forEach((item) => {
-      if ('conversations' in item) {
-        folder.title = newTitle;
+    [...newItemList].forEach((item, itemIndex) => {
+      if ('conversations' in item && item.id === folder.id) {
+        newItemList[itemIndex] = {
+          ...item,
+
+          title: newTitle
+        };
       }
     });
 

@@ -14,6 +14,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // system imports
+import _ from 'lodash';
 import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Nilable, Nullable } from '@egomobile/types';
@@ -30,17 +31,22 @@ import './App.css';
 
 const App: React.FC = () => {
   const [apiKeySettings, setApiKeySettings] = useState<Nullable<IApiKeySettings>>(null);
-  const [conversationItems, setConversationItems] = useState<Nullable<ChatConversationItem[]>>(null);
+  const [currentSettings, setCurrentSettings] = useState<ISettings>({
+    conversationItems: null,
+    promptItems: null
+  });
   const [isInitialized, setIsInitialized] = useState(false);
-  const [promptItems, setPromptItems] = useState<Nullable<ChatPromptItem[]>>(null);
   const [selectedConversation, setSelectedConversation] = useState<Nilable<IChatConversation>>(null);
 
-  const currentSettings: ISettings = useMemo(() => {
+  const {
+    conversationItems,
+    promptItems
+  } = useMemo(() => {
     return {
-      conversationItems,
-      promptItems
+      conversationItems: currentSettings.conversationItems,
+      promptItems: currentSettings.promptItems,
     };
-  }, [conversationItems, promptItems]);
+  }, [currentSettings.conversationItems, currentSettings.promptItems]);
 
   const appContext: IAppContext = useMemo(() => {
     return {
@@ -122,10 +128,14 @@ const App: React.FC = () => {
       return;
     }
 
-    const newSettings = {
+    const newSettings: ISettings = {
       conversationItems: newConversationList,
       promptItems: newPromptList
     };
+
+    if (_.isEqual(currentSettings, newSettings)) {
+      return;
+    }
 
     try {
       const {
@@ -135,10 +145,12 @@ const App: React.FC = () => {
       if (status !== 204) {
         throw new Error(`Unexpected response: ${status}`);
       }
+
+      setCurrentSettings(newSettings);
     } catch (error) {
       console.error('[ERROR]', 'App.updateSettings', error);
     }
-  }, [isInitialized]);
+  }, [currentSettings, isInitialized]);
 
   const handleConversationDelete = useCallback((conversationId: string) => {
     if (!conversationItems) {
@@ -158,7 +170,6 @@ const App: React.FC = () => {
       }
     });
 
-    setConversationItems(newList);
     updateSettings(newList, promptItems);
 
     if (selectedConversation?.id === conversationId) {
@@ -167,8 +178,6 @@ const App: React.FC = () => {
   }, [conversationItems, promptItems, selectedConversation?.id, updateSettings]);
 
   const handleConversationItemsUpdate = useCallback((newList: ChatConversationItem[]) => {
-    setConversationItems(newList);
-
     updateSettings(newList, promptItems);
   }, [promptItems, updateSettings]);
 
@@ -203,7 +212,6 @@ const App: React.FC = () => {
 
     iterateAndUpdate(newItems);
 
-    setConversationItems(newItems);
     updateSettings(newItems, promptItems);
 
     if (selectedConversation?.id === conversation.id) {
@@ -231,26 +239,21 @@ const App: React.FC = () => {
       }
     });
 
-    setPromptItems(newList);
     updateSettings(conversationItems, newList);
   }, [conversationItems, promptItems, updateSettings]);
 
   const handlePromptItemsUpdate = useCallback((newList: ChatPromptItem[]) => {
-    setPromptItems(newList);
-
     updateSettings(conversationItems, newList);
   }, [conversationItems, updateSettings]);
 
   const handleSettingsUpdate = useCallback((newData: ISettings) => {
-    setConversationItems(newData.conversationItems ?? []);
-    setPromptItems(newData.promptItems ?? []);
+    setCurrentSettings(newData);
   }, []);
 
   useEffect(() => {
     reloadSettings()
       .then((settings) => {
-        setConversationItems(settings.conversationItems!);
-        setPromptItems(settings.promptItems!);
+        setCurrentSettings(settings);
       })
       .finally(() => {
         setIsInitialized(true);

@@ -165,9 +165,13 @@ const Promptbar: React.FC<IPromptbarProps> = ({
 
     const newItemList = [...items];
 
-    newItemList.forEach((item) => {
-      if ('prompts' in item) {
-        folder.title = newTitle;
+    [...newItemList].forEach((item, itemIndex) => {
+      if ('prompts' in item && item.id === folder.id) {
+        newItemList[itemIndex] = {
+          ...item,
+
+          title: newTitle
+        };
       }
     });
 
