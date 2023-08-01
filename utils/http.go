@@ -25,8 +25,10 @@ import (
 )
 
 // AppendRoute adds a route with CORS headers.
-func AppendCorsRoute(r *router.Router, method string, route string, handler egoTypes.FHRequestHandler) {
-	r.OPTIONS(route, SetupCorsHeaders)
+func AppendCorsRoute(r *router.Router, method string, route string, handler egoTypes.FHRequestHandler, noOptionsRoute bool) {
+	if !noOptionsRoute {
+		r.OPTIONS(route, SetupCorsHeaders)
+	}
 
 	r.Handle(method, route, func(ctx *fasthttp.RequestCtx) {
 		SetupCorsHeaders(ctx)

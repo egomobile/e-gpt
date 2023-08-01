@@ -118,15 +118,13 @@ func Init_ui_Command(rootCmd *cobra.Command) {
 				options.NoSystemInfo = noSysInfo
 				options.NoTime = noTime
 
-				egoUtils.AppendCorsRoute(router, "POST", "/api/chat", egoUIHandlers.CreateChatHandler(options))
+				egoUtils.AppendCorsRoute(router, "POST", "/api/chat", egoUIHandlers.CreateChatHandler(options), false)
 			}
 
 			// get settings
-			egoUtils.AppendCorsRoute(router, "GET", "/api/settings", egoUIHandlers.CreateGetSettingsHandler())
-			egoUtils.AppendCorsRoute(router, "GET", "/api/settings/keys/current", egoUIHandlers.CreateGetApiKeySettingsHandler())
-
-			// update settings
-			egoUtils.AppendCorsRoute(router, "PUT", "/api/settings", egoUIHandlers.CreateUpdateSettingsHandler())
+			egoUtils.AppendCorsRoute(router, "GET", "/api/settings", egoUIHandlers.CreateGetSettingsHandler(), false)
+			egoUtils.AppendCorsRoute(router, "PUT", "/api/settings", egoUIHandlers.CreateUpdateSettingsHandler(), true)
+			egoUtils.AppendCorsRoute(router, "GET", "/api/settings/keys/current", egoUIHandlers.CreateGetApiKeySettingsHandler(), false)
 
 			log.Println(fmt.Sprintf("Chat backend will listen on %v:%v ...", apiListenerAddr, apiPort))
 			log.Fatal(fasthttp.ListenAndServe(fmt.Sprintf("%v:%v", apiListenerAddr, apiPort), router.Handler))
