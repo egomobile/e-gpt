@@ -51,14 +51,14 @@ const Chat: React.FC<IChatProps> = ({
   const [showScrollDownButton, setShowScrollDownButton] =
     useState<boolean>(false);
 
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
-  const [isSending, setIsSending] = useState(false);
-  const [lastError, setLastError] = useState<Nilable<ILastError>>(null);
-
   const {
     apiKeySettings,
     selectedConversation
   } = useAppContext();
+
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
+  const [isSending, setIsSending] = useState(false);
+  const [lastError, setLastError] = useState<Nilable<ILastError>>(null);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -114,7 +114,7 @@ const Chat: React.FC<IChatProps> = ({
     onConversationUpdate({
       ...conversation,
 
-      systemPrompt: newPrompt,
+      systemPrompt: newPrompt.trim(),
     });
   }, [onConversationUpdate]);
 
@@ -370,7 +370,8 @@ const Chat: React.FC<IChatProps> = ({
       <TemperatureSlider
         label={label}
         disabled={isSending}
-        onTemperatureChange={(temperature) => {
+        conversation={selectedConversation}
+        onChange={(temperature) => {
           handleUpdateConversationTemperatureChange(selectedConversation, temperature);
         }}
       />
@@ -396,7 +397,7 @@ const Chat: React.FC<IChatProps> = ({
                   conversation={selectedConversation}
                   disabled={isSending || !!selectedConversation?.messages.length}
                   prompts={prompts}
-                  onPromptChange={(prompt) => {
+                  onChange={(prompt) => {
                     handleUpdateConversationPromptChange(selectedConversation, prompt);
                   }}
                 />

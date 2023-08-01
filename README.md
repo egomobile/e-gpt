@@ -8,6 +8,8 @@
 
 > e.GPT is a command line tool that interacts with [ChatGPT API](https://platform.openai.com/docs/guides/gpt) directly or indirectly, without the need of having an environment like [Node.js](https://nodejs.org/) or [Python](https://www.python.org/) installed.
 
+![Demo 1](./assets/egpt-demo1.gif)
+
 <a name="toc"></a>
 
 ## Table of contents

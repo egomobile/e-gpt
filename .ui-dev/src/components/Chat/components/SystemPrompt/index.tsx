@@ -26,7 +26,7 @@ import { filterChatPrompts, parseFinalContentWithVariables, parseVariables } fro
 interface ISystemPromptProps {
   conversation: IChatConversation;
   disabled: boolean;
-  onPromptChange: (prompt: string) => void;
+  onChange: (prompt: string) => void;
   prompts: IChatPrompt[];
 }
 
@@ -34,7 +34,7 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
   conversation,
   disabled,
   prompts,
-  onPromptChange,
+  onChange,
 }) => {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -80,10 +80,10 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
 
     if (raiseUpdateEvents) {
       if (v.trim().length) {
-        onPromptChange(v);
+        onChange(v);
       }
     }
-  }, [maxLength, onPromptChange, updatePromptListVisibility, value.length]);
+  }, [maxLength, onChange, updatePromptListVisibility, value.length]);
 
   const handlePromptSelect = useCallback((prompt: IChatPrompt) => {
     const parsedVariables = parseVariables(prompt.content);
@@ -95,11 +95,11 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
       const updatedContent = value?.replace(/\/\w*$/, prompt.content);
 
       setValue(updatedContent);
-      onPromptChange(updatedContent);
+      onChange(updatedContent);
 
       updatePromptListVisibility(prompt.content);
     }
-  }, [onPromptChange, updatePromptListVisibility, value]);
+  }, [onChange, updatePromptListVisibility, value]);
 
   const handleInitModal = useCallback(() => {
     const selectedPrompt = filteredPrompts[activePromptIndex];
@@ -124,14 +124,14 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
       variables,
     }).then((newContent) => {
       setValue(newContent || '');
-      onPromptChange(newContent || '');
+      onChange(newContent || '');
     }).catch(console.error)
       .finally(() => {
         setIsSubmitting(false);
 
         textareaRef.current?.focus();
       });
-  }, [isSubmitting, onPromptChange, value, variables]);
+  }, [isSubmitting, onChange, value, variables]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (showPromptList) {
@@ -173,7 +173,7 @@ const SystemPrompt: React.FC<ISystemPromptProps> = ({
     setValue(conversation.systemPrompt?.trim() || defaultSystemPrompt);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [conversation]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {

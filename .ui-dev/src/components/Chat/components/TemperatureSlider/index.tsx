@@ -17,37 +17,35 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 // internal imports
-import useAppContext from '../../../../hooks/useAppContext';
 import { defaultTemperature } from '../../../../constants';
+import type { IChatConversation } from '../../../../types';
 
 interface ITemperatureSliderProps {
+  conversation: IChatConversation;
   disabled?: boolean;
   label: React.ReactNode;
-  onTemperatureChange: (temperature: number) => void;
+  onChange: (temperature: number) => void;
 }
 
 const TemperatureSlider: React.FC<ITemperatureSliderProps> = ({
+  conversation,
   label,
-  onTemperatureChange,
+  onChange,
 }) => {
-  const {
-    selectedConversation
-  } = useAppContext();
-
   const [temperature, setTemperature] = useState<number>(defaultTemperature);
 
   const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(event.target.value.trim());
 
     setTemperature(newValue);
-    onTemperatureChange(newValue);
-  }, [onTemperatureChange]);
+    onChange(newValue);
+  }, [onChange]);
 
   useEffect(() => {
-    setTemperature(selectedConversation?.temperature ?? defaultTemperature)
+    setTemperature(conversation?.temperature ?? defaultTemperature)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [conversation]);
 
   return (
     <div className="flex flex-col">
