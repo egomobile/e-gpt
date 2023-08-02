@@ -194,11 +194,11 @@ const Chat: React.FC<IChatProps> = ({
 
       done(null);
 
-      onRefresh({
+      onRefresh(_.cloneDeep({
         ...selectedConversation,
 
-        messages: conversationMessages
-      });
+        messages: [...conversationMessages]
+      }));
     } catch (error: any) {
       console.error('[ERROR]', 'Chat.handleSend(1)', error);
 
@@ -309,11 +309,11 @@ const Chat: React.FC<IChatProps> = ({
             message={message}
             messageIndex={index}
             onDelete={(messageIndex, conversation) => {
-              const copyOfConversation = {
-                ...conversation
-              };
+              const copyOfConversation = _.clone({
+                ...conversation,
 
-              copyOfConversation.messages = conversation.messages.slice(0, index);
+                messages: conversation.messages.slice(0, messageIndex)
+              });
 
               onConversationUpdate(copyOfConversation);
               if (copyOfConversation.id === selectedConversation?.id) {
@@ -321,12 +321,11 @@ const Chat: React.FC<IChatProps> = ({
               }
             }}
             onEdit={(editedMessage, conversation) => {
-              const copyOfConversation = {
-                ...conversation
-              };
-              copyOfConversation.messages = [
-                ...conversation.messages
-              ];
+              const copyOfConversation = _.clone({
+                ...conversation,
+
+                messages: [...conversation.messages]
+              });
 
               copyOfConversation.messages[index] = editedMessage;
 

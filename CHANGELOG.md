@@ -1,10 +1,10 @@
 # Change Log (e.GPT)
 
-## 0.8.0
+## 0.8.1
 
 - implement import dialog, which downloads content from a website as additional text into input field
 
-## 0.7.0
+## 0.7.3
 
 - reimplement UI, which is inspired by [Chatbot UI](https://github.com/mckaywrigley/chatbot-ui) project
 - (bug-)fix and other improvements

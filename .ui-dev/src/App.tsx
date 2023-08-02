@@ -25,6 +25,7 @@ import Chat from './components/Chat';
 import Chatbar from './components/Chatbar';
 import Promptbar from './components/Promptbar';
 import type { ChatConversationItem, ChatPromptItem, IApiKeySettings, IAppContext, IChatConversation, ISettings } from './types';
+import { replaceNewConversationInList } from './utils';
 
 // styles
 import './App.css';
@@ -118,7 +119,8 @@ const App: React.FC = () => {
 
   const updateSettings = useCallback(async (
     newConversationList: Nilable<ChatConversationItem[]>,
-    newPromptList: Nilable<ChatPromptItem[]>
+    newPromptList: Nilable<ChatPromptItem[]>,
+    force = false
   ) => {
     if (!isInitialized) {
       return;
@@ -133,7 +135,7 @@ const App: React.FC = () => {
       promptItems: newPromptList
     };
 
-    if (_.isEqual(currentSettings, newSettings)) {
+    if (!force && _.isEqual(currentSettings, newSettings)) {
       return;
     }
 
@@ -183,11 +185,17 @@ const App: React.FC = () => {
 
   const handleRefresh = useCallback((newSelectedConversation: Nilable<IChatConversation>) => {
     if (newSelectedConversation) {
+      updateSettings(
+        replaceNewConversationInList(currentSettings.conversationItems, newSelectedConversation),
+        promptItems,
+        true
+      );
+
       setSelectedConversation(newSelectedConversation);
     } else {
-      setSelectedConversation(newSelectedConversation === null ? undefined : null)
+      setSelectedConversation(newSelectedConversation === null ? undefined : null);
     }
-  }, []);
+  }, [currentSettings.conversationItems, promptItems, updateSettings]);
 
   const handleConversationUpdate = useCallback((conversation: IChatConversation) => {
     if (!conversationItems) {

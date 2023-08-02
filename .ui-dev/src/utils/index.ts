@@ -22,7 +22,16 @@ import type { Nilable, Optional } from "@egomobile/types";
 import { parse as parseHtml } from 'node-html-parser';
 
 // internal imports
-import { IChatConversation, IChatPrompt, IFolder, IVariable, VariableInputType } from '../types';
+import { ChatConversationItem, IChatConversation, IChatPrompt, IFolder, IVariable, VariableInputType } from '../types';
+
+/**
+ * An action for a list iteration for an item.
+ * 
+ * @param {T} item The current item.
+ * @param {number} index The zero-based index.
+ * @param {T[]} orgArr The original input array.
+ */
+export type ForEachAction<T = any> = (item: T, index: number, orgArr: T[]) => any;
 
 /**
  * Options for `parseFinalContentWithVariables()` function.
@@ -116,6 +125,18 @@ export function filterChatPrompts(prompts: IChatPrompt[], searchTerm: any): ICha
     return parts.every((p) => {
       return title.includes(p);
     });
+  });
+}
+
+/**
+ * Creates a copy of an array and iterates over it.
+ *
+ * @param {T[]} arr The original input array.
+ * @param {ForEachAction<T>} action The action to invoke.
+ */
+export function forEachOfCopy<T>(arr: T[], action: ForEachAction<T>): void {
+  [...arr].forEach((item, index) => {
+    action(item, index, arr);
   });
 }
 
@@ -327,6 +348,49 @@ export function parseVariables(content: any): IVariable[] {
   }
 
   return foundVariables;
+}
+
+/**
+ * Replaces an `IChatConversation` in an list of `ChatConversationItem` items.
+ * @param {Nilable<ChatConversationItem[]>} items The input list.
+ * @param {IChatConversation} conversation The current item.
+ *
+ * @returns {Nilable<ChatConversationItem[]>} The copy of `items` with the new, original element from `conversation`.
+ */
+export function replaceNewConversationInList(
+  items: Nilable<ChatConversationItem[]>,
+  conversation: IChatConversation
+): Nilable<ChatConversationItem[]> {
+  if (!items) {
+    return items;
+  }
+
+  const replaceWithItemIn = (list: ChatConversationItem[]) => {
+    forEachOfCopy(list, (item, index, orgArr) => {
+      if (!('conversations' in item) && item.id === conversation.id) {
+        orgArr[index] = conversation;
+      }
+    });
+  };
+
+  const cloneOfItems = [...items.map(_.cloneDeep)];
+
+  if (conversation.folderId) {
+    forEachOfCopy(cloneOfItems, (item, index, orgArr) => {
+      if ('conversations' in item && item.id === conversation.folderId) {
+        const clonedItem = _.cloneDeep(item);
+        replaceWithItemIn(clonedItem.conversations);
+
+        orgArr[index] = clonedItem;
+      }
+    });
+  } else {
+    replaceWithItemIn(cloneOfItems);
+  }
+
+  return JSON.parse(
+    JSON.stringify(cloneOfItems)
+  );
 }
 
 /**
