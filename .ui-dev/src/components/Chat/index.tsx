@@ -169,8 +169,8 @@ const Chat: React.FC<IChatProps> = ({
         defaultTemperature;
 
       const postData = {
+        systemPrompt,
         conversation: [
-          systemPrompt,
           ...conversationMessages.map((cm) => {
             return cm.content;
           }),

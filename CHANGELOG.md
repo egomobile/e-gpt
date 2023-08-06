@@ -1,6 +1,6 @@
 # Change Log (e.GPT)
 
-## 0.8.1
+## 0.8.2
 
 - implement import dialog, which downloads content from a website as additional text into input field
 
