@@ -185,6 +185,7 @@ func askOpenAI(openaiApiKey string, systemPrompt string, temperature float64, co
 	}
 
 	chatRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %v", openaiApiKey))
+	chatRequest.Header.Set("Content-Type", "application/json; CHARSET=UTF-8")
 
 	httpClient := &http.Client{}
 
