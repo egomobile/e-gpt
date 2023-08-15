@@ -132,8 +132,8 @@ func askOpenAI(openaiApiKey string, systemPrompt string, temperature float64, co
 		return "", errors.New("conversation must have at least one element")
 	}
 
-	if len(conversation)%2 != 0 {
-		return "", errors.New("number of conversation elements must be even")
+	if len(conversation)%2 == 0 {
+		return "", errors.New("number of conversation elements must be odd")
 	}
 
 	messages := make([]ChatGPTOpenAIMessage, 0)
