@@ -30,6 +30,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/pkoukk/tiktoken-go"
 )
 
 type OAuth2TokenResponse struct {
@@ -107,6 +109,18 @@ func getResponseErrorMessage(message string, response *http.Response) string {
 	}
 
 	return errorMessage
+}
+
+func CountTokens(text string) (int, error) {
+	tkm, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
+	if err != nil {
+		return 0, err
+	}
+
+	// encode
+	token := tkm.Encode(text, nil, nil)
+
+	return len(token), nil
 }
 
 // EnsureDir checks if a directory exists at the given path. If it doesn't exist, it creates a directory with the given path.
