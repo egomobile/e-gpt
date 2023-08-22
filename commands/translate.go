@@ -31,7 +31,7 @@ import (
 
 func Init_translate_Command(rootCmd *cobra.Command) {
 	var language string
-	var noNewLine bool
+	var noNewLine bool = egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting()
 	var openEditor bool
 	var temperature float64
 
@@ -84,8 +84,8 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 	translateCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
 	translateCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	translateCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
-	translateCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
-	translateCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
+	translateCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
+	translateCmd.Flags().BoolVarP(&noNewLine, "nnl", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
 
 	rootCmd.AddCommand(translateCmd)
 }

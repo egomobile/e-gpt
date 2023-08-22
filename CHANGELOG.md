@@ -1,5 +1,9 @@
 # Change Log (e.GPT)
 
+## 0.10.0
+
+- add optional check of `CHAT_ANSWER_NO_NEW_LINE` environment variable to setup a default behavior
+
 ## 0.9.0
 
 - new line string is added to answers automatically now by default ... added `no-new-line` flag to setup legacy behavior

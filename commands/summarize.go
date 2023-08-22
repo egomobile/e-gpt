@@ -32,7 +32,7 @@ import (
 func Init_summarize_Command(rootCmd *cobra.Command) {
 	var language string
 	var maxSize int32
-	var noNewLine bool
+	var noNewLine bool = egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting()
 	var openEditor bool
 	var temperature float64
 
@@ -90,8 +90,8 @@ func Init_summarize_Command(rootCmd *cobra.Command) {
 	summarizeCmd.Flags().Int32VarP(&maxSize, "ml", "", 1000, "Maximum number of characters")
 	summarizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	summarizeCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
-	summarizeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
-	summarizeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
+	summarizeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
+	summarizeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
 
 	rootCmd.AddCommand(summarizeCmd)
 }

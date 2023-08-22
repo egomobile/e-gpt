@@ -27,7 +27,7 @@ import (
 )
 
 func Init_code_Command(rootCmd *cobra.Command) {
-	var noNewLine bool
+	var noNewLine bool = egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting()
 	var openEditor bool
 	var temperature float64
 
@@ -72,8 +72,8 @@ If the user does not specify a programming language you have to use TypeScript f
 
 	codeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	codeCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
-	codeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
-	codeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
+	codeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
+	codeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", egoUtils.GetDefaultAddNoNewLineToChatAnswerSetting(), "Do not add new line at the end")
 
 	rootCmd.AddCommand(codeCmd)
 }

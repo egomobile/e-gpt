@@ -233,6 +233,12 @@ func GetEnvFilePath() (string, error) {
 	return path.Join(homeDir, ".egpt/.env"), nil
 }
 
+// GetDefaultAddNoNewLineToChatAnswerSetting gets the default value for the setting, NOT adding
+// a new line to each answer of a chat to STDOUT
+func GetDefaultAddNoNewLineToChatAnswerSetting() bool {
+	return IsTruthy(os.Getenv("CHAT_ANSWER_NO_NEW_LINE"))
+}
+
 // GetInput function retrieves user input from the command-line arguments, standard input, or an editor
 func GetInput(args []string, openEditor bool) (string, error) {
 	// first add arguments from CLI
@@ -424,6 +430,22 @@ func GetUISettingsFilePath() (string, error) {
 	}
 
 	return path.Join(homeDir, ".egpt/settings.ui.json"), nil
+}
+
+// IsTruthy checks if a string value is a "truthy" value like: "true", "t", "1", "y", "yes", "yeah", "✅", "👍"
+func IsTruthy(val string) bool {
+	val = strings.TrimSpace(strings.ToLower(val))
+
+	truthyVals := make([]string, 0)
+	truthyVals = append(truthyVals, "true", "t", "1", "y", "yes", "yeah", "✅", "👍")
+
+	for _, item := range truthyVals {
+		if item == val {
+			return true
+		}
+	}
+
+	return false
 }
 
 // RemoveMarkdownCode removes the beginning and ending backticks from the given string.
