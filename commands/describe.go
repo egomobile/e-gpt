@@ -16,6 +16,7 @@ import (
 )
 
 func Init_describe_Command(rootCmd *cobra.Command) {
+	var noNewLine bool
 	var openEditor bool
 	var temperature float64
 
@@ -87,13 +88,15 @@ If you need to store any data, assume it will be stored in the chat.
 
 			err = quick.Highlight(os.Stdout, answer, "markdown", "", "monokai")
 			if err != nil {
-				os.Stdout.WriteString(fmt.Sprintln(answer))
+				egoUtils.WriteStringToStdOut(answer, !noNewLine)
 			}
 		},
 	}
 
 	describeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	describeCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
+	describeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
+	describeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
 
 	rootCmd.AddCommand(describeCmd)
 }

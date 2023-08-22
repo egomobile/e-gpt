@@ -31,6 +31,7 @@ import (
 
 func Init_explain_Command(rootCmd *cobra.Command) {
 	var language string
+	var noNewLine bool
 	var openEditor bool
 	var temperature float64
 
@@ -67,7 +68,7 @@ Ignore any potential risk of errors or confusion`,
 			}
 
 			outputPlain := func() {
-				os.Stdout.Write([]byte(answer))
+				egoUtils.WriteStringToStdOut(answer, !noNewLine)
 			}
 
 			err = quick.Highlight(os.Stdout, answer, "markdown", "", "monokai")
@@ -80,6 +81,8 @@ Ignore any potential risk of errors or confusion`,
 	explainCmd.Flags().StringVarP(&language, "language", "l", defaultProgrammingLanguage, "Custom programming language")
 	explainCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	explainCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
+	explainCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
+	explainCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
 
 	rootCmd.AddCommand(explainCmd)
 }

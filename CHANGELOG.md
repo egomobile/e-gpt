@@ -1,5 +1,9 @@
 # Change Log (e.GPT)
 
+## 0.9.0
+
+- new line string is added to answers automatically now by default ... added `no-new-line` flag to setup legacy behavior
+
 ## 0.8.2
 
 - implement import dialog, which downloads content from a website as additional text into input field

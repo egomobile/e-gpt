@@ -31,6 +31,7 @@ import (
 
 func Init_translate_Command(rootCmd *cobra.Command) {
 	var language string
+	var noNewLine bool
 	var openEditor bool
 	var temperature float64
 
@@ -70,7 +71,7 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 			}
 
 			outputPlain := func() {
-				os.Stdout.Write([]byte(answer))
+				egoUtils.WriteStringToStdOut(answer, !noNewLine)
 			}
 
 			err = quick.Highlight(os.Stdout, answer, "markdown", "", "monokai")
@@ -83,6 +84,8 @@ func Init_translate_Command(rootCmd *cobra.Command) {
 	translateCmd.Flags().StringVarP(&language, "language", "l", defaultLanguage, "Custom output language")
 	translateCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	translateCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
+	translateCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
+	translateCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
 
 	rootCmd.AddCommand(translateCmd)
 }

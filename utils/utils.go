@@ -503,3 +503,15 @@ func TryOpen(resource string) error {
 
 	return err
 }
+
+func WriteStringToStdOut(str string, withNewline bool) {
+	WriteToStdOut([]byte(str), withNewline)
+}
+
+func WriteToStdOut(data []byte, withNewline bool) {
+	os.Stdout.Write(data)
+
+	if withNewline {
+		os.Stdout.WriteString(fmt.Sprintln())
+	}
+}

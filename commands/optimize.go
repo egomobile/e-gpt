@@ -31,6 +31,7 @@ import (
 
 func Init_optimize_Command(rootCmd *cobra.Command) {
 	var language string
+	var noNewLine bool
 	var openEditor bool
 	var temperature float64
 
@@ -75,7 +76,7 @@ Ignore any potential risk of errors or confusion.%v`, "\n"),
 			}
 
 			outputPlain := func() {
-				os.Stdout.Write([]byte(answer))
+				egoUtils.WriteStringToStdOut(answer, !noNewLine)
 			}
 
 			err = quick.Highlight(os.Stdout, answer, "markdown", "", "monokai")
@@ -88,6 +89,8 @@ Ignore any potential risk of errors or confusion.%v`, "\n"),
 	optimizeCmd.Flags().StringVarP(&language, "language", "l", "", "Explicit programming language")
 	optimizeCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	optimizeCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
+	optimizeCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
+	optimizeCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
 
 	rootCmd.AddCommand(optimizeCmd)
 }

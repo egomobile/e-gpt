@@ -31,6 +31,7 @@ import (
 
 func Init_ask_Command(rootCmd *cobra.Command) {
 	var noAdditionalInfo bool
+	var noNewLine bool
 	var noSysInfo bool
 	var noTime bool
 	var openEditor bool
@@ -112,7 +113,7 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 			}
 
 			outputPlain := func() {
-				os.Stdout.Write([]byte(answer))
+				egoUtils.WriteStringToStdOut(answer, !noNewLine)
 			}
 
 			if shouldOutputAsPlainText {
@@ -137,6 +138,8 @@ func Init_ask_Command(rootCmd *cobra.Command) {
 	askCmd.Flags().BoolVarP(&shouldOutputAsPlainText, "pt", "", false, "Output as plain text")
 	askCmd.Flags().BoolVarP(&openEditor, "editor", "e", false, "Open editor for input")
 	askCmd.Flags().Float64VarP(&temperature, "temperature", "t", getDefaultTemperature(), "Custom temperature between 0 and 2")
+	askCmd.Flags().BoolVarP(&noNewLine, "no-new-line", "", false, "Do not add new line at the end")
+	askCmd.Flags().BoolVarP(&noNewLine, "nnl", "", false, "Do not add new line at the end")
 
 	rootCmd.AddCommand(askCmd)
 }
