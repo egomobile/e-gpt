@@ -1,5 +1,9 @@
 # Change Log (e.GPT)
 
+## 0.11.0
+
+- implement `fix` command
+
 ## 0.10.0
 
 - add optional check of `CHAT_ANSWER_NO_NEW_LINE` environment variable to setup a default behavior

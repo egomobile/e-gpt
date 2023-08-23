@@ -1,6 +1,6 @@
 # [e.GPT](../README.md) :: [Examples](./README.md) :: Describe shell command
 
-> Handles a user input as shell command and tries to describe it.
+> Handles a user input as a shell command and attempts to provide a description of it.
 
 ```bash
 egpt describe "i need a Fibonacci function"

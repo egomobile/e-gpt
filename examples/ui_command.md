@@ -1,6 +1,6 @@
 # [e.GPT](../README.md) :: [Examples](./README.md) :: Run local UI
 
-> Serves a local web UI.
+> Runs and serves a local web user interface.
 
 ```bash
 egpt ui

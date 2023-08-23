@@ -1,6 +1,6 @@
 # [e.GPT](../README.md) :: [Examples](./README.md) :: Summarize text
 
-> Summarize a long text.
+> Summarizes a long text.
 
 ```bash
 egpt summarize --max-length=10000 --language=chinese < ./long-article.txt

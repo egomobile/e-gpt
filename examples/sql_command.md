@@ -1,6 +1,6 @@
 # [e.GPT](../README.md) :: [Examples](./README.md) :: Execute SQL from human language
 
-> Execute SQL from human language.
+> Executes SQL from human language.
 
 ```bash
 egpt sql --csv "list all customers with last name Musk and select only name and address columns"
@@ -15,12 +15,13 @@ The following statements will be executed:
 [E]xecute, [a]bort
 ```
 
-Keep in mind: `E` is the default selection and will execute the given command.
+Keep in mind that `E` is the default selection and will execute the given command.
 
-To setup the database connection, you can
+To set up the database connection, you can:
 
-- setup `DATABASE_URL` environment variable with a connection string
-- use `connection` CLI flag with a connection string
+- Use the `connection` CLI flag with a connection string.
+- Set up the `DATABASE_URL` environment variable with a connection string.
 
-Currently supported are:
+Currently, the following are supported:
+
 - [PostgreSQL](https://github.com/lib/pq)
