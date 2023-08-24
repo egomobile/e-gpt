@@ -66,7 +66,7 @@ func Init_fix_Command(rootCmd *cobra.Command) {
 			)
 			systemPrompt.WriteString(
 				fmt.Sprintf(
-					"Output translated text only in %v language.\n",
+					"Respond only in %v language.\n",
 					outputLanguage,
 				),
 			)

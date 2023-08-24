@@ -1,6 +1,6 @@
 # Change Log (e.GPT)
 
-## 0.11.0
+## 0.11.1
 
 - implement `fix` command
 
