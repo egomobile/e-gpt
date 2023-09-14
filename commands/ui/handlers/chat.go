@@ -31,8 +31,9 @@ import (
 
 // ChatRequest represents a chat request data structure
 type ChatRequest struct {
-	Conversation []string `json:"conversation"` // Conversation represents the conversation history of the chat request
-	Temperature  *float64 `json:"temperature"`  // Temperature represents the temperature to use for generating the response
+	Conversation []string `json:"conversation"`           // Conversation represents the conversation history of the chat request
+	SystemPrompt string   `json:"systemPrompt,omitempty"` // system prompt
+	Temperature  *float64 `json:"temperature"`            // Temperature represents the temperature to use for generating the response
 }
 
 // ChatResponse represents a chat response data structure
@@ -85,26 +86,19 @@ func CreateChatHandler(options CreateChatHandlerOptions) egoTypes.FHRequestHandl
 		}
 
 		var additionalInfo []string
-		var systemPromptBuff bytes.Buffer
 
 		addInfos := func(infos ...string) {
 			additionalInfo = append(additionalInfo, infos...)
 		}
 
-		customSystemPrompt := strings.TrimSpace(options.CustomSystemPrompt)
-		if customSystemPrompt != "" {
-			systemPromptBuff.WriteString(fmt.Sprintln(customSystemPrompt))
-		} else {
-			defaultSystemPrompt, _, err := egoUtils.GetSystemPrompt()
-			if err != nil {
-				panic(err)
-			}
-
-			systemPromptBuff.WriteString(fmt.Sprintln(defaultSystemPrompt))
-		}
+		customSystemPrompt := strings.TrimSpace(chatRequest.SystemPrompt)
 
 		var finalSystemPrompt bytes.Buffer
-		finalSystemPrompt.WriteString(systemPromptTemplate)
+		if customSystemPrompt == "" {
+			finalSystemPrompt.WriteString(systemPromptTemplate)
+		} else {
+			finalSystemPrompt.WriteString(customSystemPrompt)
+		}
 
 		if !options.NoSystemInfo {
 			if !options.NoTime {
